@@ -1,0 +1,26 @@
+START --[IsDoorOpen]--> PassThroughDoor#1
+START --[not IsDoorOpen]--> OpenDoor
+PassThroughDoor#1 --[success]--> SUCCESS
+PassThroughDoor#1 --[failure and IsDoorOpen]--> PassThroughWindow
+PassThroughDoor#1 --[failure and not IsDoorOpen]--> OpenDoor
+OpenDoor --[success]--> PassThroughDoor#2
+OpenDoor --[failure]--> PassThroughWindow
+PassThroughDoor#2 --[success]--> CloseDoor
+PassThroughDoor#2 --[failure]--> PassThroughWindow
+CloseDoor --[success]--> SUCCESS
+CloseDoor --[failure]--> PassThroughWindow
+PassThroughWindow --[success]--> SUCCESS
+PassThroughWindow --[failure]--> FAILURE
+
+notes:
+  OpenDoor: retry ×4
+
+tree           MainTree (btcpp-v3)
+nodes          13 (3 control, 2 decorator, 2 condition, 5 action, 1 subtree)
+actions        5
+reduction      62% (13 nodes -> 5 actions)
+transitions    13
+longest guard  1 term (not simplified)
+approximated   RetryUntilSuccessful ×1
+
+groot/test_data/crossdoor_with_subtree.xml:9: warning: RetryUntilSuccessful: the retry loop is folded into a note; the loop edge is not shown yet [approximated]

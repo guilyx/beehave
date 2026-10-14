@@ -1,0 +1,16 @@
+START --> FAILURE
+Pippo --[success]--> SUCCESS
+Pippo --[failure]--> FAILURE
+
+tree           BehaviorTree (btcpp-v3)
+nodes          15 (5 control, 6 decorator, 4 action)
+actions        1
+reduction      93% (15 nodes -> 1 actions)
+transitions    3
+longest guard  0 terms (not simplified)
+approximated   ReactiveFallback ×1, ReactiveSequence ×1, Repeat ×1, RetryUntilSuccessful ×1
+
+groot/test_data/show_all.xml:6: warning: ReactiveFallback: walked like a Fallback; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
+groot/test_data/show_all.xml:7: warning: Repeat: the repeat loop is folded into a note; the loop edge is not shown yet [approximated]
+groot/test_data/show_all.xml:13: warning: RetryUntilSuccessful: the retry loop is folded into a note; the loop edge is not shown yet [approximated]
+groot/test_data/show_all.xml:26: warning: ReactiveSequence: walked like a Sequence; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]

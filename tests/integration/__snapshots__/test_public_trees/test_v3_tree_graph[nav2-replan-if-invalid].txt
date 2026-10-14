@@ -1,0 +1,39 @@
+START --[GlobalUpdatedGoal]--> ComputePathToPose
+START --[not GlobalUpdatedGoal and IsPathValid(path={path})]--> ClearGlobalCostmap-Context
+START --[not GlobalUpdatedGoal and not IsPathValid(path={path})]--> ComputePathToPose
+ComputePathToPose --[success]--> ClearGlobalCostmap-Context
+ComputePathToPose --[failure]--> FAILURE
+ClearGlobalCostmap-Context --[success]--> FollowPath
+ClearGlobalCostmap-Context --[failure]--> FAILURE
+FollowPath --[success]--> ClearLocalCostmap-Context
+FollowPath --[failure]--> FAILURE
+ClearLocalCostmap-Context --[success and GoalUpdated]--> SUCCESS
+ClearLocalCostmap-Context --[success and not GoalUpdated]--> ClearLocalCostmap-Subtree
+ClearLocalCostmap-Context --[failure]--> FAILURE
+ClearLocalCostmap-Subtree --[success]--> ClearGlobalCostmap-Subtree
+ClearLocalCostmap-Subtree --[failure]--> FAILURE
+ClearGlobalCostmap-Subtree --[success]--> SpinRecovery
+ClearGlobalCostmap-Subtree --[failure]--> FAILURE
+SpinRecovery --[success]--> WaitRecovery
+SpinRecovery --[failure]--> FAILURE
+WaitRecovery --[success]--> BackUpRecovery
+WaitRecovery --[failure]--> FAILURE
+BackUpRecovery --[success]--> SUCCESS
+BackUpRecovery --[failure]--> FAILURE
+
+tree           MainTree (btcpp-v3)
+nodes          23 (9 control, 2 decorator, 3 condition, 9 action)
+actions        9
+reduction      61% (23 nodes -> 9 actions)
+transitions    22
+longest guard  2 terms (not simplified)
+approximated   PipelineSequence ×1, RateController ×1, ReactiveFallback ×1, ReactiveSequence ×1, RecoveryNode ×3, RoundRobin ×1
+
+nav2/nav2_bt_navigator/behavior_trees/navigate_w_recovery_and_replanning_only_if_path_becomes_invalid.xml:9: warning: RecoveryNode: custom control node is walked like a Sequence [unknown-control]
+nav2/nav2_bt_navigator/behavior_trees/navigate_w_recovery_and_replanning_only_if_path_becomes_invalid.xml:10: warning: PipelineSequence: custom control node is walked like a Sequence [unknown-control]
+nav2/nav2_bt_navigator/behavior_trees/navigate_w_recovery_and_replanning_only_if_path_becomes_invalid.xml:11: warning: RateController: custom decorator is treated as transparent [unknown-decorator]
+nav2/nav2_bt_navigator/behavior_trees/navigate_w_recovery_and_replanning_only_if_path_becomes_invalid.xml:12: warning: RecoveryNode: custom control node is walked like a Sequence [unknown-control]
+nav2/nav2_bt_navigator/behavior_trees/navigate_w_recovery_and_replanning_only_if_path_becomes_invalid.xml:14: warning: ReactiveSequence: walked like a Sequence; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
+nav2/nav2_bt_navigator/behavior_trees/navigate_w_recovery_and_replanning_only_if_path_becomes_invalid.xml:25: warning: RecoveryNode: custom control node is walked like a Sequence [unknown-control]
+nav2/nav2_bt_navigator/behavior_trees/navigate_w_recovery_and_replanning_only_if_path_becomes_invalid.xml:30: warning: ReactiveFallback: walked like a Fallback; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
+nav2/nav2_bt_navigator/behavior_trees/navigate_w_recovery_and_replanning_only_if_path_becomes_invalid.xml:32: warning: RoundRobin: custom control node is walked like a Sequence [unknown-control]

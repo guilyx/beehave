@@ -1,0 +1,20 @@
+START --> ComputePathToPose
+ComputePathToPose --[success]--> TruncatePath
+ComputePathToPose --[failure]--> FAILURE
+TruncatePath --[success]--> FollowPath
+TruncatePath --[failure]--> FAILURE
+FollowPath --[success]--> SUCCESS
+FollowPath --[failure]--> FAILURE
+
+tree           MainTree (btcpp-v3)
+nodes          8 (2 control, 3 decorator, 3 action)
+actions        3
+reduction      62% (8 nodes -> 3 actions)
+transitions    7
+longest guard  0 terms (not simplified)
+approximated   GoalUpdater ×1, KeepRunningUntilFailure ×1, PipelineSequence ×1, RateController ×1
+
+nav2/nav2_bt_navigator/behavior_trees/follow_point.xml:7: warning: PipelineSequence: custom control node is walked like a Sequence [unknown-control]
+nav2/nav2_bt_navigator/behavior_trees/follow_point.xml:8: warning: RateController: custom decorator is treated as transparent [unknown-decorator]
+nav2/nav2_bt_navigator/behavior_trees/follow_point.xml:10: warning: GoalUpdater: custom decorator is treated as transparent [unknown-decorator]
+nav2/nav2_bt_navigator/behavior_trees/follow_point.xml:16: warning: KeepRunningUntilFailure: never succeeds (a successful child is ticked again); walked as transparent, the loop is not shown yet [approximated]

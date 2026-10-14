@@ -1,0 +1,36 @@
+START --> ComputePathToPose
+ComputePathToPose --[success]--> ClearGlobalCostmap-Context
+ComputePathToPose --[failure]--> FAILURE
+ClearGlobalCostmap-Context --[success]--> FollowPath
+ClearGlobalCostmap-Context --[failure]--> FAILURE
+FollowPath --[success]--> ClearLocalCostmap-Context
+FollowPath --[failure]--> FAILURE
+ClearLocalCostmap-Context --[success and GoalUpdated]--> SUCCESS
+ClearLocalCostmap-Context --[success and not GoalUpdated]--> ClearLocalCostmap-Subtree
+ClearLocalCostmap-Context --[failure]--> FAILURE
+ClearLocalCostmap-Subtree --[success]--> ClearGlobalCostmap-Subtree
+ClearLocalCostmap-Subtree --[failure]--> FAILURE
+ClearGlobalCostmap-Subtree --[success]--> Spin
+ClearGlobalCostmap-Subtree --[failure]--> FAILURE
+Spin --[success]--> Wait
+Spin --[failure]--> FAILURE
+Wait --[success]--> BackUp
+Wait --[failure]--> FAILURE
+BackUp --[success]--> SUCCESS
+BackUp --[failure]--> FAILURE
+
+tree           MainTree (btcpp-v3)
+nodes          18 (7 control, 1 decorator, 1 condition, 9 action)
+actions        9
+reduction      50% (18 nodes -> 9 actions)
+transitions    20
+longest guard  1 term (not simplified)
+approximated   PipelineSequence ×1, RateController ×1, ReactiveFallback ×1, RecoveryNode ×3, RoundRobin ×1
+
+nav2/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml:9: warning: RecoveryNode: custom control node is walked like a Sequence [unknown-control]
+nav2/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml:10: warning: PipelineSequence: custom control node is walked like a Sequence [unknown-control]
+nav2/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml:11: warning: RateController: custom decorator is treated as transparent [unknown-decorator]
+nav2/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml:12: warning: RecoveryNode: custom control node is walked like a Sequence [unknown-control]
+nav2/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml:17: warning: RecoveryNode: custom control node is walked like a Sequence [unknown-control]
+nav2/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml:22: warning: ReactiveFallback: walked like a Fallback; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
+nav2/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml:24: warning: RoundRobin: custom control node is walked like a Sequence [unknown-control]
