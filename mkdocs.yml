@@ -1,0 +1,106 @@
+# Built with Zensical (`uv run --group docs zensical build`). The file stays in
+# mkdocs.yml form so it also builds with Material for MkDocs if needed.
+site_name: Beehave
+site_description: >-
+  Reads BehaviorTree.CPP trees and shows only the actions your robot can take,
+  in order, with the conditions that lead to each one.
+site_url: https://guilyx.github.io/beehave/
+site_author: Erwin Lejeune
+repo_url: https://github.com/guilyx/beehave
+repo_name: guilyx/beehave
+edit_uri: edit/main/docs/
+copyright: Copyright &copy; 2026 Erwin Lejeune and the Beehave contributors · Apache-2.0
+
+nav:
+  - Home: index.md
+  - Guide:
+      - Getting started: guide/getting-started.md
+      - Command line: guide/cli.md
+      - Configuration: guide/configuration.md
+      - Output formats: guide/output-formats.md
+      - Python API: guide/python-api.md
+  - Design:
+      - design/index.md
+      - Architecture: design/architecture.md
+      - Phase 1 specification: design/phase-1.md
+      - Phase 1 results: design/phase-1-results.md
+      - Roadmap: design/roadmap.md
+      - Key concepts: design/concepts.md
+      - Decisions (ADRs):
+          - design/adr/README.md
+          - 0001 Record decisions: design/adr/0001-record-architecture-decisions.md
+          - 0002 One model, many parsers: design/adr/0002-one-model-many-parsers.md
+          - 0003 Continuation-passing walk: design/adr/0003-continuation-passing-walk.md
+          - 0004 Approximate and report: design/adr/0004-approximate-and-report.md
+          - 0005 Minimal dependencies: design/adr/0005-python-minimal-dependencies.md
+          - 0006 Distribution name: design/adr/0006-distribution-name.md
+          - 0007 Reference interpreter: design/adr/0007-test-driven-with-a-reference-interpreter.md
+          - Template: design/adr/template.md
+  - Research:
+      - research/index.md
+      - BT.CPP v3 XML reference: research/btcpp-v3-xml.md
+      - BT.CPP v3 vs v4: research/btcpp-v3-vs-v4.md
+      - Prior art: research/prior-art.md
+      - Literature: research/literature.md
+  - Community:
+      - Contributing: https://github.com/guilyx/beehave/blob/main/CONTRIBUTING.md
+      - Code of conduct: https://github.com/guilyx/beehave/blob/main/CODE_OF_CONDUCT.md
+      - Changelog: https://github.com/guilyx/beehave/blob/main/CHANGELOG.md
+
+theme:
+  name: material
+  language: en
+  features:
+    - content.code.copy
+    - content.action.edit
+    - navigation.footer
+    - navigation.indexes
+    - navigation.instant
+    - navigation.path
+    - navigation.sections
+    - navigation.tabs
+    - navigation.top
+    - navigation.tracking
+    - search.highlight
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: lucide/moon
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: lucide/sun
+        name: Switch to light mode
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/guilyx/beehave
