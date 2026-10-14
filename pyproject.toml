@@ -63,6 +63,10 @@ lint = [
   "mypy>=1.15",
   "types-PyYAML>=6.0",
 ]
+docs = [
+  "zensical>=0.0.70",
+  "mkdocstrings-python>=1.16",
+]
 dev = [
   { include-group = "test" },
   { include-group = "lint" },
@@ -70,6 +74,9 @@ dev = [
 
 [tool.uv.build-backend]
 module-name = "beehave"
+
+[tool.uv.dependency-groups]
+docs = { requires-python = ">=3.11" }
 
 # ---------------------------------------------------------------- pytest ---
 
