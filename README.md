@@ -13,10 +13,10 @@
 
 <p align="center">
   <a href="https://github.com/guilyx/beehave/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/guilyx/beehave/actions/workflows/ci.yml/badge.svg"></a>
-  <a href="https://guilyx.github.io/beehave/"><img alt="Docs" src="https://img.shields.io/badge/docs-guilyx.github.io%2Fbeehave-1f1a14"></a>
-  <img alt="Python 3.10+" src="https://img.shields.io/badge/python-3.10%2B-1f1a14">
-  <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-1f1a14"></a>
-  <img alt="Status: alpha" src="https://img.shields.io/badge/status-alpha%20·%20phase%201-1f1a14">
+  <a href="https://guilyx.github.io/beehave/"><img alt="Docs" src="https://img.shields.io/badge/docs-guilyx.github.io%2Fbeehave-1b1813"></a>
+  <img alt="Python 3.10+" src="https://img.shields.io/badge/python-3.10%2B-1b1813">
+  <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-1b1813"></a>
+  <img alt="Status: alpha" src="https://img.shields.io/badge/status-alpha%20·%20phase%201-fcc50e">
 </p>
 
 ---
@@ -154,6 +154,7 @@ issues privately, as described in [SECURITY.md](SECURITY.md).
 
 ## License
 
-[Apache-2.0](LICENSE). Brand assets in [`.branding/`](.branding/) have their
-own [license](.branding/LICENSE.md). If you use Beehave in research, see
+[Apache-2.0](LICENSE). The brand (logo, palette, type, graph style) is
+documented in [`.branding/`](.branding/README.md); its assets have their own
+[license](.branding/LICENSE.md). If you use Beehave in research, see
 [CITATION.cff](CITATION.cff).
