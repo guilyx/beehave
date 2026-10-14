@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<!--
+  Mobile robot: navigate to a goal, with recovery and docking.
+
+  If the battery is low, go and dock. Otherwise plan a path and follow it. If
+  following fails, recover (back up when stuck, else clear the costmaps and
+  spin, else wait), then plan again and follow the new path. Node names follow
+  common ROS 2 navigation vocabulary.
+-->
+<root main_tree_to_execute="NavigateToGoal">
+  <BehaviorTree ID="NavigateToGoal">
+    <IfThenElse name="charge_or_navigate">
+      <IsBatteryLow/>
+      <SubTreePlus ID="Dock" __autoremap="true"/>
+      <Sequence name="navigate">
+        <ComputePathToPose goal="{goal}" path="{path}"/>
+        <Fallback name="follow_or_recover">
+          <FollowPath path="{path}"/>
+          <Sequence name="recover_and_retry">
+            <SubTreePlus ID="Recovery" __autoremap="true"/>
+            <ComputePathToPose name="Replan" goal="{goal}" path="{path}"/>
+            <FollowPath name="FollowNewPath" path="{path}"/>
+          </Sequence>
+        </Fallback>
+      </Sequence>
+    </IfThenElse>
+  </BehaviorTree>
+
+  <BehaviorTree ID="Dock">
+    <Sequence>
+      <ComputePathToPose name="PlanToDock" goal="{dock_pose}" path="{dock_path}"/>
+      <FollowPath name="FollowDockPath" path="{dock_path}"/>
+      <DockRobot/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="Recovery">
+    <Fallback>
+      <Sequence name="unstick">
+        <IsStuck/>
+        <BackUp distance="0.3"/>
+      </Sequence>
+      <Sequence name="reset_view">
+        <ClearCostmaps/>
+        <Spin angle="1.57"/>
+      </Sequence>
+      <Wait duration="5"/>
+    </Fallback>
+  </BehaviorTree>
+
+  <TreeNodesModel>
+    <Condition ID="IsBatteryLow"/>
+    <Condition ID="IsStuck"/>
+    <Action ID="ComputePathToPose"/>
+    <Action ID="FollowPath"/>
+    <Action ID="DockRobot"/>
+    <Action ID="BackUp"/>
+    <Action ID="ClearCostmaps"/>
+    <Action ID="Spin"/>
+    <Action ID="Wait"/>
+  </TreeNodesModel>
+</root>

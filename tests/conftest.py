@@ -4,24 +4,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
-FIXTURES = Path(__file__).parent / "fixtures"
-GOLDEN = Path(__file__).parent / "golden"
-
-
-def pytest_addoption(parser: pytest.Parser) -> None:
-    parser.addoption(
-        "--update-golden",
-        action="store_true",
-        default=False,
-        help="Rewrite golden files instead of comparing against them.",
-    )
-
-
-@pytest.fixture
-def update_golden(request: pytest.FixtureRequest) -> bool:
-    return bool(request.config.getoption("--update-golden"))
+ROOT = Path(__file__).resolve().parent.parent
+FIXTURES = ROOT / "tests" / "fixtures"
+EXAMPLES = ROOT / "examples"
 
 
 def tree_xml(body: str, *, main: str | None = "Main", extra: str = "") -> str:
