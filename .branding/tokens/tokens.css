@@ -1,4 +1,5 @@
-/* Beehave design tokens. Generated from tokens.json by tools/build_css.py; edit the JSON, not this file. */
+/* Beehave design tokens. Built from tokens.json with tools/build_css.py;
+   edit the JSON, not this file. */
 
 :root {
   color-scheme: light dark;
@@ -51,7 +52,7 @@
   --bh-warn-line: var(--bh-comb-21);
   --bh-focus: var(--bh-prussian-37);
 
-  /* Type */
+  /* Type. --bh-text-* fit the font shorthand. */
   --bh-font-sans: "Archivo", "Archivo Variable", "Helvetica Neue", "Helvetica", "Nimbus Sans", "Arial", sans-serif;
   --bh-font-mono: "Martian Mono", "Martian Mono Variable", "Menlo", "Consolas", "DejaVu Sans Mono", monospace;
   --bh-weight-regular: 400;
@@ -113,7 +114,7 @@
   --bh-dash-edge: none;
 }
 
-/* Dark theme follows the system unless a page pins data-theme="light". */
+/* Dark theme follows the system unless the page pins data-theme="light". */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
