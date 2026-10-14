@@ -15,6 +15,7 @@ nav:
   - Home: index.md
   - Guide:
       - Getting started: guide/getting-started.md
+      - Examples: guide/examples.md
       - Command line: guide/cli.md
       - Configuration: guide/configuration.md
       - Output formats: guide/output-formats.md

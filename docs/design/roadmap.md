@@ -50,8 +50,9 @@ Details: [Phase 1 specification](phase-1.md).
 
 ## Phase 3: operator view
 
-- Operator labels from a config file (an ontology: action, condition, zone,
-  mission phase), so `ResolveClosestZone` reads "Finding nearest home zone".
+- Operator labels from a config file (an ontology: action, condition,
+  target, task phase), so `ComputePathToPose` reads "Planning a route" and
+  `PlanGrasp` reads "Choosing how to hold the object".
 - A collapsed phase view (Transit, Search, Return, Land).
 - A JSON export a ground-control (C2) UI can draw once before the mission.
 - Live status: only the active action and its status go over the link.

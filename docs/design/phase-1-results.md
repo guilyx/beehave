@@ -1,14 +1,22 @@
 # Phase 1 results on public trees
 
-The design plan asks Phase 1 to run on real trees and record the metrics. Our
-own pilot trees are private, so this page records the same metrics on every
-public BT.CPP v3 tree in the test fixtures: the BehaviorTree.CPP 3.8.8
-examples, the Groot 1 test data and the Nav2 (Humble) navigator trees.
+Phase 1 has to run on real trees and record the metrics. This page records
+them for the three [example trees](../guide/examples.md) and for every public
+BT.CPP v3 tree in the test fixtures: the BehaviorTree.CPP 3.8.8 examples, the
+Groot 1 test data and the Nav2 (Humble) navigator trees.
+
+## Example trees
+
+| Tree | Robot | Nodes | Actions | Reduction | Transitions | Longest guard | Approximated (breakage) |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| `DroneMission` | multirotor | 22 | 10 | 55% | 23 | 1 | ReactiveFallback ×1, ReactiveSequence ×1, RetryUntilSuccessful ×1 |
+| `NavigateToGoal` | mobile base | 23 | 11 | 52% | 25 | 1 | none |
+| `PickAndPlace` | arm and gripper | 24 | 13 | 46% | 29 | 1 | RetryUntilSuccessful ×1 |
+
+## Public trees
 
 These numbers are produced by `beehave stats` and pinned by the snapshot tests
 in `tests/integration/test_public_trees.py`, so they cannot drift silently.
-
-## Metrics
 
 | Tree | Source | Nodes | Actions | Reduction | Transitions | Longest guard | Approximated (breakage) |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
@@ -62,5 +70,5 @@ $ beehave stats navigate_to_pose_w_replanning_and_recovery.xml nav2_tree_nodes.x
 
 - [ ] The readability gate: someone who did not write a tree answers "what
       happens if X fails?" from the graph alone.
-- [ ] The private pilot: the same metrics on our own mission and landing
-      trees.
+- [ ] More real-world trees: the same metrics on larger aerial, mobile and
+      manipulation trees contributed by users.

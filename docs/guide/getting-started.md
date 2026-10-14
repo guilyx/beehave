@@ -22,20 +22,21 @@ Humble.
 
 ## Your first graph
 
-Take a tree file, for example the landing tree used throughout these docs
-([`landing.xml`](https://github.com/guilyx/beehave/blob/main/tests/fixtures/trees/landing.xml)):
+Take a tree file, for example the drone mission from
+[the examples](examples.md)
+([`drone_mission.xml`](https://github.com/guilyx/beehave/blob/main/examples/aerial/drone_mission.xml)):
 
 ```console
-$ beehave graph landing.xml
-START --[Emergency]--> EmergencyLand
-START --[not Emergency]--> FlightDefaults
-EmergencyLand --[success]--> SUCCESS
-EmergencyLand --[failure]--> FlightDefaults
-FlightDefaults --[success and BatteryOK]--> GoToZone
-FlightDefaults --[success and not BatteryOK]--> ResolveHome
-FlightDefaults --[failure]--> FAILURE
-GoToZone --[success]--> SUCCESS
-GoToZone --[failure]--> ResolveHome
+$ beehave graph examples/aerial/drone_mission.xml
+START --[IsBatteryCritical]--> LandNow
+START --[not IsBatteryCritical]--> Arm
+LandNow --[success]--> SUCCESS
+LandNow --[failure]--> Arm
+Arm --[success]--> TakeOff
+Arm --[failure]--> FAILURE
+TakeOff --[success and IsBatteryOK]--> FlyToWaypoint
+TakeOff --[success and not IsBatteryOK]--> FlyHome
+TakeOff --[failure]--> FAILURE
 ...
 ```
 
@@ -45,32 +46,33 @@ outcome and the guard holds, the action on the right runs next.
 On stderr, Beehave also lists the nodes it could only approximate:
 
 ```text
-beehave: landing.xml:8: warning: ReactiveFallback: walked like a Fallback; its
-conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
+beehave: examples/aerial/drone_mission.xml:11: warning: ReactiveFallback: walked like
+a Fallback; its conditions are re-checked every tick, but preemption edges are not
+shown yet [approximated]
 ```
 
 ## A picture instead
 
 ```console
-$ beehave graph landing.xml -f mermaid -o landing.mmd
+$ beehave graph examples/aerial/drone_mission.xml -f mermaid -o mission.mmd
 ```
 
 Paste the result into any Markdown file on GitHub, or into
 [mermaid.live](https://mermaid.live). For Graphviz:
 
 ```console
-$ beehave graph landing.xml -f dot | dot -Tsvg > landing.svg
+$ beehave graph examples/aerial/drone_mission.xml -f dot | dot -Tsvg > mission.svg
 ```
 
 ## How much simpler is it?
 
 ```console
-$ beehave stats landing.xml
-tree           Mission (btcpp-v3)
-nodes          20 (8 control, 1 decorator, 2 condition, 8 action, 1 subtree)
-actions        8
-reduction      60% (20 nodes -> 8 actions)
-transitions    19
+$ beehave stats examples/aerial/drone_mission.xml
+tree           DroneMission (btcpp-v3)
+nodes          22 (7 control, 2 decorator, 2 condition, 10 action, 1 subtree)
+actions        10
+reduction      55% (22 nodes -> 10 actions)
+transitions    23
 longest guard  1 term (not simplified)
 approximated   ReactiveFallback ×1, ReactiveSequence ×1, RetryUntilSuccessful ×1
 ```
@@ -80,14 +82,14 @@ approximated   ReactiveFallback ×1, ReactiveSequence ×1, RetryUntilSuccessful 
 Beehave treats every custom node as an action unless it knows better. It
 knows better when:
 
-- the XML uses the explicit form `<Condition ID="BatteryOK"/>`, or
+- the XML uses the explicit form `<Condition ID="IsBatteryOK"/>`, or
 - the file declares it in `<TreeNodesModel>`, or
 - your project lists it in a `beehave.yaml` file:
 
 ```yaml
 conditions:
-  - BatteryOK
-  - IsEmergency
+  - IsBatteryOK
+  - IsObjectGrasped
 ```
 
 See [Configuration](configuration.md).

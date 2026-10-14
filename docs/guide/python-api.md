@@ -3,7 +3,7 @@
 ```python
 import beehave
 
-result = beehave.analyze("landing.xml")
+result = beehave.analyze("examples/mobile/navigate_to_goal.xml")
 
 print(beehave.to_text(result.graph))
 print(result.stats.to_text())
@@ -21,9 +21,9 @@ for action in result.graph.actions:
 from beehave import Config, build_graph, flatten, parse_file, to_mermaid
 
 document = parse_file(
-    "mission.xml", "subtrees.xml", config=Config(conditions=frozenset({"BatteryOK"}))
+    "mission.xml", "subtrees.xml", config=Config(conditions=frozenset({"IsBatteryOK"}))
 )
-tree = flatten(document, "Mission")  # inline subtrees
+tree = flatten(document, "MainTree")  # inline subtrees
 graph = build_graph(tree)  # the action graph
 print(to_mermaid(graph))
 ```
@@ -39,7 +39,7 @@ Use `parse_string(xml)` to parse XML held in memory.
 | `ActionGraph` | Vertices (`START`, actions, `SUCCESS`, `FAILURE`), edges and diagnostics. |
 | `Vertex` | A box: `id`, `kind`, `label`, `type`, `ports`, `notes`, `subtrees`, `location`. |
 | `Edge` | `source`, `target`, `outcome` (`None` from `START`) and `guard`. |
-| `Stats` | The pilot metrics; `to_text()` and `to_dict()`. |
+| `Stats` | The Phase 1 metrics; `to_text()` and `to_dict()`. |
 
 ## Errors
 

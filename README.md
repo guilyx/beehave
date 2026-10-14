@@ -23,14 +23,15 @@
 
 > **Not the Godot addon.** This Beehave is a static analysis tool for robot
 > behavior trees written for [BehaviorTree.CPP](https://www.behaviortree.dev/)
-> (ROS 2, Nav2, drones). It is unrelated to the Beehave addon for the Godot game
-> engine.
+> (ROS 2, Nav2: drones, mobile robots, manipulators). It is unrelated to the
+> Beehave addon for the Godot game engine.
 
 ## Why
 
 Behavior trees grow fast. Subtrees, fallbacks, reactive sequences and
-decorators stack up until nobody can say *what the drone actually does if the
-battery drops halfway to the zone* without tracing the XML by hand.
+decorators stack up until nobody can say *what the robot actually does when a
+step fails halfway through a task*, whether it flies, drives or grasps,
+without tracing the XML by hand.
 
 Beehave answers three questions at a glance:
 
@@ -40,11 +41,12 @@ Beehave answers three questions at a glance:
 
 ## What it does
 
-A 20-node landing tree in, an 8-action graph out. Control nodes become arrows,
-conditions become arrow labels, subtrees are inlined, retries become notes.
+A 22-node drone mission in, a 10-action graph out. Control nodes become
+arrows, conditions become arrow labels, subtrees are inlined, retries become
+notes.
 
 ```console
-$ beehave graph landing.xml -f mermaid
+$ beehave graph examples/aerial/drone_mission.xml -f mermaid
 ```
 
 ```mermaid
@@ -55,53 +57,69 @@ config:
     edgeLabelBackground: "#f5f0e9"
     lineColor: "#1b1813"
 ---
-%% Beehave action graph: Mission (btcpp-v3)
+%% Beehave action graph: DroneMission (btcpp-v3)
 flowchart TD
     start(("START"))
-    a1["EmergencyLand"]
-    a2["FlightDefaults"]
-    a3["GoToZone<br/><small>retry ×3</small>"]
-    a4["ResolveHome"]
-    a5["FlyToHome"]
-    a6["ResolveSafe"]
-    a7["FlyToSafe"]
-    a8["Land"]
+    a1["LandNow"]
+    a2["Arm"]
+    a3["TakeOff"]
+    a4["FlyToWaypoint<br/><small>retry ×3</small>"]
+    a5["CaptureImage"]
+    a6["FlyHome"]
+    a7["FindLandingSpot"]
+    a8["FlyToLandingSpot"]
+    a9["Land"]
+    a10["Disarm"]
     success(["SUCCESS"])
     failure(["FAILURE"])
-    start -->|"Emergency"| a1
-    start -->|"not Emergency"| a2
+    start -->|"IsBatteryCritical"| a1
+    start -->|"not IsBatteryCritical"| a2
     a1 -->|"success"| success
     a1 -.->|"failure"| a2
-    a2 -->|"success and BatteryOK"| a3
-    a2 -->|"success and not BatteryOK"| a4
+    a2 -->|"success"| a3
     a2 -.->|"failure"| failure
-    a3 -->|"success"| success
-    a3 -.->|"failure"| a4
+    a3 -->|"success and IsBatteryOK"| a4
+    a3 -->|"success and not IsBatteryOK"| a6
+    a3 -.->|"failure"| failure
     a4 -->|"success"| a5
-    a4 -.->|"failure"| failure
-    a5 -->|"success"| a8
+    a4 -.->|"failure"| a6
+    a5 -->|"success"| a6
     a5 -.->|"failure"| a6
-    a6 -->|"success"| a7
-    a6 -.->|"failure"| failure
+    a6 -->|"success"| a9
+    a6 -.->|"failure"| a7
     a7 -->|"success"| a8
     a7 -.->|"failure"| failure
-    a8 -->|"success"| success
+    a8 -->|"success"| a9
     a8 -.->|"failure"| failure
+    a9 -->|"success"| a10
+    a9 -.->|"failure"| failure
+    a10 -->|"success"| success
+    a10 -.->|"failure"| failure
     classDef start fill:#1b1813,stroke:#1b1813,stroke-width:1.5px,color:#f5f0e9
     classDef action fill:#fdfbf9,stroke:#1b1813,stroke-width:1.5px,color:#1b1813
     classDef success fill:#107550,stroke:#fdfbf9,stroke-width:2px,color:#fdfbf9
     classDef failure fill:#b93917,stroke:#fdfbf9,stroke-width:2px,color:#fdfbf9
     class start start
-    class a1,a2,a3,a4,a5,a6,a7,a8 action
+    class a1,a2,a3,a4,a5,a6,a7,a8,a9,a10 action
     class success success
     class failure failure
     linkStyle 0,1 stroke:#1b1813,stroke-width:1.75px
-    linkStyle 2,4,5,7,9,11,13,15,17 stroke:#107550,stroke-width:1.75px
-    linkStyle 3,6,8,10,12,14,16,18 stroke:#b93917,stroke-width:1.75px,stroke-dasharray:7 4
+    linkStyle 2,4,6,7,9,11,13,15,17,19,21 stroke:#107550,stroke-width:1.75px
+    linkStyle 3,5,8,10,12,14,16,18,20,22 stroke:#b93917,stroke-width:1.75px,stroke-dasharray:7 4
 ```
 
-"What if `GoToZone` fails?" now takes one arrow to answer. And the gap jumps
-out: `FlyToSafe` has no failure path.
+"What if the emergency landing fails?" now takes one arrow to answer, and the
+answer is a gap: `LandNow` fails over to `Arm`, so the drone would start the
+mission again.
+
+The same works for any robot. The [`examples/`](examples/) folder has three
+generic trees:
+
+| Example | Robot | Tree → graph |
+| --- | --- | --- |
+| [Drone survey mission](examples/aerial/drone_mission.xml) | Multirotor | 22 nodes → 10 actions |
+| [Navigate to a goal, with recovery and docking](examples/mobile/navigate_to_goal.xml) | Mobile base | 23 nodes → 11 actions |
+| [Pick and place](examples/manipulation/pick_and_place.xml) | Arm and gripper | 24 nodes → 13 actions |
 
 ## Install
 

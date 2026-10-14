@@ -111,7 +111,7 @@ src/beehave/
 ├── walk.py           # 3. Walk: FlatTree -> ActionGraph (continuation-passing)
 ├── graph.py          # ActionGraph, Vertex, Edge, guards
 ├── render/           # 4. Render: text, Mermaid, DOT, JSON
-├── stats.py          # pilot metrics: size, reduction, longest guard, breakage
+├── stats.py          # Phase 1 metrics: size, reduction, longest guard, breakage
 ├── diagnostics.py    # warnings about approximations, with source locations
 ├── config.py         # beehave.yaml
 ├── api.py            # beehave.analyze(): parse + flatten + walk in one call
@@ -122,9 +122,12 @@ tests/
 ├── unit/             # one file per step, small trees written inline
 │   └── __snapshots__/  # syrupy snapshots of the rendered output
 ├── property/         # Hypothesis tests against a reference interpreter
+├── integration/      # Beehave on the public trees, pinned as snapshots
 └── fixtures/
-    ├── trees/        # our own example trees
-    └── public/       # third-party trees, under their own licenses
+    └── public/       # byte-identical third-party trees, under their own licenses
+
+examples/             # aerial, mobile and manipulation trees, tested in tests/unit/test_examples.py
+scripts/              # refresh the graphs shown in the docs, sync brand assets
 
 docs/
 ├── guide/            # user documentation

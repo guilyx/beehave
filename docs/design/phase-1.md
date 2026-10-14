@@ -39,34 +39,37 @@ Phase 1 answers three questions for any BT.CPP v3 tree, at a glance:
 
 ## Before and after
 
-The landing tree from the design plan. Node names are illustrative.
+The drone survey mission from [the examples](../guide/examples.md). The
+mobile-robot and pick-and-place examples work the same way.
 
-**Before:** 20 nodes in the flattened tree, 8 of them actions.
+**Before:** 22 nodes in the flattened tree, 10 of them actions.
 
 ```mermaid
 flowchart TD
     RF[ReactiveFallback] --> RS[ReactiveSequence]
     RF --> S1[Sequence]
-    RS --> E{{Emergency?}}
-    RS --> EL[EmergencyLand]
-    S1 --> FD[FlightDefaults]
-    S1 --> F1[Fallback]
-    F1 --> S2[Sequence]
-    F1 --> RH[/"SubTree: ReturnHome"/]
-    S2 --> B{{BatteryOK?}}
+    RS --> C1{{IsBatteryCritical?}}
+    RS --> LN[LandNow]
+    S1 --> AR[Arm]
+    S1 --> TO[TakeOff]
+    S1 --> FS[ForceSuccess]
+    S1 --> RTL[/"SubTree: ReturnToLaunch"/]
+    FS --> S2[Sequence]
+    S2 --> C2{{IsBatteryOK?}}
     S2 --> R["Retry ×3"]
-    R --> G[GoToZone]
-    RH --> S3[Sequence]
-    S3 --> RHo[ResolveHome]
-    S3 --> F2[Fallback]
-    S3 --> L[Land]
-    F2 --> FH[FlyToHome]
-    F2 --> S4[Sequence]
-    S4 --> RSa[ResolveSafe]
-    S4 --> FS[FlyToSafe]
+    S2 --> CI[CaptureImage]
+    R --> FW[FlyToWaypoint]
+    RTL --> S3[Sequence]
+    S3 --> F1[Fallback]
+    S3 --> LD[Land]
+    S3 --> DA[Disarm]
+    F1 --> FH[FlyHome]
+    F1 --> S4[Sequence]
+    S4 --> FL[FindLandingSpot]
+    S4 --> FT[FlyToLandingSpot]
 ```
 
-**After:** `beehave graph landing.xml -f mermaid`
+**After:** `beehave graph examples/aerial/drone_mission.xml -f mermaid`
 
 ```mermaid
 ---
@@ -76,66 +79,76 @@ config:
     edgeLabelBackground: "#f5f0e9"
     lineColor: "#1b1813"
 ---
-%% Beehave action graph: Mission (btcpp-v3)
+%% Beehave action graph: DroneMission (btcpp-v3)
 flowchart TD
     start(("START"))
-    a1["EmergencyLand"]
-    a2["FlightDefaults"]
-    a3["GoToZone<br/><small>retry ×3</small>"]
-    a4["ResolveHome"]
-    a5["FlyToHome"]
-    a6["ResolveSafe"]
-    a7["FlyToSafe"]
-    a8["Land"]
+    a1["LandNow"]
+    a2["Arm"]
+    a3["TakeOff"]
+    a4["FlyToWaypoint<br/><small>retry ×3</small>"]
+    a5["CaptureImage"]
+    a6["FlyHome"]
+    a7["FindLandingSpot"]
+    a8["FlyToLandingSpot"]
+    a9["Land"]
+    a10["Disarm"]
     success(["SUCCESS"])
     failure(["FAILURE"])
-    start -->|"Emergency"| a1
-    start -->|"not Emergency"| a2
+    start -->|"IsBatteryCritical"| a1
+    start -->|"not IsBatteryCritical"| a2
     a1 -->|"success"| success
     a1 -.->|"failure"| a2
-    a2 -->|"success and BatteryOK"| a3
-    a2 -->|"success and not BatteryOK"| a4
+    a2 -->|"success"| a3
     a2 -.->|"failure"| failure
-    a3 -->|"success"| success
-    a3 -.->|"failure"| a4
+    a3 -->|"success and IsBatteryOK"| a4
+    a3 -->|"success and not IsBatteryOK"| a6
+    a3 -.->|"failure"| failure
     a4 -->|"success"| a5
-    a4 -.->|"failure"| failure
-    a5 -->|"success"| a8
+    a4 -.->|"failure"| a6
+    a5 -->|"success"| a6
     a5 -.->|"failure"| a6
-    a6 -->|"success"| a7
-    a6 -.->|"failure"| failure
+    a6 -->|"success"| a9
+    a6 -.->|"failure"| a7
     a7 -->|"success"| a8
     a7 -.->|"failure"| failure
-    a8 -->|"success"| success
+    a8 -->|"success"| a9
     a8 -.->|"failure"| failure
+    a9 -->|"success"| a10
+    a9 -.->|"failure"| failure
+    a10 -->|"success"| success
+    a10 -.->|"failure"| failure
     classDef start fill:#1b1813,stroke:#1b1813,stroke-width:1.5px,color:#f5f0e9
     classDef action fill:#fdfbf9,stroke:#1b1813,stroke-width:1.5px,color:#1b1813
     classDef success fill:#107550,stroke:#fdfbf9,stroke-width:2px,color:#fdfbf9
     classDef failure fill:#b93917,stroke:#fdfbf9,stroke-width:2px,color:#fdfbf9
     class start start
-    class a1,a2,a3,a4,a5,a6,a7,a8 action
+    class a1,a2,a3,a4,a5,a6,a7,a8,a9,a10 action
     class success success
     class failure failure
     linkStyle 0,1 stroke:#1b1813,stroke-width:1.75px
-    linkStyle 2,4,5,7,9,11,13,15,17 stroke:#107550,stroke-width:1.75px
-    linkStyle 3,6,8,10,12,14,16,18 stroke:#b93917,stroke-width:1.75px,stroke-dasharray:7 4
+    linkStyle 2,4,6,7,9,11,13,15,17,19,21 stroke:#107550,stroke-width:1.75px
+    linkStyle 3,5,8,10,12,14,16,18,20,22 stroke:#b93917,stroke-width:1.75px,stroke-dasharray:7 4
 ```
 
 What changed:
 
-- **Control nodes are gone.** Sequences, Fallbacks and the ReactiveFallback
-  became arrows.
-- **Conditions became arrow labels.** `BatteryOK` is a guard on two edges.
-- **Retry folded into the action.** It is a note on `GoToZone`.
-- **Subtrees are inlined.** `ReturnHome` is gone as a node; its actions
+- **Control nodes are gone.** The Sequences, the Fallback, the
+  ReactiveFallback and the ForceSuccess became arrows. ForceSuccess is why
+  both outcomes of `CaptureImage` lead to `FlyHome`.
+- **Conditions became arrow labels.** `IsBatteryOK` is a guard on the two
+  success edges out of `TakeOff`.
+- **Retry folded into the action.** It is a note on `FlyToWaypoint`.
+- **Subtrees are inlined.** `ReturnToLaunch` is gone as a node; its actions
   joined the graph.
-- **The gap is visible.** `FlyToSafe` fails straight to `FAILURE`: there is no
-  failure path. In Phase 2 the gap report will flag this automatically.
+- **The gap is visible.** `LandNow` fails over to `Arm`: if the emergency
+  landing fails, the fallback moves on to the mission and the drone would
+  start again. In Phase 2 the gap report will flag paths like this
+  automatically.
 
-The reactive emergency branch is walked like a plain Fallback in Phase 1, so
-the graph shows `Emergency` only at the start. Phase 2 adds a preemption edge
-from every action to `EmergencyLand`. Until then, `beehave` prints a warning
-for each reactive node so the reader knows.
+The reactive failsafe is walked like a plain Fallback in Phase 1, so the graph
+shows `IsBatteryCritical` only at the start. Phase 2 adds a preemption edge
+from every action to `LandNow`. Until then, `beehave` prints a warning for
+each reactive node so the reader knows.
 
 ## The walk
 
@@ -280,14 +293,14 @@ explicit XML form. It is how to fix "conditions in disguise".
 | longest guard | Terms in the longest guard, before simplification. |
 | approximated | Node types Phase 1 could not model exactly (breakage). |
 
-For the landing tree: 20 nodes, 8 actions, 60% reduction, 19 transitions,
+For the drone mission: 22 nodes, 10 actions, 55% reduction, 23 transitions,
 longest guard 1 term, 3 approximated nodes.
 
 ## Exit criteria
 
 Phase 1 is done when:
 
-- [x] The tool produces a graph for the pilot trees, with the metrics recorded.
+- [x] The tool produces a graph for the example trees, with the metrics recorded.
 - [x] It runs on a set of public trees (Nav2, BT.CPP examples) without manual
       edits, and the breakage list is recorded: see
       [Phase 1 results](phase-1-results.md).

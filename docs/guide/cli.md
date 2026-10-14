@@ -24,7 +24,7 @@ Builds the action graph of one tree.
 
 ## `beehave stats`
 
-Prints the pilot metrics for one tree: node counts, actions, reduction,
+Prints the Phase 1 metrics for one tree: node counts, actions, reduction,
 transitions, longest guard and the approximated node types. `--json` prints
 the same numbers as JSON.
 
@@ -33,9 +33,9 @@ the same numbers as JSON.
 Lists the trees defined in the files, marking the main one:
 
 ```console
-$ beehave trees landing.xml
-Mission (main)
-ReturnHome
+$ beehave trees examples/aerial/drone_mission.xml
+DroneMission (main)
+ReturnToLaunch
 ```
 
 ## Exit codes

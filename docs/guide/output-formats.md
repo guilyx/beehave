@@ -10,7 +10,7 @@ One transition per line:
 SOURCE --[outcome and guard]--> TARGET
 ```
 
-- Edges leaving `START` have no outcome: `START --[Emergency]--> EmergencyLand`.
+- Edges leaving `START` have no outcome: `START --[IsBatteryCritical]--> LandNow`.
 - Actions that share a label get a suffix: `FlyToZone#1`, `FlyToZone#2`.
 - Notes such as `retry ×3` are listed at the end.
 
@@ -33,29 +33,29 @@ A versioned document meant for other tools, including a future operator view.
 {
   "schema": "beehave.action-graph",
   "version": 1,
-  "tree": "Mission",
+  "tree": "DroneMission",
   "source_format": "btcpp-v3",
   "nodes": [
     {"id": "start", "kind": "start", "label": "START"},
     {
-      "id": "a3",
+      "id": "a4",
       "kind": "action",
-      "label": "GoToZone",
-      "type": "GoToZone",
-      "ports": {"zone": "{mission_zone}"},
+      "label": "FlyToWaypoint",
+      "type": "FlyToWaypoint",
+      "ports": {"waypoint": "{survey_point}"},
       "notes": ["retry ×3"],
       "subtrees": [],
-      "location": {"file": "landing.xml", "line": 19}
+      "location": {"file": "examples/aerial/drone_mission.xml", "line": 23}
     },
     {"id": "success", "kind": "success", "label": "SUCCESS"},
     {"id": "failure", "kind": "failure", "label": "FAILURE"}
   ],
   "edges": [
     {
-      "from": "a2",
-      "to": "a3",
+      "from": "a3",
+      "to": "a4",
       "outcome": "success",
-      "guard": [{"condition": "BatteryOK", "key": "BatteryOK()", "holds": true}]
+      "guard": [{"condition": "IsBatteryOK", "key": "IsBatteryOK()", "holds": true}]
     }
   ],
   "diagnostics": [
@@ -64,7 +64,7 @@ A versioned document meant for other tools, including a future operator view.
       "severity": "warning",
       "message": "ReactiveFallback: walked like a Fallback; …",
       "node_type": "ReactiveFallback",
-      "location": {"file": "landing.xml", "line": 8}
+      "location": {"file": "examples/aerial/drone_mission.xml", "line": 11}
     }
   ]
 }
