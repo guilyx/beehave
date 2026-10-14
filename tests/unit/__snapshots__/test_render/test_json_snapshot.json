@@ -302,21 +302,21 @@
     {
       "code": "approximated",
       "severity": "warning",
-      "message": "RetryUntilSuccessful: the retry loop is folded into a note; the loop edge is not shown yet",
-      "node_type": "RetryUntilSuccessful",
-      "location": {
-        "file": "landing.xml",
-        "line": 18
-      }
-    },
-    {
-      "code": "approximated",
-      "severity": "warning",
       "message": "ReactiveSequence: walked like a Sequence; its conditions are re-checked every tick, but preemption edges are not shown yet",
       "node_type": "ReactiveSequence",
       "location": {
         "file": "landing.xml",
         "line": 9
+      }
+    },
+    {
+      "code": "approximated",
+      "severity": "warning",
+      "message": "RetryUntilSuccessful: the retry loop is folded into a note; the loop edge is not shown yet",
+      "node_type": "RetryUntilSuccessful",
+      "location": {
+        "file": "landing.xml",
+        "line": 18
       }
     }
   ]

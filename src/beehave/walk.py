@@ -128,6 +128,7 @@ class _ActionInfo:
 class _Walker:
     actions: dict[_Path, _ActionInfo] = field(default_factory=dict)
     pending_notes: dict[_Path, list[str]] = field(default_factory=dict)
+    node_diagnostics: list[tuple[_Path, Diagnostic]] = field(default_factory=list)
     diagnostics: list[Diagnostic] = field(default_factory=list)
 
     # ------------------------------------------------------------ compile ---
@@ -144,14 +145,18 @@ class _Walker:
 
         sem = node.semantics
         if node.kind is NodeKind.CONTROL and sem is Semantics.CUSTOM:
-            self._report(node, "unknown-control", "custom control node is walked like a Sequence")
+            self._report(
+                node, path, "unknown-control", "custom control node is walked like a Sequence"
+            )
             return self._sequence(node, path, s, f, subtrees)
         if node.kind is NodeKind.DECORATOR and sem is Semantics.CUSTOM:
-            self._report(node, "unknown-decorator", "custom decorator is treated as transparent")
+            self._report(
+                node, path, "unknown-decorator", "custom decorator is treated as transparent"
+            )
             return self._child(node, path, s, f, subtrees)
 
         if sem in _APPROXIMATIONS:
-            self._report(node, "approximated", _APPROXIMATIONS[sem])
+            self._report(node, path, "approximated", _APPROXIMATIONS[sem])
         if sem in _SEQUENCES:
             return self._sequence(node, path, s, f, subtrees)
         if sem in _FALLBACKS:
@@ -231,7 +236,7 @@ class _Walker:
     ) -> _Target:
         mismatch = node.ports.get("return_on_mismatch", "FAILURE").strip().upper()
         if mismatch == "RUNNING":
-            self._report(node, "approximated", "RUNNING on mismatch is walked as FAILURE")
+            self._report(node, path, "approximated", "RUNNING on mismatch is walked as FAILURE")
         on_mismatch = s if mismatch == "SUCCESS" else f
         child = self._child(node, path, s, f, subtrees)
         check = _equals(node.ports.get("value_A", "?"), node.ports.get("value_B", "?"))
@@ -245,10 +250,10 @@ class _Walker:
         count = node.ports.get(port)
         self.pending_notes.setdefault((*path, 0), []).append(f"{word} ×{count}" if count else word)
 
-    def _report(self, node: Node, code: str, message: str) -> None:
-        self.diagnostics.append(
-            Diagnostic(code, f"{node.type}: {message}", node_type=node.type, location=node.location)
-        )
+    def _report(self, node: Node, path: _Path, code: str, message: str) -> None:
+        message = f"{node.type}: {message}"
+        diagnostic = Diagnostic(code, message, node_type=node.type, location=node.location)
+        self.node_diagnostics.append((path, diagnostic))
 
     # ------------------------------------------------------------- expand ---
 
@@ -300,7 +305,8 @@ class _Walker:
             format=flat.format,
             vertices=tuple(vertices),
             edges=tuple(edges),
-            diagnostics=tuple(self.diagnostics),
+            diagnostics=tuple(d for _, d in sorted(self.node_diagnostics, key=lambda pd: pd[0]))
+            + tuple(self.diagnostics),
             node_count=sum(1 for _ in flat.root.walk()),
         )
 

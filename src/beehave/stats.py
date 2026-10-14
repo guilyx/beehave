@@ -57,6 +57,7 @@ class Stats:
 
     def to_text(self) -> str:
         """Return the metrics as an aligned, human-readable table."""
+        terms = "term" if self.longest_guard == 1 else "terms"
         kinds = ", ".join(f"{n} {k}" for k, n in self.nodes_by_kind.items() if n)
         approximated = ", ".join(f"{t} ×{n}" for t, n in self.approximated.items()) or "none"
         rows = [
@@ -65,7 +66,7 @@ class Stats:
             ("actions", str(self.actions)),
             ("reduction", f"{self.reduction:.0%} ({self.nodes} nodes -> {self.actions} actions)"),
             ("transitions", str(self.transitions)),
-            ("longest guard", f"{self.longest_guard} terms (not simplified)"),
+            ("longest guard", f"{self.longest_guard} {terms} (not simplified)"),
             ("approximated", approximated),
         ]
         return "".join(f"{name:<14} {value}\n" for name, value in rows)

@@ -379,3 +379,12 @@ def test_landing_tree_from_the_design_doc() -> None:
         "ReactiveSequence",
         "RetryUntilSuccessful",
     ]
+
+
+def test_diagnostics_are_listed_in_document_order() -> None:
+    g = graph(
+        "<Sequence><ReactiveSequence><C/><A/></ReactiveSequence>"
+        "<RetryUntilSuccessful num_attempts='2'><B/></RetryUntilSuccessful></Sequence>"
+    )
+
+    assert [d.node_type for d in g.diagnostics] == ["ReactiveSequence", "RetryUntilSuccessful"]
