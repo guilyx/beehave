@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from beehave.graph import Outcome
 from beehave.render import theme
 from beehave.render._common import edge_label, header
 
@@ -22,10 +21,8 @@ def to_dot(graph: ActionGraph) -> str:
         label = edge_label(edge)
         if label:
             attrs.append(f"label={quote(label)}")
-        if edge.outcome is Outcome.FAILURE:
-            attrs.append(theme.DOT_FAILURE_EDGE)
-        suffix = f" [{', '.join(attrs)}]" if attrs else ""
-        lines.append(f"  {quote(edge.source)} -> {quote(edge.target)}{suffix};")
+        attrs.append(theme.DOT_EDGES[edge.outcome])
+        lines.append(f"  {quote(edge.source)} -> {quote(edge.target)} [{', '.join(attrs)}];")
     lines.append("}")
     return "\n".join(lines) + "\n"
 

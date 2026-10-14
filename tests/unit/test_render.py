@@ -119,8 +119,8 @@ def test_dot_is_a_digraph_named_after_the_tree() -> None:
     out = to_dot(_graph("<A/>"))
 
     assert 'digraph "Main" {' in out.splitlines()
-    assert '  "start" -> "a1";' in out
-    assert '  "a1" -> "failure" [label="failure", style=dashed];' in out
+    assert '  "start" -> "a1" [color="#1b1813"];' in out
+    assert '  "a1" -> "failure" [label="failure"' in out
 
 
 def test_dot_escapes_labels() -> None:
@@ -176,3 +176,28 @@ def test_json_snapshot(landing: ActionGraph, snapshot: SnapshotAssertion) -> Non
 
 
 _COND = '<TreeNodesModel><Condition ID="C"/></TreeNodesModel>'
+
+
+# ----------------------------------------------------------------- theme ---
+
+
+def test_mermaid_colours_edges_by_outcome() -> None:
+    lines = to_mermaid(_graph("<Sequence><A/><B/></Sequence>")).splitlines()
+
+    assert "    linkStyle 0 stroke:#1b1813,stroke-width:1.75px" in lines
+    assert "    linkStyle 1,3 stroke:#107550,stroke-width:1.75px" in lines
+    assert "    linkStyle 2,4 stroke:#b93917,stroke-width:1.75px,stroke-dasharray:7 4" in lines
+
+
+def test_dot_colours_edges_by_outcome_and_keeps_dashes_for_failure() -> None:
+    out = to_dot(_graph("<A/>"))
+
+    assert '"a1" -> "success" [label="success", color="#107550"' in out
+    assert '"a1" -> "failure" [label="failure", color="#b93917", style=dashed' in out
+
+
+def test_mermaid_output_carries_its_theme() -> None:
+    out = to_mermaid(_graph("<A/>"))
+
+    assert out.startswith("---\nconfig:\n")
+    assert '    edgeLabelBackground: "#f5f0e9"' in out.splitlines()

@@ -25,7 +25,7 @@ _SHAPES = {
 
 def to_mermaid(graph: ActionGraph) -> str:
     """Render the graph as a Mermaid ``flowchart TD``."""
-    lines = [f"%% {header(graph)}", "flowchart TD"]
+    lines = [*theme.MERMAID_FRONTMATTER, f"%% {header(graph)}", "flowchart TD"]
     lines += [f"    {_vertex(v)}" for v in graph.vertices]
     for edge in graph.edges:
         arrow = "-.->" if edge.outcome is Outcome.FAILURE else "-->"
@@ -58,7 +58,10 @@ def _styles(graph: ActionGraph) -> list[str]:
     for vertex in graph.vertices:
         groups.setdefault(vertex.kind.value, []).append(vertex.id)
     lines += [f"    class {','.join(ids)} {kind}" for kind, ids in groups.items()]
-    failure_edges = [str(i) for i, e in enumerate(graph.edges) if e.outcome is Outcome.FAILURE]
-    if failure_edges:
-        lines.append(f"    linkStyle {','.join(failure_edges)} {theme.MERMAID_FAILURE_EDGE}")
+    by_outcome: dict[Outcome | None, list[str]] = {}
+    for index, edge in enumerate(graph.edges):
+        by_outcome.setdefault(edge.outcome, []).append(str(index))
+    for outcome, style in theme.MERMAID_EDGES.items():
+        if outcome in by_outcome:
+            lines.append(f"    linkStyle {','.join(by_outcome[outcome])} {style}")
     return lines

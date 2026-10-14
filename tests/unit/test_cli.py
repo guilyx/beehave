@@ -41,7 +41,7 @@ def test_graph_writes_to_a_file(tmp_path: Path, capsys: pytest.CaptureFixture[st
 
     assert main(["graph", LANDING, "-f", "mermaid", "-o", str(out), "-q"]) == 0
 
-    assert out.read_text(encoding="utf-8").startswith("%% Beehave action graph")
+    assert "%% Beehave action graph" in out.read_text(encoding="utf-8")
     assert capsys.readouterr().out == ""
 
 
