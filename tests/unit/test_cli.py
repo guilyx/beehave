@@ -11,27 +11,27 @@ import pytest
 
 from beehave import __version__
 from beehave.cli import main
-from tests.conftest import FIXTURES
+from tests.conftest import EXAMPLES
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-LANDING = str(FIXTURES / "trees" / "landing.xml")
+DRONE = str(EXAMPLES / "aerial" / "drone_mission.xml")
 
 
 def test_graph_defaults_to_text(capsys: pytest.CaptureFixture[str]) -> None:
-    assert main(["graph", LANDING, "--quiet"]) == 0
+    assert main(["graph", DRONE, "--quiet"]) == 0
 
     out = capsys.readouterr().out
-    assert out.startswith("START --[Emergency]--> EmergencyLand\n")
+    assert out.startswith("START --[IsBatteryCritical]--> LandNow\n")
 
 
 @pytest.mark.parametrize(
     ("fmt", "marker"),
-    [("mermaid", "flowchart TD"), ("dot", 'digraph "Mission" {'), ("json", '"schema"')],
+    [("mermaid", "flowchart TD"), ("dot", 'digraph "DroneMission" {'), ("json", '"schema"')],
 )
 def test_graph_formats(fmt: str, marker: str, capsys: pytest.CaptureFixture[str]) -> None:
-    assert main(["graph", LANDING, "-f", fmt, "-q"]) == 0
+    assert main(["graph", DRONE, "-f", fmt, "-q"]) == 0
 
     assert marker in capsys.readouterr().out
 
@@ -39,14 +39,14 @@ def test_graph_formats(fmt: str, marker: str, capsys: pytest.CaptureFixture[str]
 def test_graph_writes_to_a_file(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     out = tmp_path / "g.mmd"
 
-    assert main(["graph", LANDING, "-f", "mermaid", "-o", str(out), "-q"]) == 0
+    assert main(["graph", DRONE, "-f", "mermaid", "-o", str(out), "-q"]) == 0
 
     assert "%% Beehave action graph" in out.read_text(encoding="utf-8")
     assert capsys.readouterr().out == ""
 
 
 def test_diagnostics_go_to_stderr(capsys: pytest.CaptureFixture[str]) -> None:
-    assert main(["graph", LANDING]) == 0
+    assert main(["graph", DRONE]) == 0
 
     err = capsys.readouterr().err
     assert "warning: ReactiveFallback: walked like a Fallback" in err
@@ -54,35 +54,35 @@ def test_diagnostics_go_to_stderr(capsys: pytest.CaptureFixture[str]) -> None:
 
 
 def test_quiet_hides_diagnostics(capsys: pytest.CaptureFixture[str]) -> None:
-    main(["graph", LANDING, "-q"])
+    main(["graph", DRONE, "-q"])
 
     assert capsys.readouterr().err == ""
 
 
 def test_stats(capsys: pytest.CaptureFixture[str]) -> None:
-    assert main(["stats", LANDING, "-q"]) == 0
+    assert main(["stats", DRONE, "-q"]) == 0
 
-    assert "reduction      60%" in capsys.readouterr().out
+    assert "reduction      55%" in capsys.readouterr().out
 
 
 def test_stats_json(capsys: pytest.CaptureFixture[str]) -> None:
-    assert main(["stats", LANDING, "--json", "-q"]) == 0
+    assert main(["stats", DRONE, "--json", "-q"]) == 0
 
-    assert json.loads(capsys.readouterr().out)["actions"] == 8
+    assert json.loads(capsys.readouterr().out)["actions"] == 10
 
 
 def test_trees_lists_every_tree_and_marks_the_main_one(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    assert main(["trees", LANDING]) == 0
+    assert main(["trees", DRONE]) == 0
 
-    assert capsys.readouterr().out == "Mission (main)\nReturnHome\n"
+    assert capsys.readouterr().out == "DroneMission (main)\nReturnToLaunch\n"
 
 
 def test_tree_option_selects_a_tree(capsys: pytest.CaptureFixture[str]) -> None:
-    assert main(["graph", LANDING, "-t", "ReturnHome", "-q"]) == 0
+    assert main(["graph", DRONE, "-t", "ReturnToLaunch", "-q"]) == 0
 
-    assert capsys.readouterr().out.startswith("START --> ResolveHome\n")
+    assert capsys.readouterr().out.startswith("START --> FlyHome\n")
 
 
 def test_config_file_is_used(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
@@ -143,7 +143,7 @@ def test_bad_config_exits_with_one(tmp_path: Path, capsys: pytest.CaptureFixture
     config = tmp_path / "c.yaml"
     config.write_text("conditions: 3\n")
 
-    assert main(["graph", LANDING, "-c", str(config)]) == 1
+    assert main(["graph", DRONE, "-c", str(config)]) == 1
 
     assert "must be a list" in capsys.readouterr().err
 
@@ -163,11 +163,11 @@ def test_version(capsys: pytest.CaptureFixture[str]) -> None:
 
 def test_module_entry_point() -> None:
     result = subprocess.run(
-        [sys.executable, "-m", "beehave", "trees", LANDING],
+        [sys.executable, "-m", "beehave", "trees", DRONE],
         capture_output=True,
         text=True,
         check=False,
     )
 
     assert result.returncode == 0
-    assert result.stdout.startswith("Mission (main)")
+    assert result.stdout.startswith("DroneMission (main)")

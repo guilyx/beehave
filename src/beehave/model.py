@@ -88,7 +88,7 @@ class Node:
 
     Attributes:
         kind: The role of the node (control, decorator, condition, action, subtree).
-        type: The name the source format uses, e.g. ``"SequenceStar"`` or ``"GoToZone"``.
+        type: The name the source format uses, e.g. ``"SequenceStar"`` or ``"FlyToWaypoint"``.
         semantics: The format-independent behaviour of the node.
         name: The optional instance name (the ``name`` attribute in BT.CPP).
         ports: Port values, exactly as written. ``{key}`` is a blackboard reference.

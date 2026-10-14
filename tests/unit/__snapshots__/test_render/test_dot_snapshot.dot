@@ -1,36 +1,42 @@
-// Beehave action graph: Mission (btcpp-v3)
-digraph "Mission" {
+// Beehave action graph: DroneMission (btcpp-v3)
+digraph "DroneMission" {
   graph [rankdir=TB, fontname="Martian Mono", fontsize=12, fontcolor="#4b4740"];
   node [shape=box, style="rounded,filled", fillcolor="#fdfbf9", color="#1b1813", penwidth=1.5, fontname="Archivo", fontsize=14, fontcolor="#1b1813"];
   edge [penwidth=1.5, arrowsize=0.8, fontname="Martian Mono", fontsize=11, fontcolor="#4b4740"];
   "start" [label="START", shape=circle, fillcolor="#1b1813", color="#1b1813", fontcolor="#f5f0e9"];
-  "a1" [label="EmergencyLand", shape=box];
-  "a2" [label="FlightDefaults", shape=box];
-  "a3" [label="GoToZone\nretry ×3", shape=box];
-  "a4" [label="ResolveHome", shape=box];
-  "a5" [label="FlyToHome", shape=box];
-  "a6" [label="ResolveSafe", shape=box];
-  "a7" [label="FlyToSafe", shape=box];
-  "a8" [label="Land", shape=box];
+  "a1" [label="LandNow", shape=box];
+  "a2" [label="Arm", shape=box];
+  "a3" [label="TakeOff", shape=box];
+  "a4" [label="FlyToWaypoint\nretry ×3", shape=box];
+  "a5" [label="CaptureImage", shape=box];
+  "a6" [label="FlyHome", shape=box];
+  "a7" [label="FindLandingSpot", shape=box];
+  "a8" [label="FlyToLandingSpot", shape=box];
+  "a9" [label="Land", shape=box];
+  "a10" [label="Disarm", shape=box];
   "success" [label="SUCCESS", shape=doublecircle, fillcolor="#107550", color="#107550", fontcolor="#fdfbf9"];
   "failure" [label="FAILURE", shape=doubleoctagon, fillcolor="#b93917", color="#b93917", fontcolor="#fdfbf9"];
-  "start" -> "a1" [label="Emergency", color="#1b1813"];
-  "start" -> "a2" [label="not Emergency", color="#1b1813"];
+  "start" -> "a1" [label="IsBatteryCritical", color="#1b1813"];
+  "start" -> "a2" [label="not IsBatteryCritical", color="#1b1813"];
   "a1" -> "success" [label="success", color="#107550"];
   "a1" -> "a2" [label="failure", color="#b93917", style=dashed];
-  "a2" -> "a3" [label="success and BatteryOK", color="#107550"];
-  "a2" -> "a4" [label="success and not BatteryOK", color="#107550"];
+  "a2" -> "a3" [label="success", color="#107550"];
   "a2" -> "failure" [label="failure", color="#b93917", style=dashed];
-  "a3" -> "success" [label="success", color="#107550"];
-  "a3" -> "a4" [label="failure", color="#b93917", style=dashed];
+  "a3" -> "a4" [label="success and IsBatteryOK", color="#107550"];
+  "a3" -> "a6" [label="success and not IsBatteryOK", color="#107550"];
+  "a3" -> "failure" [label="failure", color="#b93917", style=dashed];
   "a4" -> "a5" [label="success", color="#107550"];
-  "a4" -> "failure" [label="failure", color="#b93917", style=dashed];
-  "a5" -> "a8" [label="success", color="#107550"];
+  "a4" -> "a6" [label="failure", color="#b93917", style=dashed];
+  "a5" -> "a6" [label="success", color="#107550"];
   "a5" -> "a6" [label="failure", color="#b93917", style=dashed];
-  "a6" -> "a7" [label="success", color="#107550"];
-  "a6" -> "failure" [label="failure", color="#b93917", style=dashed];
+  "a6" -> "a9" [label="success", color="#107550"];
+  "a6" -> "a7" [label="failure", color="#b93917", style=dashed];
   "a7" -> "a8" [label="success", color="#107550"];
   "a7" -> "failure" [label="failure", color="#b93917", style=dashed];
-  "a8" -> "success" [label="success", color="#107550"];
+  "a8" -> "a9" [label="success", color="#107550"];
   "a8" -> "failure" [label="failure", color="#b93917", style=dashed];
+  "a9" -> "a10" [label="success", color="#107550"];
+  "a9" -> "failure" [label="failure", color="#b93917", style=dashed];
+  "a10" -> "success" [label="success", color="#107550"];
+  "a10" -> "failure" [label="failure", color="#b93917", style=dashed];
 }

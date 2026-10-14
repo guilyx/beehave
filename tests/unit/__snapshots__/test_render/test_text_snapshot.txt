@@ -1,22 +1,26 @@
-START --[Emergency]--> EmergencyLand
-START --[not Emergency]--> FlightDefaults
-EmergencyLand --[success]--> SUCCESS
-EmergencyLand --[failure]--> FlightDefaults
-FlightDefaults --[success and BatteryOK]--> GoToZone
-FlightDefaults --[success and not BatteryOK]--> ResolveHome
-FlightDefaults --[failure]--> FAILURE
-GoToZone --[success]--> SUCCESS
-GoToZone --[failure]--> ResolveHome
-ResolveHome --[success]--> FlyToHome
-ResolveHome --[failure]--> FAILURE
-FlyToHome --[success]--> Land
-FlyToHome --[failure]--> ResolveSafe
-ResolveSafe --[success]--> FlyToSafe
-ResolveSafe --[failure]--> FAILURE
-FlyToSafe --[success]--> Land
-FlyToSafe --[failure]--> FAILURE
-Land --[success]--> SUCCESS
+START --[IsBatteryCritical]--> LandNow
+START --[not IsBatteryCritical]--> Arm
+LandNow --[success]--> SUCCESS
+LandNow --[failure]--> Arm
+Arm --[success]--> TakeOff
+Arm --[failure]--> FAILURE
+TakeOff --[success and IsBatteryOK]--> FlyToWaypoint
+TakeOff --[success and not IsBatteryOK]--> FlyHome
+TakeOff --[failure]--> FAILURE
+FlyToWaypoint --[success]--> CaptureImage
+FlyToWaypoint --[failure]--> FlyHome
+CaptureImage --[success]--> FlyHome
+CaptureImage --[failure]--> FlyHome
+FlyHome --[success]--> Land
+FlyHome --[failure]--> FindLandingSpot
+FindLandingSpot --[success]--> FlyToLandingSpot
+FindLandingSpot --[failure]--> FAILURE
+FlyToLandingSpot --[success]--> Land
+FlyToLandingSpot --[failure]--> FAILURE
+Land --[success]--> Disarm
 Land --[failure]--> FAILURE
+Disarm --[success]--> SUCCESS
+Disarm --[failure]--> FAILURE
 
 notes:
-  GoToZone: retry ×3
+  FlyToWaypoint: retry ×3

@@ -1,7 +1,7 @@
 {
   "schema": "beehave.action-graph",
   "version": 1,
-  "tree": "Mission",
+  "tree": "DroneMission",
   "source_format": "btcpp-v3",
   "nodes": [
     {
@@ -12,129 +12,153 @@
     {
       "id": "a1",
       "kind": "action",
-      "label": "EmergencyLand",
-      "type": "EmergencyLand",
+      "label": "LandNow",
+      "type": "LandNow",
       "ports": {},
       "notes": [],
       "subtrees": [],
       "location": {
-        "file": "landing.xml",
-        "line": 11
+        "file": "drone_mission.xml",
+        "line": 14
       }
     },
     {
       "id": "a2",
       "kind": "action",
-      "label": "FlightDefaults",
-      "type": "FlightDefaults",
+      "label": "Arm",
+      "type": "Arm",
       "ports": {},
       "notes": [],
       "subtrees": [],
       "location": {
-        "file": "landing.xml",
-        "line": 14
+        "file": "drone_mission.xml",
+        "line": 17
       }
     },
     {
       "id": "a3",
       "kind": "action",
-      "label": "GoToZone",
-      "type": "GoToZone",
+      "label": "TakeOff",
+      "type": "TakeOff",
       "ports": {
-        "zone": "{mission_zone}"
+        "altitude": "{cruise_altitude}"
+      },
+      "notes": [],
+      "subtrees": [],
+      "location": {
+        "file": "drone_mission.xml",
+        "line": 18
+      }
+    },
+    {
+      "id": "a4",
+      "kind": "action",
+      "label": "FlyToWaypoint",
+      "type": "FlyToWaypoint",
+      "ports": {
+        "waypoint": "{survey_point}"
       },
       "notes": [
         "retry ×3"
       ],
       "subtrees": [],
       "location": {
-        "file": "landing.xml",
-        "line": 19
-      }
-    },
-    {
-      "id": "a4",
-      "kind": "action",
-      "label": "ResolveHome",
-      "type": "ResolveClosestZone",
-      "ports": {
-        "zone_subtype": "HOME",
-        "zone": "{target}"
-      },
-      "notes": [],
-      "subtrees": [
-        "ReturnHome"
-      ],
-      "location": {
-        "file": "landing.xml",
-        "line": 30
+        "file": "drone_mission.xml",
+        "line": 23
       }
     },
     {
       "id": "a5",
       "kind": "action",
-      "label": "FlyToHome",
-      "type": "FlyToZone",
-      "ports": {
-        "zone": "{target}"
-      },
+      "label": "CaptureImage",
+      "type": "CaptureImage",
+      "ports": {},
       "notes": [],
-      "subtrees": [
-        "ReturnHome"
-      ],
+      "subtrees": [],
       "location": {
-        "file": "landing.xml",
-        "line": 32
+        "file": "drone_mission.xml",
+        "line": 25
       }
     },
     {
       "id": "a6",
       "kind": "action",
-      "label": "ResolveSafe",
-      "type": "ResolveClosestZone",
+      "label": "FlyHome",
+      "type": "FlyHome",
       "ports": {
-        "zone_subtype": "SAFE",
-        "zone": "{target}"
+        "home": "{home_position}"
       },
       "notes": [],
       "subtrees": [
-        "ReturnHome"
+        "ReturnToLaunch"
       ],
       "location": {
-        "file": "landing.xml",
-        "line": 34
+        "file": "drone_mission.xml",
+        "line": 36
       }
     },
     {
       "id": "a7",
       "kind": "action",
-      "label": "FlyToSafe",
-      "type": "FlyToZone",
+      "label": "FindLandingSpot",
+      "type": "FindLandingSpot",
       "ports": {
-        "zone": "{target}"
+        "spot": "{landing_spot}"
       },
       "notes": [],
       "subtrees": [
-        "ReturnHome"
+        "ReturnToLaunch"
       ],
       "location": {
-        "file": "landing.xml",
-        "line": 35
+        "file": "drone_mission.xml",
+        "line": 38
       }
     },
     {
       "id": "a8",
+      "kind": "action",
+      "label": "FlyToLandingSpot",
+      "type": "FlyToLandingSpot",
+      "ports": {
+        "spot": "{landing_spot}"
+      },
+      "notes": [],
+      "subtrees": [
+        "ReturnToLaunch"
+      ],
+      "location": {
+        "file": "drone_mission.xml",
+        "line": 39
+      }
+    },
+    {
+      "id": "a9",
       "kind": "action",
       "label": "Land",
       "type": "Land",
       "ports": {},
       "notes": [],
       "subtrees": [
-        "ReturnHome"
+        "ReturnToLaunch"
       ],
       "location": {
-        "file": "landing.xml",
-        "line": 38
+        "file": "drone_mission.xml",
+        "line": 42
+      }
+    },
+    {
+      "id": "a10",
+      "kind": "action",
+      "label": "Disarm",
+      "type": "Disarm",
+      "ports": {},
+      "notes": [],
+      "subtrees": [
+        "ReturnToLaunch"
+      ],
+      "location": {
+        "file": "drone_mission.xml",
+        "line": 43
       }
     },
     {
@@ -155,8 +179,8 @@
       "outcome": null,
       "guard": [
         {
-          "condition": "Emergency",
-          "key": "Emergency()",
+          "condition": "IsBatteryCritical",
+          "key": "IsBatteryCritical()",
           "holds": true
         }
       ]
@@ -167,8 +191,8 @@
       "outcome": null,
       "guard": [
         {
-          "condition": "Emergency",
-          "key": "Emergency()",
+          "condition": "IsBatteryCritical",
+          "key": "IsBatteryCritical()",
           "holds": false
         }
       ]
@@ -189,25 +213,7 @@
       "from": "a2",
       "to": "a3",
       "outcome": "success",
-      "guard": [
-        {
-          "condition": "BatteryOK",
-          "key": "BatteryOK()",
-          "holds": true
-        }
-      ]
-    },
-    {
-      "from": "a2",
-      "to": "a4",
-      "outcome": "success",
-      "guard": [
-        {
-          "condition": "BatteryOK",
-          "key": "BatteryOK()",
-          "holds": false
-        }
-      ]
+      "guard": []
     },
     {
       "from": "a2",
@@ -217,13 +223,31 @@
     },
     {
       "from": "a3",
-      "to": "success",
+      "to": "a4",
       "outcome": "success",
-      "guard": []
+      "guard": [
+        {
+          "condition": "IsBatteryOK",
+          "key": "IsBatteryOK()",
+          "holds": true
+        }
+      ]
     },
     {
       "from": "a3",
-      "to": "a4",
+      "to": "a6",
+      "outcome": "success",
+      "guard": [
+        {
+          "condition": "IsBatteryOK",
+          "key": "IsBatteryOK()",
+          "holds": false
+        }
+      ]
+    },
+    {
+      "from": "a3",
+      "to": "failure",
       "outcome": "failure",
       "guard": []
     },
@@ -235,13 +259,13 @@
     },
     {
       "from": "a4",
-      "to": "failure",
+      "to": "a6",
       "outcome": "failure",
       "guard": []
     },
     {
       "from": "a5",
-      "to": "a8",
+      "to": "a6",
       "outcome": "success",
       "guard": []
     },
@@ -253,13 +277,13 @@
     },
     {
       "from": "a6",
-      "to": "a7",
+      "to": "a9",
       "outcome": "success",
       "guard": []
     },
     {
       "from": "a6",
-      "to": "failure",
+      "to": "a7",
       "outcome": "failure",
       "guard": []
     },
@@ -277,12 +301,36 @@
     },
     {
       "from": "a8",
-      "to": "success",
+      "to": "a9",
       "outcome": "success",
       "guard": []
     },
     {
       "from": "a8",
+      "to": "failure",
+      "outcome": "failure",
+      "guard": []
+    },
+    {
+      "from": "a9",
+      "to": "a10",
+      "outcome": "success",
+      "guard": []
+    },
+    {
+      "from": "a9",
+      "to": "failure",
+      "outcome": "failure",
+      "guard": []
+    },
+    {
+      "from": "a10",
+      "to": "success",
+      "outcome": "success",
+      "guard": []
+    },
+    {
+      "from": "a10",
       "to": "failure",
       "outcome": "failure",
       "guard": []
@@ -295,8 +343,8 @@
       "message": "ReactiveFallback: walked like a Fallback; its conditions are re-checked every tick, but preemption edges are not shown yet",
       "node_type": "ReactiveFallback",
       "location": {
-        "file": "landing.xml",
-        "line": 8
+        "file": "drone_mission.xml",
+        "line": 11
       }
     },
     {
@@ -305,8 +353,8 @@
       "message": "ReactiveSequence: walked like a Sequence; its conditions are re-checked every tick, but preemption edges are not shown yet",
       "node_type": "ReactiveSequence",
       "location": {
-        "file": "landing.xml",
-        "line": 9
+        "file": "drone_mission.xml",
+        "line": 12
       }
     },
     {
@@ -315,8 +363,8 @@
       "message": "RetryUntilSuccessful: the retry loop is folded into a note; the loop edge is not shown yet",
       "node_type": "RetryUntilSuccessful",
       "location": {
-        "file": "landing.xml",
-        "line": 18
+        "file": "drone_mission.xml",
+        "line": 22
       }
     }
   ]

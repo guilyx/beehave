@@ -7,7 +7,7 @@ Example:
     >>> import beehave
     >>> result = beehave.analyze("mission.xml")  # doctest: +SKIP
     >>> print(beehave.to_text(result.graph))  # doctest: +SKIP
-    START --[not Emergency]--> FlightDefaults
+    START --[not IsBatteryCritical]--> Arm
     ...
 """
 

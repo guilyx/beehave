@@ -19,14 +19,16 @@ if TYPE_CHECKING:
 
 
 def test_compact_syntax_builds_the_tree() -> None:
-    doc = parse_string(tree_xml('<Sequence name="go"><Takeoff/><GoToZone zone="{z}"/></Sequence>'))
+    doc = parse_string(
+        tree_xml('<Sequence name="go"><TakeOff/><FlyToWaypoint waypoint="{w}"/></Sequence>')
+    )
 
     root = doc.trees["Main"].root
     assert root.kind is NodeKind.CONTROL
     assert root.semantics is Semantics.SEQUENCE
     assert root.name == "go"
-    assert [c.type for c in root.children] == ["Takeoff", "GoToZone"]
-    assert root.children[1].ports == {"zone": "{z}"}
+    assert [c.type for c in root.children] == ["TakeOff", "FlyToWaypoint"]
+    assert root.children[1].ports == {"waypoint": "{w}"}
 
 
 def test_custom_leaf_defaults_to_action() -> None:
@@ -133,15 +135,15 @@ def test_custom_node_with_many_children_is_a_control() -> None:
 
 def test_subtree_references_keep_the_target_and_remapping() -> None:
     xml = tree_xml(
-        '<SubTreePlus ID="ReturnHome" __autoremap="true" zone="{home}"/>',
-        extra='<BehaviorTree ID="ReturnHome"><Land/></BehaviorTree>',
+        '<SubTreePlus ID="ReturnToLaunch" __autoremap="true" home="{home}"/>',
+        extra='<BehaviorTree ID="ReturnToLaunch"><Land/></BehaviorTree>',
     )
 
     ref = parse_string(xml).trees["Main"].root
     assert ref.kind is NodeKind.SUBTREE
     assert ref.semantics is Semantics.SUBTREE_PLUS
-    assert ref.ref == "ReturnHome"
-    assert ref.ports == {"__autoremap": "true", "zone": "{home}"}
+    assert ref.ref == "ReturnToLaunch"
+    assert ref.ports == {"__autoremap": "true", "home": "{home}"}
 
 
 def test_main_tree_is_read_from_the_root() -> None:
@@ -239,21 +241,21 @@ def test_doctype_is_rejected() -> None:
 def test_parse_file_follows_includes(tmp_path: Path) -> None:
     (tmp_path / "sub").mkdir()
     (tmp_path / "sub" / "home.xml").write_text(
-        '<root><BehaviorTree ID="ReturnHome"><Land/></BehaviorTree>'
+        '<root><BehaviorTree ID="ReturnToLaunch"><Land/></BehaviorTree>'
         '<TreeNodesModel><Condition ID="AtHome"/></TreeNodesModel></root>'
     )
     (tmp_path / "main.xml").write_text(
         '<root main_tree_to_execute="Main"><include path="sub/home.xml"/>'
-        '<BehaviorTree ID="Main"><Sequence><AtHome/><SubTree ID="ReturnHome"/></Sequence>'
+        '<BehaviorTree ID="Main"><Sequence><AtHome/><SubTree ID="ReturnToLaunch"/></Sequence>'
         "</BehaviorTree></root>"
     )
 
     doc = parse_file(tmp_path / "main.xml")
 
-    assert set(doc.trees) == {"Main", "ReturnHome"}
+    assert set(doc.trees) == {"Main", "ReturnToLaunch"}
     assert doc.trees["Main"].root.children[0].kind is NodeKind.CONDITION
-    assert doc.trees["ReturnHome"].location is not None
-    assert doc.trees["ReturnHome"].location.file == (tmp_path / "sub" / "home.xml").as_posix()
+    assert doc.trees["ReturnToLaunch"].location is not None
+    assert doc.trees["ReturnToLaunch"].location.file == (tmp_path / "sub" / "home.xml").as_posix()
 
 
 def test_include_cycles_are_loaded_once(tmp_path: Path) -> None:

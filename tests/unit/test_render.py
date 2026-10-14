@@ -12,7 +12,7 @@ from beehave.flatten import flatten
 from beehave.parsers import parse_file, parse_string
 from beehave.render import to_dot, to_json, to_mermaid, to_text
 from beehave.walk import build_graph
-from tests.conftest import FIXTURES, tree_xml
+from tests.conftest import EXAMPLES, tree_xml
 
 if TYPE_CHECKING:
     from syrupy.assertion import SnapshotAssertion
@@ -42,10 +42,10 @@ def _graph(body: str, extra: str = "") -> ActionGraph:
 
 
 @pytest.fixture
-def landing(monkeypatch: pytest.MonkeyPatch) -> ActionGraph:
+def drone(monkeypatch: pytest.MonkeyPatch) -> ActionGraph:
     # Relative path, so locations in snapshots do not depend on the checkout.
-    monkeypatch.chdir(FIXTURES / "trees")
-    return build_graph(flatten(parse_file("landing.xml")))
+    monkeypatch.chdir(EXAMPLES / "aerial")
+    return build_graph(flatten(parse_file("drone_mission.xml")))
 
 
 # ------------------------------------------------------------------ text ---
@@ -82,8 +82,8 @@ def test_text_lists_notes_after_the_edges() -> None:
     assert text.endswith("\nnotes:\n  A: retry ×3\n")
 
 
-def test_text_snapshot(landing: ActionGraph, snapshot: SnapshotAssertion) -> None:
-    assert to_text(landing) == snapshot(extension_class=_TextSnapshot)
+def test_text_snapshot(drone: ActionGraph, snapshot: SnapshotAssertion) -> None:
+    assert to_text(drone) == snapshot(extension_class=_TextSnapshot)
 
 
 # --------------------------------------------------------------- mermaid ---
@@ -108,8 +108,8 @@ def test_mermaid_escapes_labels() -> None:
     assert 'a1["say #quot;hi#quot; #lt;now#gt; #35;1"]' in out
 
 
-def test_mermaid_snapshot(landing: ActionGraph, snapshot: SnapshotAssertion) -> None:
-    assert to_mermaid(landing) == snapshot(extension_class=_MermaidSnapshot)
+def test_mermaid_snapshot(drone: ActionGraph, snapshot: SnapshotAssertion) -> None:
+    assert to_mermaid(drone) == snapshot(extension_class=_MermaidSnapshot)
 
 
 # ------------------------------------------------------------------- dot ---
@@ -129,8 +129,8 @@ def test_dot_escapes_labels() -> None:
     assert '"a1" [label="a \\"b\\" c\\\\d"' in out
 
 
-def test_dot_snapshot(landing: ActionGraph, snapshot: SnapshotAssertion) -> None:
-    assert to_dot(landing) == snapshot(extension_class=_DotSnapshot)
+def test_dot_snapshot(drone: ActionGraph, snapshot: SnapshotAssertion) -> None:
+    assert to_dot(drone) == snapshot(extension_class=_DotSnapshot)
 
 
 # ------------------------------------------------------------------ json ---
@@ -171,8 +171,8 @@ def test_json_includes_diagnostics() -> None:
     assert data["diagnostics"][0]["severity"] == "warning"
 
 
-def test_json_snapshot(landing: ActionGraph, snapshot: SnapshotAssertion) -> None:
-    assert to_json(landing) == snapshot(extension_class=_JsonSnapshot)
+def test_json_snapshot(drone: ActionGraph, snapshot: SnapshotAssertion) -> None:
+    assert to_json(drone) == snapshot(extension_class=_JsonSnapshot)
 
 
 _COND = '<TreeNodesModel><Condition ID="C"/></TreeNodesModel>'

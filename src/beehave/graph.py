@@ -85,7 +85,7 @@ class Vertex:
             for actions in document order.
         kind: What the vertex stands for.
         label: The text to show.
-        type: For actions, the node type (e.g. ``"GoToZone"``).
+        type: For actions, the node type (e.g. ``"FlyToWaypoint"``).
         ports: For actions, the port values after subtree remapping.
         notes: Short annotations such as ``"retry ×3"``.
         subtrees: For actions, the subtrees they were inlined from, outermost first.

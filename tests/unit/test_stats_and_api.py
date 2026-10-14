@@ -8,38 +8,38 @@ import pytest
 
 import beehave
 from beehave.config import Config
-from tests.conftest import FIXTURES
+from tests.conftest import EXAMPLES
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-LANDING = FIXTURES / "trees" / "landing.xml"
+DRONE = EXAMPLES / "aerial" / "drone_mission.xml"
 
 
 def test_analyze_runs_the_whole_pipeline() -> None:
-    result = beehave.analyze(LANDING)
+    result = beehave.analyze(DRONE)
 
-    assert result.tree.id == "Mission"
-    assert len(result.graph.actions) == 8
-    assert "ReturnHome" in result.document.trees
+    assert result.tree.id == "DroneMission"
+    assert len(result.graph.actions) == 10
+    assert "ReturnToLaunch" in result.document.trees
 
 
-def test_stats_on_the_landing_tree() -> None:
-    stats = beehave.analyze(LANDING).stats
+def test_stats_on_the_drone_mission() -> None:
+    stats = beehave.analyze(DRONE).stats
 
-    assert stats.tree == "Mission"
-    assert stats.nodes == 20
+    assert stats.tree == "DroneMission"
+    assert stats.nodes == 22
     assert stats.nodes_by_kind == {
-        "control": 8,
-        "decorator": 1,
+        "control": 7,
+        "decorator": 2,
         "condition": 2,
-        "action": 8,
+        "action": 10,
         "subtree": 1,
     }
-    assert stats.actions == 8
-    assert stats.transitions == 19
-    assert stats.reduction == pytest.approx(0.6)
-    assert stats.longest_guard == 1  # "success and BatteryOK": the outcome is not a term
+    assert stats.actions == 10
+    assert stats.transitions == 23
+    assert stats.reduction == pytest.approx(1 - 10 / 22)
+    assert stats.longest_guard == 1  # "success and IsBatteryOK": the outcome is not a term
     assert stats.approximated == {
         "ReactiveFallback": 1,
         "ReactiveSequence": 1,
@@ -48,15 +48,15 @@ def test_stats_on_the_landing_tree() -> None:
 
 
 def test_stats_as_text_and_dict() -> None:
-    stats = beehave.analyze(LANDING).stats
+    stats = beehave.analyze(DRONE).stats
 
     text = stats.to_text()
-    assert "nodes          20" in text
-    assert "reduction      60% (20 nodes -> 8 actions)" in text
+    assert "nodes          22" in text
+    assert "reduction      55% (22 nodes -> 10 actions)" in text
     assert (
         "approximated   ReactiveFallback ×1, ReactiveSequence ×1, RetryUntilSuccessful ×1" in text
     )
-    assert stats.to_dict()["reduction"] == pytest.approx(0.6)
+    assert stats.to_dict()["reduction"] == pytest.approx(1 - 10 / 22)
 
 
 def test_stats_without_approximations_say_so(tmp_path: Path) -> None:

@@ -124,7 +124,7 @@ jobs:
             echo "::error::'beehave --version' printed '$actual', expected '$expected'"
             exit 1
           fi
-          "$RUNNER_TEMP/smoke/bin/beehave" graph "$GITHUB_WORKSPACE/tests/fixtures/trees/landing.xml" -q
+          "$RUNNER_TEMP/smoke/bin/beehave" graph "$GITHUB_WORKSPACE/examples/aerial/drone_mission.xml" -q
 
       # Handy for trying a PR's wheel. Never published: release.yml builds its own.
       - name: Upload the distributions

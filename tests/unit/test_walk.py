@@ -15,7 +15,7 @@ from beehave.parsers import parse_string
 from beehave.walk import build_graph
 from tests.conftest import tree_xml
 
-CONDITIONS = Config(conditions=frozenset({"C", "D", "Emergency", "BatteryOK"}))
+CONDITIONS = Config(conditions=frozenset({"C", "D"}))
 
 
 def graph(body: str, *, extra: str = "", max_paths: int = 1024) -> ActionGraph:
@@ -316,76 +316,6 @@ def test_only_start_edges_have_no_outcome() -> None:
 
     assert {e.outcome for e in g.edges if e.source == "start"} == {None}
     assert {e.outcome for e in g.edges if e.source != "start"} == {Outcome.SUCCESS, Outcome.FAILURE}
-
-
-LANDING = """
-<root main_tree_to_execute="Mission">
-  <BehaviorTree ID="Mission">
-    <ReactiveFallback>
-      <ReactiveSequence>
-        <Emergency/>
-        <EmergencyLand/>
-      </ReactiveSequence>
-      <Sequence>
-        <FlightDefaults/>
-        <Fallback>
-          <Sequence>
-            <BatteryOK/>
-            <RetryUntilSuccessful num_attempts="3"><GoToZone/></RetryUntilSuccessful>
-          </Sequence>
-          <SubTreePlus ID="ReturnHome" __autoremap="true"/>
-        </Fallback>
-      </Sequence>
-    </ReactiveFallback>
-  </BehaviorTree>
-  <BehaviorTree ID="ReturnHome">
-    <Sequence>
-      <ResolveClosestZone name="ResolveHome" zone_subtype="HOME"/>
-      <Fallback>
-        <FlyToZone name="FlyToHome"/>
-        <Sequence>
-          <ResolveClosestZone name="ResolveSafe" zone_subtype="SAFE"/>
-          <FlyToZone name="FlyToSafe"/>
-        </Sequence>
-      </Fallback>
-      <Land/>
-    </Sequence>
-  </BehaviorTree>
-</root>
-"""
-
-
-def test_landing_tree_from_the_design_doc() -> None:
-    g = build_graph(flatten(parse_string(LANDING, config=CONDITIONS)))
-
-    assert len(g.actions) == 8
-    assert edges(g) == [
-        "START -> EmergencyLand [Emergency]",
-        "START -> FlightDefaults [not Emergency]",
-        "EmergencyLand -success-> SUCCESS",
-        "EmergencyLand -failure-> FlightDefaults",
-        "FlightDefaults -success-> GoToZone [BatteryOK]",
-        "FlightDefaults -success-> ResolveHome [not BatteryOK]",
-        "FlightDefaults -failure-> FAILURE",
-        "GoToZone -success-> SUCCESS",
-        "GoToZone -failure-> ResolveHome",
-        "ResolveHome -success-> FlyToHome",
-        "ResolveHome -failure-> FAILURE",
-        "FlyToHome -success-> Land",
-        "FlyToHome -failure-> ResolveSafe",
-        "ResolveSafe -success-> FlyToSafe",
-        "ResolveSafe -failure-> FAILURE",
-        "FlyToSafe -success-> Land",
-        "FlyToSafe -failure-> FAILURE",
-        "Land -success-> SUCCESS",
-        "Land -failure-> FAILURE",
-    ]
-    assert g.vertex("a3").notes == ("retry ×3",)
-    assert sorted(d.node_type or "" for d in g.diagnostics) == [
-        "ReactiveFallback",
-        "ReactiveSequence",
-        "RetryUntilSuccessful",
-    ]
 
 
 def test_diagnostics_are_listed_in_document_order() -> None:
