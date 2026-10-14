@@ -1,0 +1,8 @@
+Beehave
+Copyright 2026 Erwin Lejeune and the Beehave contributors
+
+This product includes software developed by the Beehave contributors
+(https://github.com/guilyx/beehave).
+
+Test fixtures under tests/fixtures/public/ are third-party files distributed
+under their own licenses; see tests/fixtures/public/README.md.
