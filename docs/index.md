@@ -1,6 +1,18 @@
 ---
 title: Beehave
+template: home.html
+hide:
+  - navigation
+  - toc
 ---
+
+<div class="bh-hero" markdown>
+
+<p class="bh-hero__plate bh-label"><img src="assets/brand/mark.svg" alt="" width="24" height="24"> <span>Beehave <span aria-hidden="true">&middot;</span> static analysis for BehaviorTree.CPP</span></p>
+
+<p class="bh-hero__wordmark" aria-hidden="true">beehave</p>
+
+<div class="bh-hero__text" markdown>
 
 # The small branch that matters
 
@@ -8,10 +20,21 @@ Beehave reads a [BehaviorTree.CPP](https://www.behaviortree.dev/) tree and
 shows only the actions your robot can take, in order, with the conditions that
 lead to each one.
 
+<p class="bh-hero__io bh-label">Behavior tree XML in <span aria-hidden="true">&middot;</span> the small branch that matters out</p>
+
 ```console
 $ pip install beehave-bt
 $ beehave graph mission.xml -f mermaid
 ```
+
+<p class="bh-hero__actions" markdown>[Get started](guide/getting-started.md){ .md-button .md-button--primary }
+[GitHub](https://github.com/guilyx/beehave){ .md-button }</p>
+
+</div>
+
+--8<-- "overrides/partials/home-figure.html"
+
+</div>
 
 ## Three questions, one glance
 
@@ -19,16 +42,31 @@ Behavior trees grow fast. Subtrees, fallbacks, reactive sequences and
 decorators stack up until nobody can say what the robot does if the battery
 drops halfway to the zone. Beehave answers:
 
+<div class="bh-questions" markdown>
+
 1. **Which actions exist** in this tree?
 2. **What has to be true** for each one to run?
 3. **What runs next** on success, and what runs next on failure?
+
+</div>
 
 ## Before and after
 
 A 20-node landing tree becomes 8 actions. Control nodes become arrows,
 conditions become arrow labels, subtrees are inlined, retries become notes.
 
+<figure class="bh-figure" markdown>
+<figcaption class="bh-label"><span>Fig. 2</span> The landing tree: 20 nodes in, 8 actions out</figcaption>
+
 ```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    edgeLabelBackground: "#f5f0e9"
+    lineColor: "#1b1813"
+---
+%% Beehave action graph: Mission (btcpp-v3)
 flowchart TD
     start(("START"))
     a1["EmergencyLand"]
@@ -60,7 +98,20 @@ flowchart TD
     a7 -.->|"failure"| failure
     a8 -->|"success"| success
     a8 -.->|"failure"| failure
+    classDef start fill:#1b1813,stroke:#1b1813,stroke-width:1.5px,color:#f5f0e9
+    classDef action fill:#fdfbf9,stroke:#1b1813,stroke-width:1.5px,color:#1b1813
+    classDef success fill:#107550,stroke:#fdfbf9,stroke-width:2px,color:#fdfbf9
+    classDef failure fill:#b93917,stroke:#fdfbf9,stroke-width:2px,color:#fdfbf9
+    class start start
+    class a1,a2,a3,a4,a5,a6,a7,a8 action
+    class success success
+    class failure failure
+    linkStyle 0,1 stroke:#1b1813,stroke-width:1.75px
+    linkStyle 2,4,5,7,9,11,13,15,17 stroke:#107550,stroke-width:1.75px
+    linkStyle 3,6,8,10,12,14,16,18 stroke:#b93917,stroke-width:1.75px,stroke-dasharray:7 4
 ```
+
+</figure>
 
 "What if `GoToZone` fails?" takes one arrow to answer. The gap is visible too:
 `FlyToSafe` has no failure path.

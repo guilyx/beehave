@@ -1,0 +1,15 @@
+{#-
+  Home page: the content is the plate (hero, figures, links), so it skips the
+  edit button and gets a wrapper for home-only layout.
+-#}
+{% extends "main.html" %}
+
+{% block htmltitle %}
+  <title>{{ config.site_name }}</title>
+{% endblock %}
+
+{% block content %}
+  <div class="bh-home">
+    {{ page.content }}
+  </div>
+{% endblock %}

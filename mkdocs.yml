@@ -49,7 +49,12 @@ nav:
 
 theme:
   name: material
+  custom_dir: overrides
   language: en
+  logo: assets/brand/mark.svg
+  favicon: assets/brand/favicon.svg
+  # Archivo and Martian Mono are self-hosted (docs/assets/fonts, SIL OFL 1.1).
+  font: false
   features:
     - content.code.copy
     - content.action.edit
@@ -63,17 +68,30 @@ theme:
     - navigation.tracking
     - search.highlight
     - toc.follow
+  # Colours come from the brand tokens (docs/stylesheets/beehave.css).
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
+      primary: custom
+      accent: custom
       toggle:
         icon: lucide/moon
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
+      primary: custom
+      accent: custom
       toggle:
         icon: lucide/sun
         name: Switch to light mode
+
+# Brand files are copied from .branding/ by scripts/sync_brand_assets.py.
+extra_css:
+  - assets/brand/tokens.css
+  - stylesheets/beehave.css
+
+extra_javascript:
+  - javascripts/search-plate.js
 
 markdown_extensions:
   - abbr
@@ -90,6 +108,9 @@ markdown_extensions:
       anchor_linenums: true
       pygments_lang_class: true
   - pymdownx.inlinehilite
+  # Pulls the home-page figure from overrides/partials/.
+  - pymdownx.snippets:
+      check_paths: true
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
