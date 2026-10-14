@@ -41,7 +41,7 @@ jobs:
 
       - name: Check that the tag matches the project version
         run: |
-          version="$(uv version --short)"
+          version="$(uv --color never version --short)"
           if [ "v${version}" != "${GITHUB_REF_NAME}" ]; then
             echo "::error::Tag ${GITHUB_REF_NAME} does not match version ${version} in pyproject.toml"
             exit 1

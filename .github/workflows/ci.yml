@@ -117,7 +117,7 @@ jobs:
         # Run from outside the checkout so nothing is imported from the source tree.
         working-directory: ${{ runner.temp }}
         run: |
-          expected="beehave $(uv version --short --project "$GITHUB_WORKSPACE")"
+          expected="beehave $(uv --color never version --short --project "$GITHUB_WORKSPACE")"
           actual="$("$RUNNER_TEMP/smoke/bin/beehave" --version)"
           echo "$actual"
           if [ "$actual" != "$expected" ]; then

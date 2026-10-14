@@ -16,7 +16,7 @@ How a user-defined node is classified, strongest signal first:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from pathlib import Path
+from pathlib import Path, PurePath
 from typing import TYPE_CHECKING
 
 from beehave.config import Config
@@ -133,6 +133,17 @@ _V4_ONLY_ATTRIBUTES = frozenset(
         "_autoremap",
     }
 )
+
+
+def source_name(path: PurePath) -> str:
+    """Return how a file is named in locations: always with forward slashes.
+
+    Outputs then read the same on every OS, so committed graphs do not change
+    when someone regenerates them on Windows.
+    """
+    return path.as_posix()
+
+
 _V4_REFUSAL = "Beehave reads BT.CPP v3 for now, v4 support is on the roadmap"
 
 
@@ -214,7 +225,7 @@ class _Loader:
         except OSError as exc:
             msg = f"cannot read {path}: {exc.strerror}"
             raise ParseError(msg, included_from) from exc
-        self.load_text(data, str(path), path.parent, top_level=top_level)
+        self.load_text(data, source_name(path), path.parent, top_level=top_level)
 
     def load_text(
         self, data: str | bytes, source: str | None, base_dir: Path, *, top_level: bool

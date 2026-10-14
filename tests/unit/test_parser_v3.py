@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import PureWindowsPath
 from typing import TYPE_CHECKING
 
 import pytest
@@ -10,6 +11,7 @@ from beehave.config import Config
 from beehave.errors import ParseError, UnsupportedFormatError
 from beehave.model import NodeKind, Semantics
 from beehave.parsers import parse_file, parse_string
+from beehave.parsers.btcpp_v3 import source_name
 from tests.conftest import tree_xml
 
 if TYPE_CHECKING:
@@ -251,7 +253,7 @@ def test_parse_file_follows_includes(tmp_path: Path) -> None:
     assert set(doc.trees) == {"Main", "ReturnHome"}
     assert doc.trees["Main"].root.children[0].kind is NodeKind.CONDITION
     assert doc.trees["ReturnHome"].location is not None
-    assert doc.trees["ReturnHome"].location.file == str(tmp_path / "sub" / "home.xml")
+    assert doc.trees["ReturnHome"].location.file == (tmp_path / "sub" / "home.xml").as_posix()
 
 
 def test_include_cycles_are_loaded_once(tmp_path: Path) -> None:
@@ -392,3 +394,7 @@ def test_compact_subtree_reference_is_accepted_with_a_warning() -> None:
     ref = doc.trees["Main"].root.children[0]
     assert (ref.kind, ref.semantics, ref.ref) == (NodeKind.SUBTREE, Semantics.SUBTREE, "Talk")
     assert [d.code for d in doc.diagnostics] == ["compact-subtree-reference"]
+
+
+def test_source_paths_use_forward_slashes_on_every_os() -> None:
+    assert source_name(PureWindowsPath("nav2\\trees\\follow.xml")) == "nav2/trees/follow.xml"
