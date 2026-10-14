@@ -69,6 +69,14 @@ flowchart TD
 **After:** `beehave graph landing.xml -f mermaid`
 
 ```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    edgeLabelBackground: "#f5f0e9"
+    lineColor: "#1b1813"
+---
+%% Beehave action graph: Mission (btcpp-v3)
 flowchart TD
     start(("START"))
     a1["EmergencyLand"]
@@ -100,6 +108,17 @@ flowchart TD
     a7 -.->|"failure"| failure
     a8 -->|"success"| success
     a8 -.->|"failure"| failure
+    classDef start fill:#1b1813,stroke:#1b1813,stroke-width:1.5px,color:#f5f0e9
+    classDef action fill:#fdfbf9,stroke:#1b1813,stroke-width:1.5px,color:#1b1813
+    classDef success fill:#107550,stroke:#fdfbf9,stroke-width:2px,color:#fdfbf9
+    classDef failure fill:#b93917,stroke:#fdfbf9,stroke-width:2px,color:#fdfbf9
+    class start start
+    class a1,a2,a3,a4,a5,a6,a7,a8 action
+    class success success
+    class failure failure
+    linkStyle 0,1 stroke:#1b1813,stroke-width:1.75px
+    linkStyle 2,4,5,7,9,11,13,15,17 stroke:#107550,stroke-width:1.75px
+    linkStyle 3,6,8,10,12,14,16,18 stroke:#b93917,stroke-width:1.75px,stroke-dasharray:7 4
 ```
 
 What changed:
