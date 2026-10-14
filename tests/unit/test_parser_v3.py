@@ -197,13 +197,6 @@ def test_explicit_v3_marker_is_accepted() -> None:
         ("<root><BehaviorTree ID='Main'/></root>", "exactly one child"),
         ("<root><BehaviorTree ID='Main'><A/><B/></BehaviorTree></root>", "exactly one child"),
         (
-            (
-                "<root><BehaviorTree ID='M'><A/></BehaviorTree>"
-                "<BehaviorTree ID='M'><B/></BehaviorTree></root>"
-            ),
-            "defined twice",
-        ),
-        (
             "<root><BehaviorTree ID='M'><Inverter><A/><B/></Inverter></BehaviorTree></root>",
             "1 child",
         ),
@@ -301,3 +294,101 @@ def test_parse_file_reads_several_files(tmp_path: Path) -> None:
 
     assert set(doc.trees) == {"A", "B"}
     assert doc.main_tree is None
+
+
+# ------------------------------------------------ details from BT.CPP 3.8.8 ---
+
+
+def test_while_do_else_needs_exactly_three_children_in_v3() -> None:
+    with pytest.raises(ParseError, match="exactly 3 children"):
+        parse_string(tree_xml("<WhileDoElse><A/><B/></WhileDoElse>"))
+
+
+def test_blackboard_check_bool_is_a_builtin() -> None:
+    root = (
+        parse_string(tree_xml("<BlackboardCheckBool><A/></BlackboardCheckBool>")).trees["Main"].root
+    )
+
+    assert root.semantics is Semantics.BLACKBOARD_CHECK
+
+
+def test_duplicate_trees_keep_the_first_and_warn() -> None:
+    xml = (
+        "<root><BehaviorTree ID='M'><A/></BehaviorTree>"
+        "<BehaviorTree ID='M'><B/></BehaviorTree></root>"
+    )
+
+    doc = parse_string(xml)
+
+    assert doc.trees["M"].root.type == "A"
+    assert [d.code for d in doc.diagnostics] == ["duplicate-tree"]
+
+
+def test_included_trees_shadow_local_ones_like_bt_cpp(tmp_path: Path) -> None:
+    (tmp_path / "inc.xml").write_text(
+        '<root><BehaviorTree ID="T"><FromInclude/></BehaviorTree></root>'
+    )
+    (tmp_path / "main.xml").write_text(
+        '<root main_tree_to_execute="T"><BehaviorTree ID="T"><Local/></BehaviorTree>'
+        '<include path="inc.xml"/></root>'
+    )
+
+    assert parse_file(tmp_path / "main.xml").trees["T"].root.type == "FromInclude"
+
+
+def test_main_tree_comes_from_the_first_file_that_names_one(tmp_path: Path) -> None:
+    (tmp_path / "models.xml").write_text(
+        '<root><TreeNodesModel><Condition ID="Ok"/></TreeNodesModel></root>'
+    )
+    (tmp_path / "tree.xml").write_text(
+        '<root main_tree_to_execute="A"><BehaviorTree ID="A"><Ok/></BehaviorTree>'
+        '<BehaviorTree ID="B"><X/></BehaviorTree></root>'
+    )
+
+    doc = parse_file(tmp_path / "models.xml", tmp_path / "tree.xml")
+
+    assert doc.main_tree == "A"
+    assert doc.trees["A"].root.kind is NodeKind.CONDITION
+
+
+@pytest.mark.parametrize(
+    ("body", "evidence"),
+    [
+        ("<SequenceWithMemory><A/></SequenceWithMemory>", "<SequenceWithMemory>"),
+        ('<Script code="x:=1"/>', "<Script>"),
+        ('<A _skipIf="x"/>', "_skipIf"),
+        ('<SubTree ID="S" _autoremap="true"/>', "_autoremap"),
+        ('<A value="{=}"/>', "{=}"),
+        ('<A value="{@root_key}"/>', "{@root_key}"),
+        ('<Parallel success_count="1"><A/><B/></Parallel>', "success_count"),
+    ],
+)
+def test_v4_files_without_a_marker_are_detected(body: str, evidence: str) -> None:
+    with pytest.raises(UnsupportedFormatError, match=r"looks like BT\.CPP v4") as info:
+        parse_string(tree_xml(body), source="t.xml")
+    assert evidence in str(info.value)
+    assert "t.xml:1" in str(info.value)
+
+
+def test_a_declared_custom_node_with_a_v4_name_is_not_evidence() -> None:
+    xml = tree_xml("<Sleep/>", extra='<TreeNodesModel><Action ID="Sleep"/></TreeNodesModel>')
+
+    assert parse_string(xml).trees["Main"].root.type == "Sleep"
+
+
+def test_unknown_format_marker_is_a_warning() -> None:
+    doc = parse_string('<root BTCPP_format="5"><BehaviorTree ID="M"><A/></BehaviorTree></root>')
+
+    assert [d.code for d in doc.diagnostics] == ["unknown-format-marker"]
+
+
+def test_compact_subtree_reference_is_accepted_with_a_warning() -> None:
+    xml = tree_xml(
+        "<Sequence><Talk/></Sequence>", extra='<BehaviorTree ID="Talk"><Say/></BehaviorTree>'
+    )
+
+    doc = parse_string(xml)
+
+    ref = doc.trees["Main"].root.children[0]
+    assert (ref.kind, ref.semantics, ref.ref) == (NodeKind.SUBTREE, Semantics.SUBTREE, "Talk")
+    assert [d.code for d in doc.diagnostics] == ["compact-subtree-reference"]

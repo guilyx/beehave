@@ -168,3 +168,52 @@ def test_unknown_tree_selection_is_an_error() -> None:
 
     with pytest.raises(TreeSelectionError, match="'Nope'"):
         flatten(doc, "Nope")
+
+
+def test_shared_blackboard_ignores_every_other_attribute() -> None:
+    doc = parse_string(
+        _doc(
+            '<SubTree ID="Move" __shared_blackboard="true" target="other"/>',
+            ("Move", '<MoveBase goal="{target}"/>'),
+        )
+    )
+
+    assert _leaves(flatten(doc).root) == [("MoveBase", {"goal": "{target}"})]
+
+
+def test_braced_value_on_a_classic_subtree_points_to_a_literal_key() -> None:
+    doc = parse_string(
+        _doc('<SubTree ID="Move" target="{goal}"/>', ("Move", '<MoveBase goal="{target}"/>'))
+    )
+
+    flat = flatten(doc)
+
+    assert _leaves(flat.root) == [("MoveBase", {"goal": "{{goal}}"})]
+    assert [d.code for d in flat.diagnostics] == ["braced-subtree-remap"]
+
+
+def test_subtree_plus_accepts_dollar_braces() -> None:
+    doc = parse_string(
+        _doc('<SubTreePlus ID="Home" zone="${home}"/>', ("Home", '<Fly zone="{zone}"/>'))
+    )
+
+    assert _leaves(flatten(doc).root) == [("Fly", {"zone": "{home}"})]
+
+
+def test_literal_after_autoremap_is_reported() -> None:
+    doc = parse_string(
+        _doc('<SubTreePlus ID="Home" __autoremap="1" zone="3"/>', ("Home", '<Fly zone="{zone}"/>'))
+    )
+
+    flat = flatten(doc)
+
+    assert _leaves(flat.root) == [("Fly", {"zone": "3"})]
+    assert [d.code for d in flat.diagnostics] == ["autoremap-literal-order"]
+
+
+def test_literal_before_autoremap_is_fine() -> None:
+    doc = parse_string(
+        _doc('<SubTreePlus ID="Home" zone="3" __autoremap="1"/>', ("Home", '<Fly zone="{zone}"/>'))
+    )
+
+    assert flatten(doc).diagnostics == ()

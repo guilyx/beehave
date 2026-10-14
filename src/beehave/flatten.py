@@ -5,13 +5,17 @@ whose single child is the inlined body. The body's ``{key}`` port values are
 rewritten through the reference's remapping, so a node deep inside nested
 subtrees shows the blackboard key it really reads.
 
-Remapping rules (BehaviorTree.CPP v3):
+Remapping rules (BehaviorTree.CPP 3.8, see ``docs/research/btcpp-v3-xml.md``):
 
-- ``<SubTreePlus ID="X" inner="{outer}">`` maps ``{inner}`` to ``{outer}``.
+- ``<SubTreePlus ID="X" inner="{outer}">`` (or ``${outer}``) maps ``{inner}``
+  to ``{outer}``.
 - ``<SubTreePlus ID="X" inner="literal">`` replaces ``{inner}`` with ``literal``.
 - ``<SubTreePlus ID="X" __autoremap="true">`` maps every other key to itself.
-- ``<SubTree ID="X" inner="outer">`` maps ``{inner}`` to ``{outer}`` (bare names).
-- ``<SubTree ID="X" __shared_blackboard="true">`` shares every key.
+- ``<SubTree ID="X" inner="outer">`` maps ``{inner}`` to ``{outer}``. Values
+  are bare key names: ``inner="{outer}"`` points to a key literally named
+  ``{outer}``, which is almost always a mistake, so it is reported.
+- ``<SubTree ID="X" __shared_blackboard="true">`` shares every key and
+  ignores every other attribute.
 - Any other key is private to that subtree instance and is shown as
   ``{X/key}`` (``{X#2/key}`` for the second instance of ``X``, and so on).
 """
@@ -21,6 +25,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING
 
+from beehave.diagnostics import Diagnostic
 from beehave.errors import FlattenError, TreeSelectionError
 from beehave.model import Document, Node, NodeKind, Semantics
 
@@ -38,11 +43,13 @@ class FlatTree:
         id: The ID of the tree that was flattened.
         root: The root of the flattened tree.
         format: The source format of the document it came from.
+        diagnostics: Remapping problems found while inlining.
     """
 
     id: str
     root: Node
     format: str
+    diagnostics: tuple[Diagnostic, ...] = ()
 
 
 def select_tree(document: Document, tree_id: str | None = None) -> str:
@@ -88,7 +95,7 @@ def flatten(document: Document, tree_id: str | None = None) -> FlatTree:
     tree_id = select_tree(document, tree_id)
     flattener = _Flattener(document)
     root = flattener.inline(document.trees[tree_id].root, _ROOT_SCOPE, (tree_id,))
-    return FlatTree(tree_id, root, document.format)
+    return FlatTree(tree_id, root, document.format, tuple(flattener.diagnostics))
 
 
 @dataclass(frozen=True)
@@ -106,6 +113,7 @@ _ROOT_SCOPE = _Scope("", lambda key: f"{{{key}}}")
 class _Flattener:
     document: Document
     instances: dict[str, int] = field(default_factory=dict)
+    diagnostics: list[Diagnostic] = field(default_factory=list)
 
     def inline(self, node: Node, scope: _Scope, stack: tuple[str, ...]) -> Node:
         if node.kind is NodeKind.SUBTREE:
@@ -134,16 +142,10 @@ class _Flattener:
         self.instances[name] = count
         private_prefix = name if count == 1 else f"{name}#{count}"
 
-        remap = {k: v for k, v in node.ports.items() if not k.startswith("__")}
         if node.semantics is Semantics.SUBTREE_PLUS:
-            explicit = {
-                inner: parent.resolve(key) if (key := _key(value)) is not None else value
-                for inner, value in remap.items()
-            }
-            shared = _flag(node.ports, "__autoremap")
+            explicit, shared = self._plus_remap(node, ref, parent)
         else:
-            explicit = {inner: parent.resolve(_key(v) or v) for inner, v in remap.items()}
-            shared = _flag(node.ports, "__shared_blackboard")
+            explicit, shared = self._classic_remap(node, ref, parent)
 
         def resolve(key: str) -> str:
             if key in explicit:
@@ -154,10 +156,58 @@ class _Flattener:
 
         return _Scope(private_prefix + "/", resolve)
 
+    def _plus_remap(self, node: Node, ref: str, parent: _Scope) -> tuple[dict[str, str], bool]:
+        explicit: dict[str, str] = {}
+        autoremap_seen = False
+        for inner, value in node.ports.items():
+            if inner.startswith("_"):
+                autoremap_seen = autoremap_seen or (
+                    inner == "__autoremap" and _flag(node.ports, inner)
+                )
+                continue
+            key = _key(value, dollar=True)
+            if key is not None:
+                explicit[inner] = parent.resolve(key)
+                continue
+            explicit[inner] = value
+            if autoremap_seen:
+                self._warn(
+                    node,
+                    "autoremap-literal-order",
+                    f"in SubTreePlus '{ref}', {inner}=\"{value}\" comes after __autoremap, "
+                    f"so BT.CPP 3.8.4+ also writes it to the parent's '{inner}' key; "
+                    "put literals before __autoremap",
+                )
+        return explicit, _flag(node.ports, "__autoremap")
 
-def _key(value: str) -> str | None:
-    """Return the blackboard key if ``value`` is a ``{key}`` reference."""
+    def _classic_remap(self, node: Node, ref: str, parent: _Scope) -> tuple[dict[str, str], bool]:
+        if _flag(node.ports, "__shared_blackboard"):
+            return {}, True
+        explicit: dict[str, str] = {}
+        for inner, value in node.ports.items():
+            if inner.startswith("_"):
+                continue
+            if _key(value) is not None:
+                self._warn(
+                    node,
+                    "braced-subtree-remap",
+                    f"in SubTree '{ref}', {inner}=\"{value}\" points to a key literally named "
+                    f"{value}; SubTree takes bare key names (use SubTreePlus for {{key}})",
+                )
+            explicit[inner] = parent.resolve(value)
+        return explicit, False
+
+    def _warn(self, node: Node, code: str, message: str) -> None:
+        self.diagnostics.append(
+            Diagnostic(code, message, node_type=node.type, location=node.location)
+        )
+
+
+def _key(value: str, *, dollar: bool = False) -> str | None:
+    """Return the blackboard key if ``value`` is a ``{key}`` (or ``${key}``) reference."""
     value = value.strip()
+    if dollar and value.startswith("${"):
+        value = value[1:]
     if len(value) > 2 and value[0] == "{" and value[-1] == "}":
         return value[1:-1]
     return None

@@ -239,11 +239,17 @@ def test_retry_and_repeat_fold_into_a_note_on_the_action(decorator: str, note: s
     assert edges(g) == ["START -> A", "A -success-> SUCCESS", "A -failure-> FAILURE"]
 
 
-def test_timeout_and_delay_are_transparent_and_exact() -> None:
-    g = graph('<Timeout msec="100"><Delay delay_msec="5"><A/></Delay></Timeout>')
+def test_delay_is_transparent_and_exact() -> None:
+    g = graph('<Delay delay_msec="5"><A/></Delay>')
 
     assert edges(g) == ["START -> A", "A -success-> SUCCESS", "A -failure-> FAILURE"]
     assert g.diagnostics == ()
+
+
+def test_switch_without_a_variable_goes_to_the_default() -> None:
+    g = graph('<Switch2 case_1="A" case_2="B"><A/><B/><X/></Switch2>')
+
+    assert edges(g)[0] == "START -> X"
 
 
 @pytest.mark.parametrize(
@@ -258,6 +264,7 @@ def test_timeout_and_delay_are_transparent_and_exact() -> None:
         ),
         ("<Repeat num_cycles='2'><A/></Repeat>", "Repeat"),
         ("<KeepRunningUntilFailure><A/></KeepRunningUntilFailure>", "KeepRunningUntilFailure"),
+        ("<Timeout msec='100'><A/></Timeout>", "Timeout"),
         ("<WhileDoElse><C/><A/><B/></WhileDoElse>", "WhileDoElse"),
         ("<ManualSelector><A/><B/></ManualSelector>", "ManualSelector"),
         ("<Throttle><A/></Throttle>", "Throttle"),

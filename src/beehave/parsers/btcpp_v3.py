@@ -65,7 +65,7 @@ BUILTINS: dict[str, Builtin] = {
     "ReactiveFallback": _control(Semantics.REACTIVE_FALLBACK),
     "Parallel": _control(Semantics.PARALLEL),
     "IfThenElse": _control(Semantics.IF_THEN_ELSE, 2, 3),
-    "WhileDoElse": _control(Semantics.WHILE_DO_ELSE, 2, 3),
+    "WhileDoElse": _control(Semantics.WHILE_DO_ELSE, 3, 3),
     "ManualSelector": _control(Semantics.MANUAL_SELECTOR),
     **{f"Switch{n}": _control(Semantics.SWITCH, n + 1, n + 1) for n in range(2, 7)},
     "Inverter": _decorator(Semantics.INVERTER),
@@ -79,6 +79,7 @@ BUILTINS: dict[str, Builtin] = {
     "BlackboardCheckInt": _decorator(Semantics.BLACKBOARD_CHECK),
     "BlackboardCheckDouble": _decorator(Semantics.BLACKBOARD_CHECK),
     "BlackboardCheckString": _decorator(Semantics.BLACKBOARD_CHECK),
+    "BlackboardCheckBool": _decorator(Semantics.BLACKBOARD_CHECK),
     "AlwaysSuccess": _leaf(Semantics.ALWAYS_SUCCESS),
     "AlwaysFailure": _leaf(Semantics.ALWAYS_FAILURE),
     "SetBlackboard": _leaf(Semantics.SET_BLACKBOARD),
@@ -94,6 +95,45 @@ _EXPLICIT_TAGS: dict[str, NodeKind] = {
 }
 
 _NOT_PORTS = frozenset({"ID", "name"})
+
+# Names and attributes that only exist in BT.CPP v4. Files often lack the
+# BTCPP_format marker, so these are how a v4 file is recognised.
+_V4_ONLY_NODES = frozenset(
+    {
+        "SequenceWithMemory",
+        "Script",
+        "ScriptCondition",
+        "Precondition",
+        "RunOnce",
+        "UnsetBlackboard",
+        "Sleep",
+        "ParallelAll",
+        "AsyncSequence",
+        "AsyncFallback",
+        "LoopInt",
+        "LoopBool",
+        "LoopDouble",
+        "LoopString",
+        "WasEntryUpdated",
+        "SkipUnlessUpdated",
+        "WaitValueUpdate",
+        "TryCatch",
+    }
+)
+_V4_ONLY_ATTRIBUTES = frozenset(
+    {
+        "_skipIf",
+        "_failureIf",
+        "_successIf",
+        "_while",
+        "_onSuccess",
+        "_onFailure",
+        "_post",
+        "_onHalted",
+        "_autoremap",
+    }
+)
+_V4_REFUSAL = "Beehave reads BT.CPP v3 for now, v4 support is on the roadmap"
 
 
 def parse_string(
@@ -120,7 +160,7 @@ def parse_string(
         UnsupportedFormatError: If the document is in another format (e.g. v4).
     """
     loader = _Loader(config or Config())
-    loader.load_text(xml, source, Path(base_dir) if base_dir else Path.cwd(), first=True)
+    loader.load_text(xml, source, Path(base_dir) if base_dir else Path.cwd(), top_level=True)
     return loader.build()
 
 
@@ -128,8 +168,10 @@ def parse_file(*paths: str | Path, config: Config | None = None) -> Document:
     """Parse one or more BT.CPP v3 files into a single document.
 
     Trees from every file (and every file they include) are merged. The main
-    tree is taken from the first file's ``main_tree_to_execute`` attribute, or
-    is the only tree if there is just one.
+    tree is taken from the first given file that has a ``main_tree_to_execute``
+    attribute, or is the only tree if there is just one. Included files are
+    loaded before the trees of the file that includes them, and the first
+    definition of a tree ID wins, as in BT.CPP.
 
     Args:
         *paths: The files to read.
@@ -143,8 +185,8 @@ def parse_file(*paths: str | Path, config: Config | None = None) -> Document:
         UnsupportedFormatError: If a file is in another format (e.g. v4).
     """
     loader = _Loader(config or Config())
-    for index, path in enumerate(paths):
-        loader.load_file(Path(path), first=index == 0)
+    for path in paths:
+        loader.load_file(Path(path), top_level=True)
     return loader.build()
 
 
@@ -161,7 +203,7 @@ class _Loader:
     # ------------------------------------------------------------- loading ---
 
     def load_file(
-        self, path: Path, *, first: bool, included_from: SourceLocation | None = None
+        self, path: Path, *, top_level: bool, included_from: SourceLocation | None = None
     ) -> None:
         resolved = path.resolve()
         if resolved in self.seen_files:
@@ -172,31 +214,34 @@ class _Loader:
         except OSError as exc:
             msg = f"cannot read {path}: {exc.strerror}"
             raise ParseError(msg, included_from) from exc
-        self.load_text(data, str(path), path.parent, first=first)
+        self.load_text(data, str(path), path.parent, top_level=top_level)
 
     def load_text(
-        self, data: str | bytes, source: str | None, base_dir: Path, *, first: bool
+        self, data: str | bytes, source: str | None, base_dir: Path, *, top_level: bool
     ) -> None:
         root = read_xml(data, source)
         here = SourceLocation(source, root.line)
         if root.tag != "root":
             msg = f"expected <root> as the top element, found <{root.tag}>"
             raise ParseError(msg, here)
-        _check_format(root, here)
+        self._check_format(root, here)
 
-        if first and "main_tree_to_execute" in root.attrs:
+        if top_level and self.main_tree is None and "main_tree_to_execute" in root.attrs:
             self.main_tree = root.attrs["main_tree_to_execute"]
             self.main_tree_location = here
 
+        # Like BT.CPP, load includes before this file's own trees, so an
+        # included tree wins over a local tree with the same ID.
+        for element in root.children:
+            if element.tag == "include":
+                self._include(element, base_dir, SourceLocation(source, element.line))
         for element in root.children:
             location = SourceLocation(source, element.line)
             if element.tag == "BehaviorTree":
                 self._add_tree(element, source, location)
             elif element.tag == "TreeNodesModel":
                 self._add_models(element)
-            elif element.tag == "include":
-                self._include(element, base_dir, location)
-            else:
+            elif element.tag != "include":
                 self.diagnostics.append(
                     Diagnostic(
                         "unknown-element",
@@ -205,14 +250,58 @@ class _Loader:
                     )
                 )
 
+    def _check_format(self, root: Element, location: SourceLocation) -> None:
+        version = root.attrs.get("BTCPP_format")
+        if version is None or version == "3":
+            return
+        if version == "4":
+            msg = f'this file is BT.CPP v4 (BTCPP_format="4"); {_V4_REFUSAL}'
+            raise UnsupportedFormatError(msg, location)
+        self.diagnostics.append(
+            Diagnostic(
+                "unknown-format-marker",
+                f'unknown BTCPP_format="{version}"; reading the file as BT.CPP v3',
+                location=location,
+            )
+        )
+
+    def _reject_v4(self, element: Element, source: str | None) -> None:
+        evidence = self._v4_evidence(element)
+        if evidence is not None:
+            msg = f"this file looks like BT.CPP v4 ({evidence}); {_V4_REFUSAL}"
+            raise UnsupportedFormatError(msg, SourceLocation(source, element.line))
+        for child in element.children:
+            self._reject_v4(child, source)
+
+    def _v4_evidence(self, element: Element) -> str | None:
+        declared = self.models.keys() | self.config.conditions | self.config.actions
+        if element.tag in _V4_ONLY_NODES and element.tag not in declared:
+            return f"it uses <{element.tag}>"
+        for name, value in element.attrs.items():
+            if name in _V4_ONLY_ATTRIBUTES:
+                return f"it uses the {name} attribute"
+            if value.strip() == "{=}" or value.strip().startswith("{@"):
+                return f"it uses the port value {value.strip()}"
+        if element.tag == "Parallel":
+            for name in ("success_count", "failure_count"):
+                if name in element.attrs:
+                    return f"it uses {name} on <Parallel>"
+        return None
+
     def _add_tree(self, element: Element, source: str | None, location: SourceLocation) -> None:
         tree_id = element.attrs.get("ID")
         if not tree_id:
             msg = "<BehaviorTree> is missing the ID attribute"
             raise ParseError(msg, location)
         if tree_id in self.tree_elements:
-            msg = f"tree '{tree_id}' is defined twice"
-            raise ParseError(msg, location)
+            self.diagnostics.append(
+                Diagnostic(
+                    "duplicate-tree",
+                    f"tree '{tree_id}' is defined more than once; the first definition is used",
+                    location=location,
+                )
+            )
+            return
         self.tree_elements[tree_id] = (element, source)
 
     def _add_models(self, element: Element) -> None:
@@ -239,7 +328,7 @@ class _Loader:
         if not target.is_file():
             msg = f"included file not found: {path}"
             raise ParseError(msg, location)
-        self.load_file(target, first=False, included_from=location)
+        self.load_file(target, top_level=False, included_from=location)
 
     # ------------------------------------------------------------ building ---
 
@@ -247,6 +336,8 @@ class _Loader:
         if not self.tree_elements:
             msg = "no <BehaviorTree> found"
             raise ParseError(msg)
+        for element, source in self.tree_elements.values():
+            self._reject_v4(element, source)
         trees = {
             tree_id: self._build_tree(tree_id, element, source)
             for tree_id, (element, source) in self.tree_elements.items()
@@ -297,6 +388,32 @@ class _Loader:
                 location=location,
             )
 
+        if (
+            explicit_kind is None
+            and not children
+            and node_type in self.tree_elements
+            and node_type not in BUILTINS
+            and node_type not in self.models
+            and node_type not in self.config.conditions | self.config.actions
+        ):
+            self.diagnostics.append(
+                Diagnostic(
+                    "compact-subtree-reference",
+                    f'<{node_type}/> is read as <SubTree ID="{node_type}"/>; '
+                    "BT.CPP 3.8 rejects this short form",
+                    location=location,
+                )
+            )
+            return Node(
+                NodeKind.SUBTREE,
+                "SubTree",
+                Semantics.SUBTREE,
+                name,
+                ports,
+                ref=node_type,
+                location=location,
+            )
+
         builtin = BUILTINS.get(node_type)
         if builtin is not None:
             _check_children(
@@ -332,20 +449,6 @@ _ARITY: dict[NodeKind, tuple[int, int | None]] = {
     NodeKind.CONTROL: (1, None),
     NodeKind.SUBTREE: (0, 0),
 }
-
-
-def _check_format(root: Element, location: SourceLocation) -> None:
-    version = root.attrs.get("BTCPP_format")
-    if version is None or version == "3":
-        return
-    if version == "4":
-        msg = (
-            'this file is BT.CPP v4 (BTCPP_format="4"); '
-            "Beehave reads BT.CPP v3 for now, v4 support is on the roadmap"
-        )
-    else:
-        msg = f'unknown BTCPP_format "{version}"'
-    raise UnsupportedFormatError(msg, location)
 
 
 def _check_children(

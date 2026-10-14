@@ -72,7 +72,11 @@ _APPROXIMATIONS: dict[Semantics, str] = {
     Semantics.MANUAL_SELECTOR: "the operator's choice is not modelled; walked like a Fallback",
     Semantics.RETRY: "the retry loop is folded into a note; the loop edge is not shown yet",
     Semantics.REPEAT: "the repeat loop is folded into a note; the loop edge is not shown yet",
-    Semantics.KEEP_RUNNING_UNTIL_FAILURE: "walked as transparent; the loop is not shown yet",
+    Semantics.KEEP_RUNNING_UNTIL_FAILURE: (
+        "never succeeds (a successful child is ticked again); walked as transparent, "
+        "the loop is not shown yet"
+    ),
+    Semantics.TIMEOUT: "can also fail when time runs out; those failure edges are not shown yet",
 }
 
 _SEQUENCES = frozenset(
@@ -222,14 +226,16 @@ class _Walker:
     def _switch(
         self, node: Node, path: _Path, s: _Target, f: _Target, subtrees: tuple[str, ...]
     ) -> _Target:
-        variable = node.ports.get("variable", "?")
+        variable = node.ports.get("variable")
         last = len(node.children) - 1
         entry = self.compile(node.children[last], (*path, last), s, f, subtrees)
+        default = entry
         for index in reversed(range(last)):
             case = node.ports.get(f"case_{index + 1}", "?")
             branch = self.compile(node.children[index], (*path, index), s, f, subtrees)
-            entry = _Branch(_equals(variable, case), branch, entry)
-        return entry
+            entry = _Branch(_equals(variable or "", case), branch, entry)
+        # Without a variable, BT.CPP always runs the default child.
+        return entry if variable is not None else default
 
     def _blackboard_check(
         self, node: Node, path: _Path, s: _Target, f: _Target, subtrees: tuple[str, ...]
@@ -305,8 +311,11 @@ class _Walker:
             format=flat.format,
             vertices=tuple(vertices),
             edges=tuple(edges),
-            diagnostics=tuple(d for _, d in sorted(self.node_diagnostics, key=lambda pd: pd[0]))
-            + tuple(self.diagnostics),
+            diagnostics=(
+                flat.diagnostics
+                + tuple(d for _, d in sorted(self.node_diagnostics, key=lambda pd: pd[0]))
+                + tuple(self.diagnostics)
+            ),
             node_count=sum(1 for _ in flat.root.walk()),
         )
 
