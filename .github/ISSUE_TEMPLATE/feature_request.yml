@@ -1,0 +1,76 @@
+name: Feature request
+description: Suggest a new capability or an improvement.
+title: "feat: "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the idea. Beehave grows in phases, and each phase has a gate we must pass before the next one starts; see the [roadmap](https://github.com/guilyx/beehave/blob/main/docs/design/roadmap.md). Ideas for later phases are welcome: we label them and come back to them when that phase starts.
+
+        Not sure it is a feature yet? Start a thread in [Discussions](https://github.com/guilyx/beehave/discussions) instead.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe what you are trying to do and what gets in the way. Real use cases help us most.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like to happen?
+      description: Your proposed solution. Mock output (a graph, a command, an API call) is very welcome.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you considered
+      description: Other ways to solve the problem, including workarounds you use today.
+
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Which roadmap phase does this belong to?
+      description: Your best guess is fine; we will adjust it during triage.
+      options:
+        - "Phase 1: action graph (current)"
+        - "Phase 2: guards and metrics"
+        - "Phase 3: operator view"
+        - "Phase 4: LTL checks (optional)"
+        - Not sure, or outside the roadmap
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part of Beehave?
+      multiple: true
+      options:
+        - Parser (reading tree files)
+        - Flatten (subtrees and remapping)
+        - Walk (building the action graph)
+        - Render (text, Mermaid, DOT, JSON)
+        - Command line
+        - Python API
+        - Documentation
+        - Other
+
+  - type: textarea
+    id: example
+    attributes:
+      label: Example tree
+      description: A small tree that shows where this feature matters, if relevant.
+      render: xml
+
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contributing
+      options:
+        - label: I would like to work on this myself (see CONTRIBUTING.md).

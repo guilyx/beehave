@@ -1,0 +1,111 @@
+name: Wrong or confusing graph
+description: Beehave produced a wrong or confusing graph for a tree.
+title: "graph: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this. A wrong graph is the most important kind of bug for us.
+
+        **Please reduce your tree first.** Delete nodes until removing any more makes the problem go away, and rename anything you cannot share. A ten-line tree usually becomes the regression test for the fix.
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What is wrong?
+      multiple: true
+      options:
+        - An edge is missing
+        - An edge should not be there
+        - An edge goes to the wrong action or outcome
+        - A guard (condition on an edge) is wrong or missing
+        - An action is missing, or shown when it should not be
+        - The graph is correct but hard to understand
+        - Beehave rejected a tree that BehaviorTree.CPP accepts
+        - Something else
+    validations:
+      required: true
+
+  - type: textarea
+    id: tree
+    attributes:
+      label: Minimal tree
+      description: The smallest BehaviorTree.CPP XML that shows the problem, including any included files.
+      render: xml
+      placeholder: |
+        <root main_tree_to_execute="Main">
+          <BehaviorTree ID="Main">
+            <Fallback>
+              <Sequence>
+                <IsReady/>
+                <DoThing/>
+              </Sequence>
+              <Recover/>
+            </Fallback>
+          </BehaviorTree>
+        </root>
+    validations:
+      required: true
+
+  - type: textarea
+    id: config
+    attributes:
+      label: beehave.yaml
+      description: Your project config, if you used one.
+      render: yaml
+
+  - type: input
+    id: command
+    attributes:
+      label: Command
+      description: The exact command you ran.
+      placeholder: beehave graph tree.xml -f text
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual output
+      description: What Beehave printed. The text format (`-f text`) is the easiest to read here; include any warnings.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected output
+      description: |
+        What you expected, ideally in the same `A --[outcome]--> B` form, and why: what does BehaviorTree.CPP do with this tree? A link to the relevant BT.CPP source or docs helps a lot.
+    validations:
+      required: true
+
+  - type: input
+    id: btcpp-version
+    attributes:
+      label: BehaviorTree.CPP version
+      description: The version the tree is written for (and runs on).
+      placeholder: "3.8.7"
+    validations:
+      required: true
+
+  - type: input
+    id: beehave-version
+    attributes:
+      label: Beehave version
+      description: The output of `beehave --version`.
+      placeholder: beehave 0.1.0
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched the existing issues and this is not a duplicate.
+          required: true
+        - label: I am allowed to share this tree publicly.
+          required: true

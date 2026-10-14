@@ -62,6 +62,7 @@ lint = [
   "ruff>=0.15",
   "mypy>=1.15",
   "types-PyYAML>=6.0",
+  "prek>=0.5",
 ]
 docs = [
   "zensical>=0.0.70",

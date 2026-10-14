@@ -1,0 +1,157 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call:
+
+permissions: {}
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  FORCE_COLOR: "1"
+
+jobs:
+  lint:
+    name: Lint and type-check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: uv sync --locked --group dev
+
+      - name: Check formatting
+        run: uv run ruff format --check .
+
+      - name: Lint
+        run: uv run ruff check --output-format=github .
+
+      - name: Type-check
+        run: uv run mypy
+
+  test:
+    name: Test (${{ matrix.os }}, Python ${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        include:
+          # Coverage is measured once; fail_under lives in pyproject.toml.
+          - os: ubuntu-latest
+            python: "3.13"
+            coverage: true
+          - os: macos-latest
+            python: "3.13"
+          - os: windows-latest
+            python: "3.13"
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install dependencies
+        run: uv sync --locked --group dev
+
+      - name: Run tests
+        if: ${{ !matrix.coverage }}
+        run: uv run pytest
+
+      - name: Run tests with coverage
+        if: ${{ matrix.coverage }}
+        run: uv run pytest --cov
+
+      - name: Write the coverage report to the job summary
+        if: ${{ matrix.coverage && !cancelled() }}
+        run: uv run coverage report --format=markdown >> "$GITHUB_STEP_SUMMARY"
+
+  build:
+    name: Build and smoke-test the wheel
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          python-version: "3.13"
+
+      - name: Build the sdist and the wheel
+        run: uv build --no-sources
+
+      - name: Install the wheel in a fresh environment
+        run: |
+          uv venv "$RUNNER_TEMP/smoke"
+          uv pip install --python "$RUNNER_TEMP/smoke" dist/*.whl
+
+      - name: Run the installed CLI
+        # Run from outside the checkout so nothing is imported from the source tree.
+        working-directory: ${{ runner.temp }}
+        run: |
+          expected="beehave $(uv version --short --project "$GITHUB_WORKSPACE")"
+          actual="$("$RUNNER_TEMP/smoke/bin/beehave" --version)"
+          echo "$actual"
+          if [ "$actual" != "$expected" ]; then
+            echo "::error::'beehave --version' printed '$actual', expected '$expected'"
+            exit 1
+          fi
+          "$RUNNER_TEMP/smoke/bin/beehave" graph "$GITHUB_WORKSPACE/tests/fixtures/trees/landing.xml" -q
+
+      # Handy for trying a PR's wheel. Never published: release.yml builds its own.
+      - name: Upload the distributions
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ci-dist
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
+
+  # The one check to require in branch protection: it fails if any job above did.
+  ci-ok:
+    name: ci-ok
+    if: ${{ always() }}
+    needs: [lint, test, build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - name: Fail if a required job did not succeed
+        if: >-
+          ${{
+            contains(needs.*.result, 'failure') ||
+            contains(needs.*.result, 'cancelled') ||
+            contains(needs.*.result, 'skipped')
+          }}
+        run: exit 1
+
+      - name: All required jobs passed
+        run: echo "lint, test and build passed."

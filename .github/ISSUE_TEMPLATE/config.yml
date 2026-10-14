@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Ask a question
+    url: https://github.com/guilyx/beehave/discussions
+    about: Questions, ideas and trees you want to talk about go to GitHub Discussions.
+  - name: Read the documentation
+    url: https://guilyx.github.io/beehave/
+    about: Guides, the command line reference and the design notes.
+  - name: Report a security vulnerability
+    url: https://github.com/guilyx/beehave/security/advisories/new
+    about: Please report security problems privately, never in a public issue.
