@@ -1,0 +1,79 @@
+---
+title: "FIG. 1  FLY TO ZONE, FALL BACK HOME, LAND"
+config:
+  theme: base
+  look: classic
+  flowchart:
+    curve: basis
+    nodeSpacing: 40
+    rankSpacing: 44
+    padding: 14
+  themeVariables:
+    fontFamily: "Martian Mono, Menlo, Consolas, monospace"
+    fontSize: 13px
+    background: "#f5f0e9"
+    primaryColor: "#fdfbf9"
+    primaryTextColor: "#1b1813"
+    primaryBorderColor: "#1b1813"
+    lineColor: "#1b1813"
+    textColor: "#4b4740"
+    titleColor: "#4b4740"
+    edgeLabelBackground: "#f5f0e9"
+    clusterBkg: "#f5f0e9"
+    clusterBorder: "#857f77"
+  themeCSS: >
+    .nodeLabel { font-family: Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 600; font-size: 14px; }
+    .nodeLabel .note { font-family: 'Martian Mono', Menlo, Consolas, monospace; font-weight: 400; font-size: 12px; color: #67635a; }
+    .cluster-label .nodeLabel { font-family: 'Martian Mono', Menlo, Consolas, monospace; font-weight: 400; font-size: 12px; color: #4b4740; }
+    .edgeLabel p { color: #4b4740; }
+    .flowchartTitleText { font-size: 12px; fill: #4b4740; }
+---
+flowchart TB
+  %% Beehave graph style, light theme. Hex values come from .branding/tokens/tokens.json.
+  %% Labels are measured in Martian Mono (the widest face) so the Archivo node
+  %% labels can only gain padding, never clip.
+
+  classDef start   fill:#1b1813,stroke:#1b1813,stroke-width:1.5px,color:#f5f0e9
+  classDef action  fill:#fdfbf9,stroke:#1b1813,stroke-width:1.5px,color:#1b1813
+  classDef cond    fill:#ece6dd,stroke:#1b1813,stroke-width:1.5px,color:#1b1813
+  classDef approx  fill:#fcc50e,stroke:#1b1813,stroke-width:1.5px,stroke-dasharray:4 3,color:#1b1813
+  classDef success fill:#107550,stroke:#fdfbf9,stroke-width:2px,color:#fdfbf9
+  classDef failure fill:#b93917,stroke:#fdfbf9,stroke-width:2px,color:#fdfbf9
+
+  START((START)):::start
+
+  subgraph mission ["any step"]
+    direction TB
+    FlightDefaults[FlightDefaults]:::action
+    GoToZone["GoToZone<br/><span class='note'>retry ×3</span>"]:::action
+    ResolveHome[ResolveHome]:::action
+    FlyToHome[FlyToHome]:::action
+    ResolveSafe[ResolveSafe]:::action
+    FlyToSafe[FlyToSafe]:::action
+    Land[Land]:::action
+  end
+
+  SUCCESS(((SUCCESS))):::success
+  EmergencyLand[EmergencyLand]:::action
+
+  %% Edges. linkStyle indexes follow this order.
+  START --> FlightDefaults
+  FlightDefaults -->|"[BatteryOK]"| GoToZone
+  FlightDefaults -->|"[not BatteryOK]"| ResolveHome
+  GoToZone --> SUCCESS
+  GoToZone -.->|fail| ResolveHome
+  ResolveHome --> FlyToHome
+  FlyToHome --> Land
+  FlyToHome -.->|fail| ResolveSafe
+  ResolveSafe --> FlyToSafe
+  FlyToSafe --> Land
+  Land --> SUCCESS
+  mission -.->|"[Emergency]"| EmergencyLand
+  Land ~~~ EmergencyLand
+
+  %% then: ink, solid. success: leaf, solid. failure: cinnabar, dashed 7 4.
+  %% preemption: prussian, 2.5px, dotted 2 4.
+  linkStyle 0 stroke:#1b1813,stroke-width:1.75px
+  linkStyle 1,2,3,5,6,8,9,10 stroke:#107550,stroke-width:1.75px
+  linkStyle 4,7 stroke:#b93917,stroke-width:1.75px,stroke-dasharray:7 4
+  linkStyle 11 stroke:#063e7d,stroke-width:2.5px,stroke-dasharray:2 4

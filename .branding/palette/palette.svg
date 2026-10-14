@@ -1,0 +1,274 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1350" width="1600" height="1350" role="img" aria-label="Beehave palette">
+<title>Beehave palette</title>
+<defs><marker id="m-light-edge" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#1b1813"/></marker><marker id="m-light-success" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#107550"/></marker><marker id="m-light-failure" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b93917"/></marker><marker id="m-light-preempt" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#063e7d"/></marker><marker id="m-dark-edge" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#e4ddd2"/></marker><marker id="m-dark-success" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#60c99a"/></marker><marker id="m-dark-failure" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#eb7a52"/></marker><marker id="m-dark-preempt" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#6da0d1"/></marker></defs>
+<rect width="1600" height="1350" fill="#f5f0e9"/>
+<rect x="64" y="56" width="40" height="40" fill="#fcc50e"/>
+<text x="120" y="74" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" letter-spacing="1">BEEHAVE  ·  PLATE 2</text>
+<text x="120" y="96" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" font-weight="800" text-anchor="start" style="font-stretch:125%">Palette</text>
+<text x="1536" y="74" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="end" letter-spacing="1">OKLCH · WCAG 2.2 · APCA 0.0.98G · CVD-CHECKED</text>
+<text x="64" y="150" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" letter-spacing="1">COMB  ·  WARM NEUTRALS, HUE 80  ·  STEP = OKLCH LIGHTNESS × 100</text>
+<rect x="64" y="166" width="105.643" height="112" fill="#fdfbf9"/>
+<text x="74" y="194" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" >99</text>
+<text x="74" y="298" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >#fdfbf9</text>
+<text x="74" y="316" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >C 0.004</text>
+<rect x="169.143" y="166" width="105.643" height="112" fill="#f5f0e9"/>
+<text x="179.143" y="194" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" >96</text>
+<text x="179.143" y="298" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >#f5f0e9</text>
+<text x="179.143" y="316" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >C 0.011</text>
+<rect x="274.286" y="166" width="105.643" height="112" fill="#ece6dd"/>
+<text x="284.286" y="194" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" >93</text>
+<text x="284.286" y="298" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >#ece6dd</text>
+<text x="284.286" y="316" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >C 0.014</text>
+<rect x="379.429" y="166" width="105.643" height="112" fill="#e4ddd2"/>
+<text x="389.429" y="194" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" >90</text>
+<text x="389.429" y="298" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >#e4ddd2</text>
+<text x="389.429" y="316" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >C 0.016</text>
+<rect x="484.571" y="166" width="105.643" height="112" fill="#d6d0c6"/>
+<text x="494.571" y="194" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" >86</text>
+<text x="494.571" y="298" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >#d6d0c6</text>
+<text x="494.571" y="316" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >C 0.015</text>
+<rect x="589.714" y="166" width="105.643" height="112" fill="#bdb6ac"/>
+<text x="599.714" y="194" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" >78</text>
+<text x="599.714" y="298" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >#bdb6ac</text>
+<text x="599.714" y="316" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >C 0.016</text>
+<rect x="694.857" y="166" width="105.643" height="112" fill="#a39e94"/>
+<text x="704.857" y="194" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" >70</text>
+<text x="704.857" y="298" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >#a39e94</text>
+<text x="704.857" y="316" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >C 0.015</text>
+<rect x="800" y="166" width="105.643" height="112" fill="#857f77"/>
+<text x="810" y="194" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" >60</text>
+<text x="810" y="298" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >#857f77</text>
+<text x="810" y="316" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >C 0.014</text>
+<rect x="905.143" y="166" width="105.643" height="112" fill="#67635a"/>
+<text x="915.143" y="194" fill="#f5f0e9" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" >50</text>
+<text x="915.143" y="298" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >#67635a</text>
+<text x="915.143" y="316" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >C 0.014</text>
+<rect x="1010.29" y="166" width="105.643" height="112" fill="#4b4740"/>
+<text x="1020.29" y="194" fill="#f5f0e9" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" >40</text>
+<text x="1020.29" y="298" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >#4b4740</text>
+<text x="1020.29" y="316" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >C 0.013</text>
+<rect x="1115.43" y="166" width="105.643" height="112" fill="#39352f"/>
+<text x="1125.43" y="194" fill="#f5f0e9" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" >33</text>
+<text x="1125.43" y="298" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >#39352f</text>
+<text x="1125.43" y="316" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >C 0.012</text>
+<rect x="1220.57" y="166" width="105.643" height="112" fill="#24211c"/>
+<text x="1230.57" y="194" fill="#f5f0e9" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" >25</text>
+<text x="1230.57" y="298" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >#24211c</text>
+<text x="1230.57" y="316" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >C 0.011</text>
+<rect x="1325.71" y="166" width="105.643" height="112" fill="#1b1813"/>
+<text x="1335.71" y="194" fill="#f5f0e9" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" >21</text>
+<text x="1335.71" y="298" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >#1b1813</text>
+<text x="1335.71" y="316" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >C 0.010</text>
+<rect x="1430.86" y="166" width="105.643" height="112" fill="#110f0b"/>
+<text x="1440.86" y="194" fill="#f5f0e9" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start" >17</text>
+<text x="1440.86" y="298" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >#110f0b</text>
+<text x="1440.86" y="316" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >C 0.009</text>
+<rect x="64" y="166" width="1472" height="112" fill="none" stroke="#4b4740" stroke-width="1"/>
+<text x="64" y="380" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" letter-spacing="1">POLLEN · LEAF · CINNABAR · PRUSSIAN</text>
+<rect x="64" y="396" width="158.222" height="120" fill="#fcc50e"/>
+<text x="74" y="422" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="700" text-anchor="start" >pollen</text>
+<text x="74" y="442" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" text-anchor="start" >85</text>
+<text x="74" y="504" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >#fcc50e</text>
+<text x="64" y="536" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >oklch(0.85 0.172 88)</text>
+<text x="64" y="554" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >brand · warning fill</text>
+<rect x="228.222" y="396" width="158.222" height="120" fill="#ecb42e"/>
+<text x="238.222" y="422" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="700" text-anchor="start" >pollen</text>
+<text x="238.222" y="442" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" text-anchor="start" >80</text>
+<text x="238.222" y="504" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >#ecb42e</text>
+<text x="228.222" y="536" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >oklch(0.8 0.152 84)</text>
+<text x="228.222" y="554" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >brand on dark</text>
+<rect x="392.444" y="396" width="158.222" height="120" fill="#8f5d04"/>
+<text x="402.444" y="422" fill="#f5f0e9" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="700" text-anchor="start" >pollen</text>
+<text x="402.444" y="442" fill="#f5f0e9" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" text-anchor="start" >52</text>
+<text x="402.444" y="504" fill="#f5f0e9" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >#8f5d04</text>
+<text x="392.444" y="536" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >oklch(0.52 0.11 72)</text>
+<text x="392.444" y="554" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >ochre line on paper</text>
+<rect x="556.667" y="396" width="158.222" height="120" fill="#107550"/>
+<text x="566.667" y="422" fill="#f5f0e9" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="700" text-anchor="start" >leaf</text>
+<text x="566.667" y="442" fill="#f5f0e9" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" text-anchor="start" >50</text>
+<text x="566.667" y="504" fill="#f5f0e9" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >#107550</text>
+<text x="556.667" y="536" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >oklch(0.5 0.105 162)</text>
+<text x="556.667" y="554" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >success · light</text>
+<rect x="720.889" y="396" width="158.222" height="120" fill="#60c99a"/>
+<text x="730.889" y="422" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="700" text-anchor="start" >leaf</text>
+<text x="730.889" y="442" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" text-anchor="start" >76</text>
+<text x="730.889" y="504" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >#60c99a</text>
+<text x="720.889" y="536" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >oklch(0.76 0.12 162)</text>
+<text x="720.889" y="554" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >success · dark</text>
+<rect x="885.111" y="396" width="158.222" height="120" fill="#b93917"/>
+<text x="895.111" y="422" fill="#f5f0e9" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="700" text-anchor="start" >cinnabar</text>
+<text x="895.111" y="442" fill="#f5f0e9" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" text-anchor="start" >53</text>
+<text x="895.111" y="504" fill="#f5f0e9" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >#b93917</text>
+<text x="885.111" y="536" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >oklch(0.53 0.17 35)</text>
+<text x="885.111" y="554" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >failure · light</text>
+<rect x="1049.33" y="396" width="158.222" height="120" fill="#eb7a52"/>
+<text x="1059.33" y="422" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="700" text-anchor="start" >cinnabar</text>
+<text x="1059.33" y="442" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" text-anchor="start" >70</text>
+<text x="1059.33" y="504" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >#eb7a52</text>
+<text x="1049.33" y="536" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >oklch(0.7 0.15 40)</text>
+<text x="1049.33" y="554" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >failure · dark</text>
+<rect x="1213.56" y="396" width="158.222" height="120" fill="#063e7d"/>
+<text x="1223.56" y="422" fill="#f5f0e9" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="700" text-anchor="start" >prussian</text>
+<text x="1223.56" y="442" fill="#f5f0e9" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" text-anchor="start" >37</text>
+<text x="1223.56" y="504" fill="#f5f0e9" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >#063e7d</text>
+<text x="1213.56" y="536" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >oklch(0.37 0.12 256)</text>
+<text x="1213.56" y="554" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >preemption · light</text>
+<rect x="1377.78" y="396" width="158.222" height="120" fill="#6da0d1"/>
+<text x="1387.78" y="422" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="700" text-anchor="start" >prussian</text>
+<text x="1387.78" y="442" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" text-anchor="start" >69</text>
+<text x="1387.78" y="504" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >#6da0d1</text>
+<text x="1377.78" y="536" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >oklch(0.69 0.09 248)</text>
+<text x="1377.78" y="554" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >preemption · dark</text>
+<rect x="64" y="600" width="728" height="360" fill="#f5f0e9" stroke="#d6d0c6"/>
+<text x="92" y="640" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" letter-spacing="1">LIGHT THEME</text>
+<text x="92" y="684" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="400" text-anchor="start" >Now: GoToZone.</text>
+<text x="326" y="684" fill="#67635a" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" xml:space="preserve">text     15.61:1  Lc +96</text>
+<text x="92" y="718" fill="#4b4740" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="400" text-anchor="start" >Secondary. Edge labels.</text>
+<text x="326" y="718" fill="#67635a" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" xml:space="preserve">text-2    8.14:1  Lc +83</text>
+<text x="92" y="752" fill="#67635a" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="400" text-anchor="start" >Tertiary. retry ×3</text>
+<text x="326" y="752" fill="#67635a" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" xml:space="preserve">text-3    5.28:1  Lc +71</text>
+<text x="92" y="786" fill="#107550" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" >ok</text>
+<text x="326" y="786" fill="#67635a" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" xml:space="preserve">success   5.03:1  Lc +69</text>
+<text x="92" y="820" fill="#b93917" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" >fail</text>
+<text x="326" y="820" fill="#67635a" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" xml:space="preserve">failure   5.06:1  Lc +69</text>
+<text x="92" y="854" fill="#063e7d" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" >[Emergency]</text>
+<text x="326" y="854" fill="#67635a" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" xml:space="preserve">preempt   9.29:1  Lc +85</text>
+<path d="M548 680h96" stroke="#1b1813" stroke-width="1.75" fill="none" marker-end="url(#m-light-edge)"/>
+<text x="660" y="684" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >then</text>
+<path d="M548 710h96" stroke="#107550" stroke-width="1.75" fill="none" marker-end="url(#m-light-success)"/>
+<text x="660" y="714" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >ok</text>
+<path d="M548 740h96" stroke="#b93917" stroke-width="1.75" stroke-dasharray="7 4" fill="none" marker-end="url(#m-light-failure)"/>
+<text x="660" y="744" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >fail</text>
+<path d="M548 770h96" stroke="#063e7d" stroke-width="2.5" stroke-dasharray="2 4" fill="none" marker-end="url(#m-light-preempt)"/>
+<text x="660" y="774" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >[Emergency]</text>
+<circle cx="118" cy="902" r="26" fill="#1b1813"/>
+<text x="118" y="906" fill="#f5f0e9" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10" font-weight="700" text-anchor="middle" >START</text>
+<rect x="164" y="884" width="112" height="36" fill="#fdfbf9" stroke="#1b1813" stroke-width="1.5"/>
+<text x="220" y="907" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="middle" >Action</text>
+<polygon points="292,902 306,884 402,884 416,902 402,920 306,920" fill="#ece6dd" stroke="#1b1813" stroke-width="1.5"/>
+<text x="354" y="906" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="middle" >[Guard]</text>
+<rect x="432" y="884" width="132" height="36" fill="#fcc50e" stroke="#1b1813" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="498" y="906" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="middle" >~ approximated</text>
+<circle cx="608" cy="902" r="28" fill="#107550"/>
+<circle cx="608" cy="902" r="24" fill="none" stroke="#fdfbf9" stroke-width="1.5"/>
+<text x="608" y="906" fill="#fdfbf9" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="9" font-weight="700" text-anchor="middle" >SUCCESS</text>
+<polygon points="668.408,874 691.592,874 708,890.408 708,913.592 691.592,930 668.408,930 652,913.592 652,890.408" fill="#b93917"/>
+<text x="680" y="906" fill="#fdfbf9" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="9" font-weight="700" text-anchor="middle" >FAILURE</text>
+<rect x="808" y="600" width="728" height="360" fill="#1b1813" stroke="#39352f"/>
+<text x="836" y="640" fill="#bdb6ac" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" letter-spacing="1">DARK THEME</text>
+<text x="836" y="684" fill="#e4ddd2" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="400" text-anchor="start" >Now: GoToZone.</text>
+<text x="1070" y="684" fill="#a39e94" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" xml:space="preserve">text     13.12:1  Lc -85</text>
+<text x="836" y="718" fill="#bdb6ac" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="400" text-anchor="start" >Secondary. Edge labels.</text>
+<text x="1070" y="718" fill="#a39e94" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" xml:space="preserve">text-2    8.81:1  Lc -62</text>
+<text x="836" y="752" fill="#a39e94" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="400" text-anchor="start" >Tertiary. retry ×3</text>
+<text x="1070" y="752" fill="#a39e94" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" xml:space="preserve">text-3    6.64:1  Lc -49</text>
+<text x="836" y="786" fill="#60c99a" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" >ok</text>
+<text x="1070" y="786" fill="#a39e94" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" xml:space="preserve">success   8.70:1  Lc -62</text>
+<text x="836" y="820" fill="#eb7a52" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" >fail</text>
+<text x="1070" y="820" fill="#a39e94" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" xml:space="preserve">failure   6.27:1  Lc -47</text>
+<text x="836" y="854" fill="#6da0d1" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" >[Emergency]</text>
+<text x="1070" y="854" fill="#a39e94" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" xml:space="preserve">preempt   6.40:1  Lc -47</text>
+<path d="M1292 680h96" stroke="#e4ddd2" stroke-width="1.75" fill="none" marker-end="url(#m-dark-edge)"/>
+<text x="1404" y="684" fill="#bdb6ac" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >then</text>
+<path d="M1292 710h96" stroke="#60c99a" stroke-width="1.75" fill="none" marker-end="url(#m-dark-success)"/>
+<text x="1404" y="714" fill="#bdb6ac" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >ok</text>
+<path d="M1292 740h96" stroke="#eb7a52" stroke-width="1.75" stroke-dasharray="7 4" fill="none" marker-end="url(#m-dark-failure)"/>
+<text x="1404" y="744" fill="#bdb6ac" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >fail</text>
+<path d="M1292 770h96" stroke="#6da0d1" stroke-width="2.5" stroke-dasharray="2 4" fill="none" marker-end="url(#m-dark-preempt)"/>
+<text x="1404" y="774" fill="#bdb6ac" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >[Emergency]</text>
+<circle cx="862" cy="902" r="26" fill="#e4ddd2"/>
+<text x="862" y="906" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10" font-weight="700" text-anchor="middle" >START</text>
+<rect x="908" y="884" width="112" height="36" fill="#24211c" stroke="#e4ddd2" stroke-width="1.5"/>
+<text x="964" y="907" fill="#e4ddd2" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" text-anchor="middle" >Action</text>
+<polygon points="1036,902 1050,884 1146,884 1160,902 1146,920 1050,920" fill="#110f0b" stroke="#e4ddd2" stroke-width="1.5"/>
+<text x="1098" y="906" fill="#e4ddd2" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="middle" >[Guard]</text>
+<rect x="1176" y="884" width="132" height="36" fill="#ecb42e" stroke="#1b1813" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="1242" y="906" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="middle" >~ approximated</text>
+<circle cx="1352" cy="902" r="28" fill="#60c99a"/>
+<circle cx="1352" cy="902" r="24" fill="none" stroke="#1b1813" stroke-width="1.5"/>
+<text x="1352" y="906" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="9" font-weight="700" text-anchor="middle" >SUCCESS</text>
+<polygon points="1412.41,874 1435.59,874 1452,890.408 1452,913.592 1435.59,930 1412.41,930 1396,913.592 1396,890.408" fill="#eb7a52"/>
+<text x="1424" y="906" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="9" font-weight="700" text-anchor="middle" >FAILURE</text>
+<text x="64" y="1010" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" letter-spacing="1">COLOUR-VISION CHECK  ·  MACHADO ET AL. 2009, SEVERITY 1.0  ·  LINE STYLE CARRIES THE MEANING EVEN WITHOUT COLOUR</text>
+<rect x="64" y="1034" width="364" height="120" fill="#f5f0e9"/>
+<text x="84" y="1058" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >light · normal</text>
+<path d="M84 1080h150" stroke="#1b1813" stroke-width="1.75"/>
+<path d="M84 1098h150" stroke="#107550" stroke-width="1.75"/>
+<path d="M84 1116h150" stroke="#b93917" stroke-width="1.75" stroke-dasharray="7 4"/>
+<path d="M84 1134h150" stroke="#063e7d" stroke-width="2.5" stroke-dasharray="2 4"/>
+<rect x="264" y="1078" width="28" height="56" fill="#1b1813"/>
+<rect x="300" y="1078" width="28" height="56" fill="#107550"/>
+<rect x="336" y="1078" width="28" height="56" fill="#b93917"/>
+<rect x="372" y="1078" width="28" height="56" fill="#fcc50e"/>
+<rect x="436" y="1034" width="364" height="120" fill="#f2f0e9"/>
+<text x="452" y="1058" fill="#494740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >light · protan</text>
+<path d="M452 1080h150" stroke="#191813" stroke-width="1.75"/>
+<path d="M452 1098h150" stroke="#736b4e" stroke-width="1.75"/>
+<path d="M452 1116h150" stroke="#5f5410" stroke-width="1.75" stroke-dasharray="7 4"/>
+<path d="M452 1134h150" stroke="#18447f" stroke-width="2.5" stroke-dasharray="2 4"/>
+<rect x="632" y="1078" width="28" height="56" fill="#191813"/>
+<rect x="668" y="1078" width="28" height="56" fill="#736b4e"/>
+<rect x="704" y="1078" width="28" height="56" fill="#5f5410"/>
+<rect x="740" y="1078" width="28" height="56" fill="#dfc400"/>
+<rect x="804" y="1034" width="364" height="120" fill="#f3f1e9"/>
+<text x="820" y="1058" fill="#4a4840" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >light · deutan</text>
+<path d="M820 1080h150" stroke="#1a1913" stroke-width="1.75"/>
+<path d="M820 1098h150" stroke="#676352" stroke-width="1.75"/>
+<path d="M820 1116h150" stroke="#7f710e" stroke-width="1.75" stroke-dasharray="7 4"/>
+<path d="M820 1134h150" stroke="#003a7c" stroke-width="2.5" stroke-dasharray="2 4"/>
+<rect x="1000" y="1078" width="28" height="56" fill="#1a1913"/>
+<rect x="1036" y="1078" width="28" height="56" fill="#676352"/>
+<rect x="1072" y="1078" width="28" height="56" fill="#7f710e"/>
+<rect x="1108" y="1078" width="28" height="56" fill="#ecd323"/>
+<rect x="1172" y="1034" width="364" height="120" fill="#f7efee"/>
+<text x="1188" y="1058" fill="#4d4645" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >light · tritan</text>
+<path d="M1188 1080h150" stroke="#1c1717" stroke-width="1.75"/>
+<path d="M1188 1098h150" stroke="#00756b" stroke-width="1.75"/>
+<path d="M1188 1116h150" stroke="#cc0433" stroke-width="1.75" stroke-dasharray="7 4"/>
+<path d="M1188 1134h150" stroke="#004d57" stroke-width="2.5" stroke-dasharray="2 4"/>
+<rect x="1368" y="1078" width="28" height="56" fill="#1c1717"/>
+<rect x="1404" y="1078" width="28" height="56" fill="#00756b"/>
+<rect x="1440" y="1078" width="28" height="56" fill="#cc0433"/>
+<rect x="1476" y="1078" width="28" height="56" fill="#ffb2a8"/>
+<rect x="64" y="1166" width="364" height="120" fill="#1b1813"/>
+<text x="84" y="1190" fill="#bdb6ac" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >dark · normal</text>
+<path d="M84 1212h150" stroke="#e4ddd2" stroke-width="1.75"/>
+<path d="M84 1230h150" stroke="#60c99a" stroke-width="1.75"/>
+<path d="M84 1248h150" stroke="#eb7a52" stroke-width="1.75" stroke-dasharray="7 4"/>
+<path d="M84 1266h150" stroke="#6da0d1" stroke-width="2.5" stroke-dasharray="2 4"/>
+<rect x="264" y="1210" width="28" height="56" fill="#e4ddd2"/>
+<rect x="300" y="1210" width="28" height="56" fill="#60c99a"/>
+<rect x="336" y="1210" width="28" height="56" fill="#eb7a52"/>
+<rect x="372" y="1210" width="28" height="56" fill="#ecb42e"/>
+<rect x="436" y="1166" width="364" height="120" fill="#191813"/>
+<text x="452" y="1190" fill="#b9b6ab" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >dark · protan</text>
+<path d="M452 1212h150" stroke="#e0ddd1" stroke-width="1.75"/>
+<path d="M452 1230h150" stroke="#c6bc97" stroke-width="1.75"/>
+<path d="M452 1248h150" stroke="#988b4e" stroke-width="1.75" stroke-dasharray="7 4"/>
+<path d="M452 1266h150" stroke="#8ca1d3" stroke-width="2.5" stroke-dasharray="2 4"/>
+<rect x="632" y="1210" width="28" height="56" fill="#e0ddd1"/>
+<rect x="668" y="1210" width="28" height="56" fill="#c6bc97"/>
+<rect x="704" y="1210" width="28" height="56" fill="#988b4e"/>
+<rect x="740" y="1210" width="28" height="56" fill="#ccb40c"/>
+<rect x="804" y="1166" width="364" height="120" fill="#1a1913"/>
+<text x="820" y="1190" fill="#bbb8ac" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >dark · deutan</text>
+<path d="M820 1212h150" stroke="#e2ded2" stroke-width="1.75"/>
+<path d="M820 1230h150" stroke="#b7b19d" stroke-width="1.75"/>
+<path d="M820 1248h150" stroke="#b3a350" stroke-width="1.75" stroke-dasharray="7 4"/>
+<path d="M820 1266h150" stroke="#7f97d0" stroke-width="2.5" stroke-dasharray="2 4"/>
+<rect x="1000" y="1210" width="28" height="56" fill="#e2ded2"/>
+<rect x="1036" y="1210" width="28" height="56" fill="#b7b19d"/>
+<rect x="1072" y="1210" width="28" height="56" fill="#b3a350"/>
+<rect x="1108" y="1210" width="28" height="56" fill="#d9c335"/>
+<rect x="1172" y="1166" width="364" height="120" fill="#1c1717"/>
+<text x="1188" y="1190" fill="#c0b4b3" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >dark · tritan</text>
+<path d="M1188 1212h150" stroke="#e8dbda" stroke-width="1.75"/>
+<path d="M1188 1230h150" stroke="#3bc9bc" stroke-width="1.75"/>
+<path d="M1188 1248h150" stroke="#ff6471" stroke-width="1.75" stroke-dasharray="7 4"/>
+<path d="M1188 1266h150" stroke="#40abb1" stroke-width="2.5" stroke-dasharray="2 4"/>
+<rect x="1368" y="1210" width="28" height="56" fill="#e8dbda"/>
+<rect x="1404" y="1210" width="28" height="56" fill="#3bc9bc"/>
+<rect x="1440" y="1210" width="28" height="56" fill="#ff6471"/>
+<rect x="1476" y="1210" width="28" height="56" fill="#ffa29b"/>
+<text x="64" y="1310" fill="#1b1813" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >Columns: then · ok · fail · interrupt, and the START · SUCCESS · FAILURE · warning fills. Checked by tools/check_palette.py.</text>
+</svg>
