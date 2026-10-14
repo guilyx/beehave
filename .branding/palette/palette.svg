@@ -121,7 +121,7 @@
 <text x="1377.78" y="554" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" >preemption · dark</text>
 <rect x="64" y="600" width="728" height="360" fill="#f5f0e9" stroke="#d6d0c6"/>
 <text x="92" y="640" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" letter-spacing="1">LIGHT THEME</text>
-<text x="92" y="684" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="400" text-anchor="start" >Now: GoToZone.</text>
+<text x="92" y="684" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="400" text-anchor="start" >Now: FlyToWaypoint.</text>
 <text x="326" y="684" fill="#67635a" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" xml:space="preserve">text     15.61:1  Lc +96</text>
 <text x="92" y="718" fill="#4b4740" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="400" text-anchor="start" >Secondary. Edge labels.</text>
 <text x="326" y="718" fill="#67635a" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" xml:space="preserve">text-2    8.14:1  Lc +83</text>
@@ -131,7 +131,7 @@
 <text x="326" y="786" fill="#67635a" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" xml:space="preserve">success   5.03:1  Lc +69</text>
 <text x="92" y="820" fill="#b93917" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" >fail</text>
 <text x="326" y="820" fill="#67635a" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" xml:space="preserve">failure   5.06:1  Lc +69</text>
-<text x="92" y="854" fill="#063e7d" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" >[Emergency]</text>
+<text x="92" y="854" fill="#063e7d" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" >[IsBatteryCritical]</text>
 <text x="326" y="854" fill="#67635a" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" xml:space="preserve">preempt   9.29:1  Lc +85</text>
 <path d="M548 680h96" stroke="#1b1813" stroke-width="1.75" fill="none" marker-end="url(#m-light-edge)"/>
 <text x="660" y="684" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >then</text>
@@ -140,7 +140,7 @@
 <path d="M548 740h96" stroke="#b93917" stroke-width="1.75" stroke-dasharray="7 4" fill="none" marker-end="url(#m-light-failure)"/>
 <text x="660" y="744" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >fail</text>
 <path d="M548 770h96" stroke="#063e7d" stroke-width="2.5" stroke-dasharray="2 4" fill="none" marker-end="url(#m-light-preempt)"/>
-<text x="660" y="774" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >[Emergency]</text>
+<text x="660" y="774" fill="#4b4740" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >interrupt</text>
 <circle cx="118" cy="902" r="26" fill="#1b1813"/>
 <text x="118" y="906" fill="#f5f0e9" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10" font-weight="700" text-anchor="middle" >START</text>
 <rect x="164" y="884" width="112" height="36" fill="#fdfbf9" stroke="#1b1813" stroke-width="1.5"/>
@@ -156,7 +156,7 @@
 <text x="680" y="906" fill="#fdfbf9" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="9" font-weight="700" text-anchor="middle" >FAILURE</text>
 <rect x="808" y="600" width="728" height="360" fill="#1b1813" stroke="#39352f"/>
 <text x="836" y="640" fill="#bdb6ac" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" letter-spacing="1">DARK THEME</text>
-<text x="836" y="684" fill="#e4ddd2" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="400" text-anchor="start" >Now: GoToZone.</text>
+<text x="836" y="684" fill="#e4ddd2" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="400" text-anchor="start" >Now: FlyToWaypoint.</text>
 <text x="1070" y="684" fill="#a39e94" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" xml:space="preserve">text     13.12:1  Lc -85</text>
 <text x="836" y="718" fill="#bdb6ac" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="400" text-anchor="start" >Secondary. Edge labels.</text>
 <text x="1070" y="718" fill="#a39e94" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" xml:space="preserve">text-2    8.81:1  Lc -62</text>
@@ -166,7 +166,7 @@
 <text x="1070" y="786" fill="#a39e94" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" xml:space="preserve">success   8.70:1  Lc -62</text>
 <text x="836" y="820" fill="#eb7a52" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" >fail</text>
 <text x="1070" y="820" fill="#a39e94" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" xml:space="preserve">failure   6.27:1  Lc -47</text>
-<text x="836" y="854" fill="#6da0d1" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" >[Emergency]</text>
+<text x="836" y="854" fill="#6da0d1" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="start" >[IsBatteryCritical]</text>
 <text x="1070" y="854" fill="#a39e94" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="11" font-weight="400" text-anchor="start" xml:space="preserve">preempt   6.40:1  Lc -47</text>
 <path d="M1292 680h96" stroke="#e4ddd2" stroke-width="1.75" fill="none" marker-end="url(#m-dark-edge)"/>
 <text x="1404" y="684" fill="#bdb6ac" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >then</text>
@@ -175,7 +175,7 @@
 <path d="M1292 740h96" stroke="#eb7a52" stroke-width="1.75" stroke-dasharray="7 4" fill="none" marker-end="url(#m-dark-failure)"/>
 <text x="1404" y="744" fill="#bdb6ac" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >fail</text>
 <path d="M1292 770h96" stroke="#6da0d1" stroke-width="2.5" stroke-dasharray="2 4" fill="none" marker-end="url(#m-dark-preempt)"/>
-<text x="1404" y="774" fill="#bdb6ac" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >[Emergency]</text>
+<text x="1404" y="774" fill="#bdb6ac" font-family="'Martian Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="12" font-weight="400" text-anchor="start" >interrupt</text>
 <circle cx="862" cy="902" r="26" fill="#e4ddd2"/>
 <text x="862" y="906" fill="#1b1813" font-family="Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10" font-weight="700" text-anchor="middle" >START</text>
 <rect x="908" y="884" width="112" height="36" fill="#24211c" stroke="#e4ddd2" stroke-width="1.5"/>

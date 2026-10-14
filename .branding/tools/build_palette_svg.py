@@ -47,7 +47,7 @@ EDGES = (
     ("then", "edge", "", 1.75),
     ("ok", "success", "", 1.75),
     ("fail", "failure", "7 4", 1.75),
-    ("[Emergency]", "preempt", "2 4", 2.5),
+    ("interrupt", "preempt", "2 4", 2.5),
 )
 
 
@@ -222,12 +222,12 @@ def panel_pairs(doc: dict, theme: str, box: Box) -> list[str]:
     bg = resolve_hex(doc, f"color.{theme}.bg")
     t3 = resolve_hex(doc, f"color.{theme}.text-3")
     samples = (
-        ("text", "Now: GoToZone."),
+        ("text", "Now: FlyToWaypoint."),
         ("text-2", "Secondary. Edge labels."),
         ("text-3", "Tertiary. retry ×3"),
         ("success", "ok"),
         ("failure", "fail"),
-        ("preempt", "[Emergency]"),
+        ("preempt", "[IsBatteryCritical]"),
     )
     out = []
     for i, (role, label) in enumerate(samples):

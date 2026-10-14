@@ -1,5 +1,5 @@
 ---
-title: "FIG. 1  FLY TO ZONE, FALL BACK HOME, LAND"
+title: "FIG. 1  SURVEY MISSION: FLY OUT, CAPTURE, RETURN, LAND"
 config:
   theme: base
   look: classic
@@ -30,6 +30,7 @@ config:
 ---
 flowchart TB
   %% Beehave graph style, light theme. Hex values come from .branding/tokens/tokens.json.
+  %% Graph: examples/aerial/drone_mission.xml.
   %% Labels are measured in Martian Mono (the widest face) so the Archivo node
   %% labels can only gain padding, never clip.
 
@@ -41,39 +42,55 @@ flowchart TB
   classDef failure fill:#b93917,stroke:#fdfbf9,stroke-width:2px,color:#fdfbf9
 
   START((START)):::start
+  LandNow[LandNow]:::action
 
-  subgraph mission ["any step"]
+  subgraph mission [" "]
     direction TB
-    FlightDefaults[FlightDefaults]:::action
-    GoToZone["GoToZone<br/><span class='note'>retry ×3</span>"]:::action
-    ResolveHome[ResolveHome]:::action
-    FlyToHome[FlyToHome]:::action
-    ResolveSafe[ResolveSafe]:::action
-    FlyToSafe[FlyToSafe]:::action
+    Arm[Arm]:::action
+    TakeOff[TakeOff]:::action
+    FlyToWaypoint["FlyToWaypoint<br/><span class='note'>retry ×3</span>"]:::action
+    CaptureImage[CaptureImage]:::action
+    FlyHome[FlyHome]:::action
+    FindLandingSpot[FindLandingSpot]:::action
+    FlyToLandingSpot[FlyToLandingSpot]:::action
     Land[Land]:::action
+    Disarm[Disarm]:::action
   end
 
   SUCCESS(((SUCCESS))):::success
-  EmergencyLand[EmergencyLand]:::action
+  FAILURE(((FAILURE))):::failure
 
   %% Edges. linkStyle indexes follow this order.
-  START --> FlightDefaults
-  FlightDefaults -->|"[BatteryOK]"| GoToZone
-  FlightDefaults -->|"[not BatteryOK]"| ResolveHome
-  GoToZone --> SUCCESS
-  GoToZone -.->|fail| ResolveHome
-  ResolveHome --> FlyToHome
-  FlyToHome --> Land
-  FlyToHome -.->|fail| ResolveSafe
-  ResolveSafe --> FlyToSafe
-  FlyToSafe --> Land
-  Land --> SUCCESS
-  mission -.->|"[Emergency]"| EmergencyLand
-  Land ~~~ EmergencyLand
+  START -->|"[IsBatteryCritical]"| LandNow
+  START -->|"[not IsBatteryCritical]"| Arm
+  LandNow --> SUCCESS
+  LandNow -.->|fail| Arm
+  Arm --> TakeOff
+  Arm -.-> FAILURE
+  TakeOff -->|"[IsBatteryOK]"| FlyToWaypoint
+  TakeOff -->|"[not IsBatteryOK]"| FlyHome
+  TakeOff -.-> FAILURE
+  FlyToWaypoint --> CaptureImage
+  FlyToWaypoint -.->|fail| FlyHome
+  CaptureImage --> FlyHome
+  FlyHome --> Land
+  FlyHome -.->|fail| FindLandingSpot
+  FindLandingSpot --> FlyToLandingSpot
+  FindLandingSpot -.-> FAILURE
+  FlyToLandingSpot --> Land
+  FlyToLandingSpot -.-> FAILURE
+  Land --> Disarm
+  Land -.-> FAILURE
+  Disarm --> SUCCESS
+  Disarm -.-> FAILURE
+  mission -...->|"any#160;step#160;#183;#160;[IsBatteryCritical]"| LandNow
 
-  %% then: ink, solid. success: leaf, solid. failure: cinnabar, dashed 7 4.
-  %% preemption: prussian, 2.5px, dotted 2 4.
-  linkStyle 0 stroke:#1b1813,stroke-width:1.75px
-  linkStyle 1,2,3,5,6,8,9,10 stroke:#107550,stroke-width:1.75px
-  linkStyle 4,7 stroke:#b93917,stroke-width:1.75px,stroke-dasharray:7 4
-  linkStyle 11 stroke:#063e7d,stroke-width:2.5px,stroke-dasharray:2 4
+  %% then: ink, solid (START's guarded exits; CaptureImage goes home either way).
+  %% success: leaf, solid. failure: cinnabar, dashed 7 4 (no "fail" label into FAILURE).
+  %% preemption: prussian, 2.5px, dotted 2 4, drawn from the frame of steps it can interrupt.
+  %% Mermaid centres frame titles where this label lands, so "any step" lives in the label.
+  %% #160; is a no-break space and #183; a middle dot.
+  linkStyle 0,1,11 stroke:#1b1813,stroke-width:1.75px
+  linkStyle 2,4,6,7,9,12,14,16,18,20 stroke:#107550,stroke-width:1.75px
+  linkStyle 3,5,8,10,13,15,17,19,21 stroke:#b93917,stroke-width:1.75px,stroke-dasharray:7 4
+  linkStyle 22 stroke:#063e7d,stroke-width:2.5px,stroke-dasharray:2 4

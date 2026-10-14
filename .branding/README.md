@@ -244,8 +244,9 @@ transit maps, and it is old enough to look deliberate.
 
 ### Dark theme and field displays
 
-Operators use the dark theme on ground-control screens at night and the light theme
-in daylight.
+Beehave's operators range from drone ground stations to fleet consoles for mobile
+robots to the HMIs in robot cells. They often use the dark theme at night and the light
+theme in daylight or bright factory halls.
 
 - **Daylight: use the light theme.** Dark text on a light background measurably helps
   legibility for all ages (positive-polarity advantage), and it holds up better under
@@ -376,13 +377,14 @@ was fixed by moving lightness, not hue:
 - **Deuteranopia brings leaf and cinnabar together** (dark). Fix: cinnabar drops to L 0.70.
 
 **Colour is never the only signal.** Graphs are printed, faxed into reports, and shown
-on washed-out C2 displays, so every meaning has a second, colour-free carrier:
+on washed-out field displays and teach pendants, so every meaning has a second,
+colour-free carrier:
 
 | Meaning | Colour | Line | Shape / text |
 |---|---|---|---|
 | then (unconditional) | ink | solid, 1.75 px | — |
 | on success | leaf | solid, 1.75 px | guard label if guarded |
-| on failure | cinnabar | **dashed** 7/4, 1.75 px | label `fail` |
+| on failure | cinnabar | **dashed** 7/4, 1.75 px | label `fail` (not into FAILURE) |
 | preemption | prussian | **dotted** 2/4, 2.5 px | `[Condition]` label, from a frame |
 | action | ink on surface | 1.5 px border | rectangle |
 | condition (as a node) | ink on sunken | 1.5 px border | hexagon, `[Guard]` |
@@ -408,7 +410,7 @@ Google Fonts and Fontsource. [[fonts]](#9-sources)
   Space Grotesk are neo-grotesque or geometric UI defaults. Archivo has more ink, more
   character, and more width range.
 - **Martian Mono** is a technical, slightly wide monospace with a width axis. It is the
-  "annotation" voice: plate labels (`FIG. 1`), guard conditions (`[BatteryOK]`), and
+  "annotation" voice: plate labels (`FIG. 1`), guard conditions (`[IsBatteryOK]`), and
   decorator notes (`retry ×3`). It is chosen over the usual IDE monospaces so that our
   docs and graphs don't look like a default editor theme.
 - Install with `npm i @fontsource-variable/archivo @fontsource-variable/martian-mono`
@@ -428,12 +430,12 @@ tracking on display sizes only.
 
 Write for an operator with a radio in one hand. Then add detail for the engineer.
 
-- **Short, plain words.** "Flies home", not "initiates return-to-home procedure".
-- **Verb first, present tense.** "Lands at SafeZone." "Retries 3 times."
+- **Short, plain words.** "Goes home", not "initiates return-to-home procedure".
+- **Verb first, present tense.** "Docks at the charger." "Lifts the part." "Retries 3 times."
 - **Say what happens, then why.** "Goes home if the battery is low."
 - **Operator views avoid tree jargon.** Say *if*, *then*, *otherwise*, *interrupts*.
   Keep *fallback*, *sequence*, *decorator* and *preemption* for engineer views.
-- **Numbers and units, always.** `timeout 5 s`, `retry ×3`, `alt 40 m`.
+- **Numbers and units, always.** `timeout 5 s`, `retry ×3`, `alt 40 m`, `grip 20 N`.
 - **No exclamation marks, no emoji, no hype.** Never "magic", "seamless" or "powerful".
 - **Be honest about limits.** Mark guesses: `~ approximated: custom node, treated as action`.
 
@@ -441,15 +443,19 @@ Write for an operator with a radio in one hand. Then add detail for the engineer
 |---|---|
 | Unable to evaluate node type `MyCustomNode`! | `~ MyCustomNode: unknown type, treated as an action` |
 | Mission execution path successfully computed | `9 actions, 3 ways it can end` |
-| Preemptive transition triggered by Emergency blackboard key | `If Emergency: lands now` |
-| Robot will attempt navigation | `Now: GoToZone. Next: Land.` |
+| Preemptive transition triggered by IsBatteryCritical blackboard key | `If IsBatteryCritical: LandNow` |
+| Robot will attempt navigation | `Now: FollowPath. Next: DockRobot.` |
+| Grasp verification condition not satisfied | `Not holding the part: tries PlanGrasp again` |
 
 **Operator mission view, three lines:** `NOW` (the step running), `NEXT` (what follows
 on success), `IF` (the guards that would change that, each with its target).
 
 ## 7. Graph style
 
-Ready-to-copy examples, rendered from the files in `graph-style/`:
+Ready-to-copy examples, rendered from the files in `graph-style/`. The graph is Beehave's
+output for the aerial survey example, `examples/aerial/drone_mission.xml`. The same style
+applies unchanged to the mobile (`navigate_to_goal.xml`) and manipulation
+(`pick_and_place.xml`) examples.
 
 | Mermaid: [`example.mmd`](graph-style/example.mmd) | Graphviz: [`example.dot`](graph-style/example.dot) |
 |---|---|
@@ -457,21 +463,31 @@ Ready-to-copy examples, rendered from the files in `graph-style/`:
 
 ### Rules
 
+> This is the target style. Beehave's Phase 1 renderers already follow the colours,
+> line styles and shapes. Merged "then" edges, preemption frames and the approximated-node
+> style arrive with the Phase 2 features that produce them (edge merging, preemption
+> edges); until then the renderers draw one edge per outcome.
+
 - **Top to bottom.** Time runs down the page. Success is the main path.
 - **Nodes:** square corners, 1.5 px ink border, `surface` fill, Archivo 14 px (600 where
   the renderer supports weights). START, SUCCESS and FAILURE are the only round shapes.
 - **Guards** sit on edges in Martian Mono 12 px, `text-2`, in square brackets:
-  `[BatteryOK]`, `[not BatteryOK]`. Negations are spelled `not`, never `!`.
-- **Outcome labels:** success edges have none unless guarded; failure edges say `fail`.
+  `[IsBatteryOK]`, `[not IsObjectGrasped]`. Negations are spelled `not`, never `!`.
+- **Outcome labels:** success edges have none unless guarded. Failure edges say `fail`,
+  except into the FAILURE terminal, where the target already says it.
+- **One edge when the outcome doesn't matter.** If success and failure lead to the same
+  step (`CaptureImage` goes to `FlyHome` either way), draw one ink "then" edge.
 - **Preemption** comes from a frame, not from every node. Wrap the steps the interrupt
   covers in a thin `border` frame labelled `any step`. Then draw one dotted prussian edge,
-  with its `[Condition]`, from the frame to the target. (Mermaid: an edge from the
-  subgraph. Graphviz: `compound=true` and `ltail=cluster_…`.)
+  with its `[Condition]`, from the frame to the target. (Graphviz: `compound=true` and
+  `ltail=cluster_…`. Mermaid: an edge from the subgraph. Mermaid centres the frame title
+  exactly where this label lands, so leave the title blank and label the edge
+  `any step · [Condition]`.)
 - **Decorator notes** go inside the node, on a second line, in mono 12 px `text-3`:
   `retry ×3`, `timeout 5 s`, `repeat until ok`.
 - **Approximated or unsupported nodes:** pollen fill, dashed ink border (4/3), second line
   `~ approximated` or `? unsupported`. These are the only pollen elements in a graph.
-- **Figure caption** above the graph in mono caps: `FIG. 1  FLY TO ZONE, FALL BACK HOME, LAND`.
+- **Figure caption** above the graph in mono caps: `FIG. 1  SURVEY MISSION: FLY OUT, CAPTURE, RETURN, LAND`.
 - **Light by default.** Exports use the light theme. Swap in the dark role values to theme.
 
 ### Mermaid
@@ -515,7 +531,8 @@ Approx  [fillcolor="#fcc50e", style="filled,dashed"];
 a -> b [color="#1b1813"];                                      // then
 a -> b;                                                        // on success
 a -> b [style=dashed, color="#b93917", label=" fail"];         // on failure
-x -> t [ltail=cluster_any, style=dotted, penwidth=2.5, color="#063e7d", label="  [Emergency]"];
+x -> t [ltail=cluster_any, constraint=false, style=dotted, penwidth=2.5, color="#063e7d",
+        label="  [IsBatteryCritical]"];
 ```
 
 Graphviz can't set custom dash lengths, so `dashed` and `dotted` stand in for 7/4 and
