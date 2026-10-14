@@ -1,0 +1,41 @@
+%% Beehave action graph: Mission (btcpp-v3)
+flowchart TD
+    start(("START"))
+    a1["EmergencyLand"]
+    a2["FlightDefaults"]
+    a3["GoToZone<br/><small>retry ×3</small>"]
+    a4["ResolveHome"]
+    a5["FlyToHome"]
+    a6["ResolveSafe"]
+    a7["FlyToSafe"]
+    a8["Land"]
+    success(["SUCCESS"])
+    failure(["FAILURE"])
+    start -->|"Emergency"| a1
+    start -->|"not Emergency"| a2
+    a1 -->|"success"| success
+    a1 -.->|"failure"| a2
+    a2 -->|"success and BatteryOK"| a3
+    a2 -->|"success and not BatteryOK"| a4
+    a2 -.->|"failure"| failure
+    a3 -->|"success"| success
+    a3 -.->|"failure"| a4
+    a4 -->|"success"| a5
+    a4 -.->|"failure"| failure
+    a5 -->|"success"| a8
+    a5 -.->|"failure"| a6
+    a6 -->|"success"| a7
+    a6 -.->|"failure"| failure
+    a7 -->|"success"| a8
+    a7 -.->|"failure"| failure
+    a8 -->|"success"| success
+    a8 -.->|"failure"| failure
+    classDef start fill:#222222,stroke:#222222,color:#ffffff
+    classDef action fill:#ffffff,stroke:#222222,color:#222222
+    classDef success fill:#ffffff,stroke:#222222,color:#222222
+    classDef failure fill:#ffffff,stroke:#222222,color:#222222,stroke-dasharray:4 3
+    class start start
+    class a1,a2,a3,a4,a5,a6,a7,a8 action
+    class success success
+    class failure failure
+    linkStyle 3,6,8,10,12,14,16,18 stroke-dasharray:5 4

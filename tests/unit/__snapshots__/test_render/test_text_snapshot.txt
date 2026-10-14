@@ -1,0 +1,22 @@
+START --[Emergency]--> EmergencyLand
+START --[not Emergency]--> FlightDefaults
+EmergencyLand --[success]--> SUCCESS
+EmergencyLand --[failure]--> FlightDefaults
+FlightDefaults --[success and BatteryOK]--> GoToZone
+FlightDefaults --[success and not BatteryOK]--> ResolveHome
+FlightDefaults --[failure]--> FAILURE
+GoToZone --[success]--> SUCCESS
+GoToZone --[failure]--> ResolveHome
+ResolveHome --[success]--> FlyToHome
+ResolveHome --[failure]--> FAILURE
+FlyToHome --[success]--> Land
+FlyToHome --[failure]--> ResolveSafe
+ResolveSafe --[success]--> FlyToSafe
+ResolveSafe --[failure]--> FAILURE
+FlyToSafe --[success]--> Land
+FlyToSafe --[failure]--> FAILURE
+Land --[success]--> SUCCESS
+Land --[failure]--> FAILURE
+
+notes:
+  GoToZone: retry ×3

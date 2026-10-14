@@ -1,0 +1,36 @@
+// Beehave action graph: Mission (btcpp-v3)
+digraph "Mission" {
+  graph [rankdir=TB, fontname="Helvetica"];
+  node [shape=box, style="rounded", fontname="Helvetica"];
+  edge [fontname="Helvetica", fontsize=10];
+  "start" [label="START", shape=circle];
+  "a1" [label="EmergencyLand", shape=box];
+  "a2" [label="FlightDefaults", shape=box];
+  "a3" [label="GoToZone\nretry ×3", shape=box];
+  "a4" [label="ResolveHome", shape=box];
+  "a5" [label="FlyToHome", shape=box];
+  "a6" [label="ResolveSafe", shape=box];
+  "a7" [label="FlyToSafe", shape=box];
+  "a8" [label="Land", shape=box];
+  "success" [label="SUCCESS", shape=box, style="rounded,bold"];
+  "failure" [label="FAILURE", shape=box, style="rounded,dashed"];
+  "start" -> "a1" [label="Emergency"];
+  "start" -> "a2" [label="not Emergency"];
+  "a1" -> "success" [label="success"];
+  "a1" -> "a2" [label="failure", style=dashed];
+  "a2" -> "a3" [label="success and BatteryOK"];
+  "a2" -> "a4" [label="success and not BatteryOK"];
+  "a2" -> "failure" [label="failure", style=dashed];
+  "a3" -> "success" [label="success"];
+  "a3" -> "a4" [label="failure", style=dashed];
+  "a4" -> "a5" [label="success"];
+  "a4" -> "failure" [label="failure", style=dashed];
+  "a5" -> "a8" [label="success"];
+  "a5" -> "a6" [label="failure", style=dashed];
+  "a6" -> "a7" [label="success"];
+  "a6" -> "failure" [label="failure", style=dashed];
+  "a7" -> "a8" [label="success"];
+  "a7" -> "failure" [label="failure", style=dashed];
+  "a8" -> "success" [label="success"];
+  "a8" -> "failure" [label="failure", style=dashed];
+}

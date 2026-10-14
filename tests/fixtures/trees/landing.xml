@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!--
+  The landing tree from the Beehave design document. Node names are
+  illustrative. 20 nodes in the flattened tree, 8 of them actions.
+-->
+<root main_tree_to_execute="Mission">
+  <BehaviorTree ID="Mission">
+    <ReactiveFallback>
+      <ReactiveSequence>
+        <Emergency/>
+        <EmergencyLand/>
+      </ReactiveSequence>
+      <Sequence>
+        <FlightDefaults/>
+        <Fallback>
+          <Sequence>
+            <BatteryOK/>
+            <RetryUntilSuccessful num_attempts="3">
+              <GoToZone zone="{mission_zone}"/>
+            </RetryUntilSuccessful>
+          </Sequence>
+          <SubTreePlus ID="ReturnHome" __autoremap="true"/>
+        </Fallback>
+      </Sequence>
+    </ReactiveFallback>
+  </BehaviorTree>
+
+  <BehaviorTree ID="ReturnHome">
+    <Sequence>
+      <ResolveClosestZone name="ResolveHome" zone_subtype="HOME" zone="{target}"/>
+      <Fallback>
+        <FlyToZone name="FlyToHome" zone="{target}"/>
+        <Sequence>
+          <ResolveClosestZone name="ResolveSafe" zone_subtype="SAFE" zone="{target}"/>
+          <FlyToZone name="FlyToSafe" zone="{target}"/>
+        </Sequence>
+      </Fallback>
+      <Land/>
+    </Sequence>
+  </BehaviorTree>
+
+  <TreeNodesModel>
+    <Condition ID="Emergency"/>
+    <Condition ID="BatteryOK"/>
+    <Action ID="EmergencyLand"/>
+    <Action ID="FlightDefaults"/>
+    <Action ID="GoToZone"/>
+    <Action ID="ResolveClosestZone"/>
+    <Action ID="FlyToZone"/>
+    <Action ID="Land"/>
+  </TreeNodesModel>
+</root>
