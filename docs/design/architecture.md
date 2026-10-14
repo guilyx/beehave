@@ -59,8 +59,9 @@ tags, and reads `<TreeNodesModel>`. It uses expat directly so every node keeps
 its line number, and it refuses any `DOCTYPE`, which rules out entity
 expansion attacks.
 
-The format is detected from the root element. A file with
-`BTCPP_format="4"` is refused with a clear message rather than misread.
+The format is detected from the root element and from the content. A file
+with `BTCPP_format="4"`, or one that uses v4-only nodes, attributes or port
+values, is refused with a clear message rather than misread.
 
 A user-defined node is classified by the strongest signal available:
 

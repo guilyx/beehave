@@ -28,7 +28,8 @@ failure edges, readable by someone who did not write the tree.
 - [x] Render text, Mermaid, Graphviz DOT and JSON
 - [x] Pilot metrics: size, reduction, longest raw guard, breakage
 - [x] Property tests against a reference interpreter
-- [ ] Run on public example trees (Nav2, BT.CPP examples) and record the metrics
+- [x] Run on public example trees (Nav2, BT.CPP examples) and record the metrics
+      ([results](phase-1-results.md))
 - [ ] Gate: someone other than the tree's author answers "what happens if X
       fails?" from the graph alone
 
@@ -42,6 +43,8 @@ Details: [Phase 1 specification](phase-1.md).
   self-loops for Retry and Repeat, grouped boxes for Parallel.
 - Gap report: actions with no failure path, unreachable actions, loops with
   no exit.
+- Let the config say a custom node "behaves like" a built-in one, with a
+  preset for Nav2 (`RecoveryNode`, `PipelineSequence`, `RoundRobin`…).
 - BT.CPP v4 parser.
 - Run on many real trees and record the metrics.
 

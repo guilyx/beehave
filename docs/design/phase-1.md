@@ -179,28 +179,59 @@ That one check proves the guards are complete and mutually exclusive.
 
 | Node (BT.CPP v3) | Phase 1 | Notes |
 | --- | --- | --- |
-| `Sequence`, `SequenceStar` | exact | Memory does not change a single static walk. |
+| `Sequence`, `SequenceStar` | exact | Memory only matters when a loop re-enters the node; loops are reported on their own. |
 | `Fallback` | exact | |
 | `Inverter`, `ForceSuccess`, `ForceFailure` | exact | |
-| `IfThenElse` | exact | 2 or 3 children. |
-| `Switch2` … `Switch6` | exact | Guards like `mode == AUTO`. |
-| `BlackboardCheckInt/Double/String` | exact | Guard `a == b`; `RUNNING` on mismatch is approximated. |
+| `IfThenElse` | exact | 2 or 3 children; with 2, a failed condition fails the node. |
+| `Switch2` … `Switch6` | exact | Guards like `mode == AUTO`; without `variable`, the default child runs. |
+| `BlackboardCheckInt/Double/String/Bool` | exact | Guard `a == b`; `RUNNING` on mismatch is approximated. |
 | `AlwaysSuccess`, `AlwaysFailure`, `SetBlackboard` | exact | Not shown as boxes. |
-| `Timeout`, `Delay` | exact | Transparent: they do not change which action runs next. |
+| `Delay` | exact | Transparent: it waits, then runs its child. |
 | `SubTree`, `SubTreePlus` | exact | Inlined with remapping. |
 | `ReactiveSequence`, `ReactiveFallback` | approximated | Walked like the plain version; no preemption edges yet. |
 | `RetryUntilSuccessful`, `Repeat` | approximated | Loop folded into a note (`retry ×3`). |
-| `KeepRunningUntilFailure` | approximated | Transparent; loop not shown. |
-| `WhileDoElse` | approximated | Walked like `IfThenElse`. |
+| `KeepRunningUntilFailure` | approximated | Transparent; it never succeeds, which the graph does not show yet. |
+| `Timeout` | approximated | Transparent; the extra failure when time runs out is not shown yet. |
+| `WhileDoElse` | approximated | Exactly 3 children in v3.8. Walked like `IfThenElse`. |
 | `Parallel` | approximated | Children shown as if run one after another. |
 | `ManualSelector` | approximated | Walked like a `Fallback`. |
 | Custom action / condition | exact | Action unless configured or declared as a condition. |
 | Custom decorator | approximated | Treated as transparent. |
 | Custom control | approximated | Walked like a `Sequence`. |
 
+BT.CPP 3.8 has no built-in condition nodes. The exact semantics behind this
+table, checked against the BT.CPP 3.8.8 source, are in
+[the v3 XML reference](../research/btcpp-v3-xml.md).
+
 Every approximated node produces a diagnostic with its location. The
 `approximated` line of `beehave stats` is the plan's **breakage** metric: what
 Phase 2 has to fix.
+
+## Loading rules
+
+Beehave follows BT.CPP 3.8 where it matters, and warns where BT.CPP is silent:
+
+- `<include>` paths are relative to the including file. Included files are
+  loaded before the including file's own trees.
+- If two trees share an ID, the first one loaded wins (as in BT.CPP) and a
+  `duplicate-tree` warning is printed.
+- The main tree comes from `main_tree_to_execute` on the first given file
+  that has one, or is the only tree.
+- `SubTree` values are bare key names. `SubTree` with `"{key}"` points to a
+  key literally named `{key}`; Beehave keeps that meaning and warns.
+- `SubTreePlus` accepts `{key}` and `${key}`. A literal placed after
+  `__autoremap` also overwrites the parent's key in BT.CPP 3.8.4+; Beehave
+  warns.
+- A compact subtree reference (`<Talk/>` for `<SubTree ID="Talk"/>`) is read
+  as a subtree, with a warning, because BT.CPP 3.8 rejects it.
+
+**Detecting v4.** v3.8 ignores `BTCPP_format`, and v4 files often omit it.
+Beehave refuses a file as v4 if it has `BTCPP_format="4"`, or if it uses a
+v4-only node (`SequenceWithMemory`, `Script`, `Precondition`…), a v4-only
+attribute (`_skipIf`, `_failureIf`, `_while`, `_autoremap`…), a v4 port value
+(`{=}`, `{@key}`) or v4 `Parallel` ports. A node type declared in
+`TreeNodesModel` or the config is never taken as evidence, so a v3 project can
+still have its own `Sleep` action.
 
 ## Configuration
 
@@ -238,8 +269,9 @@ longest guard 1 term, 3 approximated nodes.
 Phase 1 is done when:
 
 - [x] The tool produces a graph for the pilot trees, with the metrics recorded.
-- [ ] It runs on a set of public trees (Nav2, BT.CPP examples) without manual
-      edits, and the breakage list is recorded.
+- [x] It runs on a set of public trees (Nav2, BT.CPP examples) without manual
+      edits, and the breakage list is recorded: see
+      [Phase 1 results](phase-1-results.md).
 - [ ] Someone who did not write a tree can answer "what happens if X fails?"
       from the graph alone.
 
