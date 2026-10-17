@@ -158,18 +158,30 @@ conditions: [BatteryOK, IsEmergency]
 
 ## Status
 
-Beehave is in **Phase 1** of a four-phase plan.
+Beehave moves along two tracks ([roadmap](https://guilyx.github.io/beehave/design/roadmap/)).
+
+**Phases** — what the graph says:
 
 | Phase | What | Status |
 | --- | --- | --- |
-| 1. Action graph | Parse BT.CPP v3, flatten subtrees, walk, render | **in progress** |
-| 2. Guards and metrics | Simplified guards, exact Reactive/Retry/Parallel, gap report, BT.CPP v4 | planned |
+| 1. Action graph | Parse, flatten subtrees, walk, render | **done**, readability gate open |
+| 2. Guards and metrics | Simplified guards, exact Reactive/Retry/Parallel, gap report | planned |
 | 3. Operator view | Operator labels, phase view, JSON for ground-control UIs, live status | planned |
 | 4. LTL checks | Temporal-logic safety rules and model checking | optional |
 
-Nodes Phase 1 cannot model exactly (reactive nodes, loops, Parallel, unknown
-custom nodes) are approximated **and always reported**, never silently. See
-the [node support table](https://guilyx.github.io/beehave/design/phase-1/#node-support).
+**Formats** — what Beehave reads:
+
+| Format | Status |
+| --- | --- |
+| BehaviorTree.CPP v3 | **supported** |
+| BehaviorTree.CPP v4 | **in progress** |
+| py_trees | **in progress** |
+| Node presets (Nav2 first) | planned |
+
+Nodes Beehave cannot model exactly yet (reactive nodes, loops, Parallel,
+unknown custom nodes) are approximated **and always reported**, never
+silently. See the
+[node support table](https://guilyx.github.io/beehave/design/phase-1/#node-support).
 
 ## Learn more
 

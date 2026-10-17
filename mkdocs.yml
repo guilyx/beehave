@@ -36,6 +36,7 @@ nav:
           - 0005 Minimal dependencies: design/adr/0005-python-minimal-dependencies.md
           - 0006 Distribution name: design/adr/0006-distribution-name.md
           - 0007 Reference interpreter: design/adr/0007-test-driven-with-a-reference-interpreter.md
+          - 0008 Formats track: design/adr/0008-formats-track.md
           - Template: design/adr/template.md
   - Research:
       - research/index.md
