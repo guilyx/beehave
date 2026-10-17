@@ -30,16 +30,31 @@
 
 ## Why
 
-Behavior trees grow fast. Subtrees, fallbacks, reactive sequences and
-decorators stack up until nobody can say *what the robot actually does when a
-step fails halfway through a task*, whether it flies, drives or grasps,
-without tracing the XML by hand.
+A behavior tree decides what a robot does next, and the file that holds it is
+written for the executor, not for people. What happens when a step fails is
+spread over fallbacks, decorators, reactive nodes, subtrees in other files or
+ROS packages, and blackboard remapping. To answer *"what does the robot do if
+this step fails halfway through the task?"*, whether it flies, drives or
+grasps, you tick the tree in your head. So does every reviewer, every time.
 
-Beehave answers three questions at a glance:
+The tools around behavior trees answer other questions:
+
+- editors and monitors (Groot, Groot2) show the tree as written, or as it runs
+  on a robot;
+- renderers (`py-trees-render`, Nav2's `bt2img.py`) draw the parent/child
+  structure;
+- model checkers (BehaVerify and others) need the tree rewritten in their own
+  language first.
+
+Beehave reads the file you ship, with nothing built and no robot running, and
+answers three questions at a glance:
 
 - **Which actions exist** in this tree?
 - **What has to be true** for each one to run?
 - **What runs next** on success, and what runs next on failure?
+
+The [prior art survey](https://guilyx.github.io/beehave/research/prior-art/)
+compares the existing tools in detail.
 
 ## What it does
 
@@ -128,6 +143,82 @@ Each one is also written in BehaviorTree.CPP v4 (`*_v4.xml`) and in py_trees
 instructive: py_trees has no `IfThenElse`, and the usual py_trees way to write
 the mobile robot's "charge or navigate" lets a failed dock fall through to
 navigation. Beehave shows it as three extra arrows.
+
+## Where it helps
+
+### Reviewing a change
+
+An XML diff shows which tags moved, not what the robot now does. Removing the
+`ForceSuccess` around the drone's survey is a two-line change that looks like
+a clean-up:
+
+```diff
+         <TakeOff altitude="{cruise_altitude}"/>
+-        <ForceSuccess>
+           <Sequence name="survey">
+             ...
+           </Sequence>
+-        </ForceSuccess>
+         <SubTreePlus ID="ReturnToLaunch" __autoremap="true"/>
+```
+
+The graph diff shows what it changes:
+
+```diff
+-TakeOff --[success and not IsBatteryOK]--> FlyHome
++TakeOff --[success and not IsBatteryOK]--> FAILURE
+-FlyToWaypoint --[failure]--> FlyHome
++FlyToWaypoint --[failure]--> FAILURE
+-CaptureImage --[failure]--> FlyHome
++CaptureImage --[failure]--> FAILURE
+```
+
+When the battery is low after take-off, or the survey fails, the drone no
+longer flies home: the tree ends in `FAILURE` with the drone in the air.
+Commit the text graph next to the tree and this diff shows up in the pull
+request, where reviewers already look.
+
+### Safety and failure reviews
+
+Every failure transition is listed, with the conditions that lead to it. A
+hazard review (an FMEA, a test-flight briefing) can walk them one by one
+instead of rebuilding them from the XML. That is how the `LandNow` gap above
+shows up. Safety engineers, test pilots and operators can read the graph
+without reading the XML.
+
+### A CI check that needs no robot
+
+No ROS install, no C++ build, no plugins. Beehave exits with an error when the
+XML is malformed or a subtree cannot be found, across files, `<include>`s and
+ROS packages. Committed graphs fail CI when the tree changes and the graph was
+not updated ([how](https://guilyx.github.io/beehave/guide/cli/#use-in-ci)).
+
+### Migrations
+
+Moving from BT.CPP v3 to v4 (as Nav2 did between Humble and Jazzy), or porting
+a tree between BT.CPP and py_trees: the same tree must give the same graph, so
+comparing the two graphs checks the port. Beehave's own tests hold its
+examples and public BT.CPP v3/v4 pairs to that rule.
+
+### Diagrams that stay true
+
+Mermaid output renders on GitHub, GitLab and most docs sites. Generate the
+diagram from the tree and it cannot drift from what the robot runs.
+
+### Input for other tools
+
+`-f json` gives every action with its ports and source line, every transition
+with a structured guard, and every warning. Build a test plan from it (one
+simulation scenario per failure transition), check a naming rule, or feed an
+operator UI.
+
+## What it is not
+
+- **Not an editor or a runtime monitor.** Groot2 does that.
+- **Not a proof.** The graph shows what the tree can do; temporal-logic checks
+  are an optional later phase.
+- **Not exact everywhere yet.** Reactive nodes, loops and `Parallel` are
+  approximated, and every approximation is printed as a warning.
 
 ## Install
 
