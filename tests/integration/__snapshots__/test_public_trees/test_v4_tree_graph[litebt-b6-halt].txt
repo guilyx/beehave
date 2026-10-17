@@ -1,0 +1,18 @@
+START --[gate == true]--> ActH1
+START --[!(gate == true)]--> FAILURE
+ActH1 --[success]--> ActH2
+ActH1 --[failure]--> ActRescue
+ActH2 --[success]--> SUCCESS
+ActH2 --[failure]--> ActRescue
+ActRescue --[success]--> SUCCESS
+ActRescue --[failure]--> FAILURE
+
+tree           Main (btcpp-v4)
+nodes          7 (3 control, 1 condition, 3 action)
+actions        3
+reduction      57% (7 nodes -> 3 actions)
+transitions    8
+longest guard  1 term (not simplified)
+approximated   ReactiveSequence ×1
+
+v4/litebt/tests/LiteBT.Tests/DifferentialCorpus/b6-halt.xml:13: warning: ReactiveSequence: walked like a Sequence; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]

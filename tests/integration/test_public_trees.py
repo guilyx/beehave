@@ -1,8 +1,9 @@
-"""Beehave on real, public trees (BT.CPP examples, Groot test data, Nav2).
+"""Beehave on real, public trees (BT.CPP examples, Groot test data, Nav2…).
 
-Every v3 tree must load, flatten and walk without errors. The text graph and
-the stats of each tree are pinned as snapshots, so any change in behaviour shows
-up as a reviewable diff. Every v4 tree must be refused with a clear message.
+Every v3 and v4 tree must load, flatten and walk without errors. The text graph
+and the stats of each tree are pinned as snapshots, so any change in behaviour
+shows up as a reviewable diff. Trees that exist in both versions must give the
+same graph, and the files BT.CPP itself rejects must be rejected.
 
 The fixtures are byte-identical upstream files; see tests/fixtures/public/README.md.
 """
@@ -16,7 +17,7 @@ import pytest
 from syrupy.extensions.single_file import SingleFileSnapshotExtension, WriteMode
 
 import beehave
-from beehave.errors import UnsupportedFormatError
+from beehave.errors import BeehaveError
 from tests.conftest import FIXTURES
 
 if TYPE_CHECKING:
@@ -24,6 +25,7 @@ if TYPE_CHECKING:
 
 PUBLIC = FIXTURES / "public"
 NAV2_MODELS = PUBLIC / "nav2" / "nav2_behavior_tree" / "nav2_tree_nodes.xml"
+NAV2_JAZZY_MODELS = "v4/nav2-jazzy/nav2_behavior_tree/nav2_tree_nodes.xml"
 
 # (name, tree file); trees that are only included by others are covered through them.
 V3_TREES = [
@@ -55,14 +57,118 @@ V3_TREES = [
     ("nav2-odometry-calibration", "nav2/nav2_bt_navigator/behavior_trees/odometry_calibration.xml"),
 ]
 
-V4_TREES = [
-    "v4/btcpp/examples/test_files/log_test.xml",
-    "v4/btcpp/examples/test_files/Check.xml",  # no BTCPP_format marker
-    "v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml",
+_JAZZY = "v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/"
+_LITEBT = "v4/litebt/tests/LiteBT.Tests/DifferentialCorpus/"
+_ORACLE = "v4/litebt/tools/btcpp-oracle/samples/"
+
+# (name, files, tree); files are relative to the public fixtures folder.
+V4_TREES: list[tuple[str, tuple[str, ...], str | None]] = [
+    ("btcpp-check", ("v4/btcpp/examples/test_files/Check.xml",), None),
+    ("btcpp-log-test", ("v4/btcpp/examples/test_files/log_test.xml",), "Main"),
+    ("btcpp-subtree-test", ("v4/btcpp/examples/test_files/subtree_test.xml",), None),
+    ("btcpp-talk", ("v4/btcpp/examples/test_files/subtrees/Talk.xml",), None),
+    ("btcpp-corpus1", ("v4/btcpp/fuzzing/corpus/bt_corpus/corpus1.xml",), None),
     (
-        "v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/"
-        "navigate_to_pose_w_replanning_goal_patience_and_recovery.xml"
+        "btcpp-nested-includes",
+        ("v4/btcpp/tests/trees/parent_include_child_include_parent.xml",),
+        None,
     ),
+    (
+        "btcpp-ros2-door-closed",
+        ("v4/btcpp-ros2/btcpp_ros2_samples/behavior_trees/door_closed.xml",),
+        None,
+    ),
+    (
+        "btcpp-ros2-cross-door",
+        (
+            "v4/btcpp-ros2/btcpp_ros2_samples/behavior_trees/cross_door.xml",
+            "v4/btcpp-ros2/btcpp_ros2_samples/behavior_trees/door_closed.xml",
+        ),
+        "CrossDoor",
+    ),
+    (
+        "btcpp-ros2-sleep",
+        ("v4/btcpp-ros2/btcpp_ros2_samples/behavior_trees/sleep_action.xml",),
+        None,
+    ),
+    ("auto-apms-demo", ("v4/auto-apms/auto_apms_examples/behavior/demo.xml",), "HelloWorld"),
+    (
+        "auto-apms-skill-tree",
+        ("v4/auto-apms/auto_apms_examples/behavior/simple_skill_tree.xml",),
+        None,
+    ),
+    (
+        "auto-apms-orchestrator",
+        ("v4/auto-apms/auto_apms_mission/config/orchestrator_base.xml",),
+        None,
+    ),
+    *(
+        (f"litebt-{name}", (f"{_LITEBT}{name}.xml",), None)
+        for name in (
+            "a1-sequence",
+            "a2-reactive",
+            "a3-parallel",
+            "a4-branch",
+            "a5-decorator",
+            "a6-script",
+            "a7-precond-order",
+            "b1-repeat",
+            "b2-retry",
+            "b3-subtree",
+            "b4-runonce",
+            "b5-subtree-local",
+            "b6-halt",
+            "b10-async-fallback",
+            "b11-subtree-forward",
+            "f1-ifthenelse-stale",
+            "f2-whiledoelse-strand",
+            "f3-entry-updated",
+        )
+    ),
+    ("litebt-oracle-tier-a", (f"{_ORACLE}tier-a.xml",), None),
+    ("litebt-oracle-tier-a-controls", (f"{_ORACLE}tier-a-controls.xml",), None),
+    *(
+        (f"nav2-jazzy-{name}", (f"{_JAZZY}{file}.xml", NAV2_JAZZY_MODELS), None)
+        for name, file in (
+            ("follow-point", "follow_point"),
+            ("replanning-recovery", "navigate_to_pose_w_replanning_and_recovery"),
+            ("goal-patience", "navigate_to_pose_w_replanning_goal_patience_and_recovery"),
+            ("through-poses", "navigate_through_poses_w_replanning_and_recovery"),
+            (
+                "consistent-replanning",
+                "nav_to_pose_with_consistent_replanning_and_if_path_becomes_invalid",
+            ),
+            ("odometry-calibration", "odometry_calibration"),
+        )
+    ),
+    ("scan-n-plan", ("v4/scan-n-plan/snp_application/config/snp.xml",), "main"),
+]
+
+# v4 files paired with their v3 version, which must give the same graph.
+V3_V4_PAIRS = [
+    ("btcpp-v3/examples/test_files/Check.xml", "v4/btcpp/examples/test_files/Check.xml"),
+    (
+        "btcpp-v3/examples/test_files/subtrees/Talk.xml",
+        "v4/btcpp/examples/test_files/subtrees/Talk.xml",
+    ),
+    (
+        "btcpp-v3/examples/test_files/subtree_test.xml",
+        "v4/btcpp/examples/test_files/subtree_test.xml",
+    ),
+    *(
+        (f"btcpp-v3/tests/trees/{name}", f"v4/btcpp/tests/trees/{name}")
+        for name in (
+            "parent_include_child_include_parent.xml",
+            "child/child_include_parent.xml",
+            "parent_no_include.xml",
+        )
+    ),
+]
+
+# Files BT.CPP itself refuses to load.
+INVALID_V4 = [
+    ("v4/btcpp/fuzzing/corpus/bt_corpus/corpus3.xml", "subtree 'SubTree' is not defined"),
+    ("v4/btcpp/fuzzing/corpus/bt_corpus/corpus4.xml", r"<ForceSuccess> needs exactly 1 child"),
 ]
 
 
@@ -117,7 +223,44 @@ def test_same_subtree_used_twice_gives_two_copies() -> None:
     assert subtree_actions[0].id != subtree_actions[1].id
 
 
-@pytest.mark.parametrize("relative", V4_TREES)
-def test_v4_trees_are_refused(relative: str) -> None:
-    with pytest.raises(UnsupportedFormatError, match=r"BT\.CPP v4"):
+@pytest.mark.parametrize(("name", "files", "tree"), V4_TREES, ids=[n for n, _, _ in V4_TREES])
+def test_v4_tree_graph(
+    name: str, files: tuple[str, ...], tree: str | None, snapshot: SnapshotAssertion
+) -> None:
+    result = beehave.analyze(*files, tree=tree)
+
+    assert result.graph.format == "btcpp-v4"
+    diagnostics = "".join(f"{d}\n" for d in result.graph.diagnostics)
+    report = f"{beehave.to_text(result.graph)}\n{result.stats.to_text()}\n{diagnostics}"
+    assert report == snapshot(extension_class=_TextSnapshot)
+
+
+@pytest.mark.parametrize(("name", "files", "tree"), V4_TREES, ids=[n for n, _, _ in V4_TREES])
+def test_v4_tree_renders_in_every_format(
+    name: str, files: tuple[str, ...], tree: str | None
+) -> None:
+    graph = beehave.analyze(*files, tree=tree).graph
+
+    for render in (beehave.to_mermaid, beehave.to_dot, beehave.to_json):
+        assert render(graph)
+
+
+@pytest.mark.parametrize(("v3", "v4"), V3_V4_PAIRS, ids=[Path(v).stem for _, v in V3_V4_PAIRS])
+def test_v3_and_v4_versions_give_the_same_graph(v3: str, v4: str) -> None:
+    graph_v3, graph_v4 = beehave.analyze(v3).graph, beehave.analyze(v4).graph
+
+    assert (graph_v3.format, graph_v4.format) == ("btcpp-v3", "btcpp-v4")
+    assert beehave.to_text(graph_v4) == beehave.to_text(graph_v3)
+
+
+@pytest.mark.parametrize(
+    ("relative", "message"), INVALID_V4, ids=[Path(r).stem for r, _ in INVALID_V4]
+)
+def test_files_bt_cpp_rejects_are_rejected(relative: str, message: str) -> None:
+    with pytest.raises(BeehaveError, match=message):
         beehave.analyze(relative)
+
+
+def test_a_marker_less_v4_file_is_read_as_v4() -> None:
+    # Check.xml has no BTCPP_format; SequenceWithMemory gives it away.
+    assert beehave.analyze("v4/btcpp/examples/test_files/Check.xml").graph.format == "btcpp-v4"

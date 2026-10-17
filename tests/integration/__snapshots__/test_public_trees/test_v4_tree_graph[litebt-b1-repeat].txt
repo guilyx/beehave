@@ -1,0 +1,18 @@
+START --> ActLoop
+ActLoop --[success]--> ActAfterRepeat
+ActLoop --[failure]--> FAILURE
+ActAfterRepeat --[success]--> SUCCESS
+ActAfterRepeat --[failure]--> FAILURE
+
+notes:
+  ActLoop: repeat ×6
+
+tree           Main (btcpp-v4)
+nodes          4 (1 control, 1 decorator, 2 action)
+actions        2
+reduction      50% (4 nodes -> 2 actions)
+transitions    5
+longest guard  0 terms (not simplified)
+approximated   Repeat ×1
+
+v4/litebt/tests/LiteBT.Tests/DifferentialCorpus/b1-repeat.xml:11: warning: Repeat: the repeat loop is folded into a note; the loop edge is not shown yet [approximated]

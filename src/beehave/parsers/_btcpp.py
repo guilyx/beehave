@@ -104,6 +104,24 @@ V4_ONLY_ATTRIBUTES = frozenset(
 )
 
 
+# BT.CPP v4 pre- and post-conditions: attributes of any node, never ports.
+SCRIPT_ATTRIBUTES = frozenset(
+    {
+        "_failureIf",
+        "_successIf",
+        "_skipIf",
+        "_while",
+        "_onSuccess",
+        "_onFailure",
+        "_post",
+        "_onHalted",
+    }
+)
+
+# py_trees 2.5+ writes XML that looks like BT.CPP v3 but means something else.
+_PY_TREES_HINTS = {"Sequence": "memory", "Selector": "memory", "Fallback": "memory"}
+
+
 def source_name(path: PurePath) -> str:
     """Return how a file is named in locations: always with forward slashes.
 
@@ -124,6 +142,15 @@ class Dialect:
         subtree_tags: The tags that reference another tree.
         refuse_other_version: The error message used when a file is in the
             other BT.CPP version.
+        scripts: Attributes that hold pre- and post-condition scripts.
+        drop_private_attributes: Whether other ``_…`` attributes are ignored
+            (v4) or kept as ports (v3, where ``__autoremap`` is one).
+        last_definition_wins: Which definition of a duplicate tree ID is used.
+        unknown_names: Node types that only exist in the other version, with
+            what to say when one is used without being declared.
+        old_names: Built-in names the version only keeps for compatibility.
+        local_main_tree: Whether the only tree of the given files is the main
+            tree even when they include other trees (v4).
     """
 
     format: str
@@ -131,6 +158,12 @@ class Dialect:
     builtins: Mapping[str, Builtin]
     subtree_tags: frozenset[str]
     refuse_other_version: str
+    scripts: frozenset[str] = frozenset()
+    drop_private_attributes: bool = False
+    last_definition_wins: bool = False
+    unknown_names: Mapping[str, str] = field(default_factory=dict)
+    old_names: Mapping[str, str] = field(default_factory=dict)
+    local_main_tree: bool = False
 
 
 def load_string(
@@ -167,6 +200,7 @@ class Loader:
     main_tree_location: SourceLocation | None = None
     diagnostics: list[Diagnostic] = field(default_factory=list)
     seen_files: set[Path] = field(default_factory=set)
+    local_trees: list[str] = field(default_factory=list)
 
     # ------------------------------------------------------------- loading ---
 
@@ -193,6 +227,7 @@ class Loader:
             msg = f"expected <root> as the top element, found <{root.tag}>"
             raise ParseError(msg, here)
         self._check_format(root, here)
+        self._reject_py_trees(root, source)
 
         if top_level and self.main_tree is None and "main_tree_to_execute" in root.attrs:
             self.main_tree = root.attrs["main_tree_to_execute"]
@@ -206,7 +241,7 @@ class Loader:
         for element in root.children:
             location = SourceLocation(source, element.line)
             if element.tag == "BehaviorTree":
-                self._add_tree(element, source, location)
+                self._add_tree(element, source, location, top_level=top_level)
             elif element.tag == "TreeNodesModel":
                 self._add_models(element)
             elif element.tag != "include":
@@ -234,6 +269,34 @@ class Loader:
             )
         )
 
+    def _reject_py_trees(self, root: Element, source: str | None) -> None:
+        declared = (
+            {
+                model.attrs.get("ID", "")
+                for element in root.children
+                if element.tag == "TreeNodesModel"
+                for model in element.children
+            }
+            | self.config.conditions
+            | self.config.actions
+        )
+
+        def evidence(element: Element) -> Element | None:
+            attribute = "policy" if element.tag == "Parallel" else _PY_TREES_HINTS.get(element.tag)
+            if attribute in element.attrs and element.tag not in declared:
+                return element
+            return next((e for c in element.children if (e := evidence(c)) is not None), None)
+
+        for tree in root.children:
+            found = evidence(tree) if tree.tag == "BehaviorTree" else None
+            if found is not None:
+                attribute = "policy" if found.tag == "Parallel" else "memory"
+                msg = (
+                    f"this file looks like py_trees XML ({attribute}= on <{found.tag}>); "
+                    "build the tree with py_trees and read it with --py-trees"
+                )
+                raise UnsupportedFormatError(msg, SourceLocation(source, found.line))
+
     def _reject_v4(self, element: Element, source: str | None) -> None:
         declared = self.models.keys() | self.config.conditions | self.config.actions
         evidence = v4_evidence(element, declared)
@@ -244,20 +307,26 @@ class Loader:
         for child in element.children:
             self._reject_v4(child, source)
 
-    def _add_tree(self, element: Element, source: str | None, location: SourceLocation) -> None:
+    def _add_tree(
+        self, element: Element, source: str | None, location: SourceLocation, *, top_level: bool
+    ) -> None:
         tree_id = element.attrs.get("ID")
         if not tree_id:
             msg = "<BehaviorTree> is missing the ID attribute"
             raise ParseError(msg, location)
+        if top_level:
+            self.local_trees.append(tree_id)
         if tree_id in self.tree_elements:
+            which = "last" if self.dialect.last_definition_wins else "first"
             self.diagnostics.append(
                 Diagnostic(
                     "duplicate-tree",
-                    f"tree '{tree_id}' is defined more than once; the first definition is used",
+                    f"tree '{tree_id}' is defined more than once; the {which} definition is used",
                     location=location,
                 )
             )
-            return
+            if not self.dialect.last_definition_wins:
+                return
         self.tree_elements[tree_id] = (element, source)
 
     def _add_models(self, element: Element) -> None:
@@ -305,6 +374,8 @@ class Loader:
             raise ParseError(msg, self.main_tree_location)
         if main is None and len(trees) == 1:
             main = next(iter(trees))
+        if main is None and self.dialect.local_main_tree and len(set(self.local_trees)) == 1:
+            main = self.local_trees[0]
         return Document(self.dialect.format, trees, main, tuple(self.diagnostics))
 
     def _build_tree(self, tree_id: str, element: Element, source: str | None) -> Tree:
@@ -318,11 +389,23 @@ class Loader:
         location = SourceLocation(source, element.line)
         children = tuple(self._build_node(child, source) for child in element.children)
         name = element.attrs.get("name")
-        ports = {k: v for k, v in element.attrs.items() if k not in NOT_PORTS}
+        dialect = self.dialect
+        is_subtree = element.tag in dialect.subtree_tags
+        scripts = {k: v for k, v in element.attrs.items() if k in dialect.scripts}
+        ports = {
+            k: v
+            for k, v in element.attrs.items()
+            if k not in NOT_PORTS
+            and k not in dialect.scripts
+            and not (
+                dialect.drop_private_attributes
+                and k.startswith("_")
+                and not (is_subtree and k == "_autoremap")
+            )
+        }
 
         explicit_kind = _EXPLICIT_TAGS.get(element.tag)
-        builtins = self.dialect.builtins
-        is_subtree = element.tag in self.dialect.subtree_tags
+        builtins = dialect.builtins
         if explicit_kind is not None or is_subtree:
             node_type = element.attrs.get("ID", "")
             if not node_type:
@@ -345,6 +428,7 @@ class Loader:
                 children,
                 ref=node_type,
                 location=location,
+                scripts=scripts,
             )
 
         if (
@@ -359,33 +443,62 @@ class Loader:
                 Diagnostic(
                     "compact-subtree-reference",
                     f'<{node_type}/> is read as <SubTree ID="{node_type}"/>; '
-                    "BT.CPP 3.8 rejects this short form",
+                    f"BT.CPP {'3.8' if dialect.version == '3' else 'v4'} rejects this short form",
                     location=location,
                 )
             )
+            reference = builtins[next(iter(sorted(dialect.subtree_tags)))]
             return Node(
                 NodeKind.SUBTREE,
                 "SubTree",
-                Semantics.SUBTREE,
+                reference.semantics,
                 name,
                 ports,
                 ref=node_type,
                 location=location,
+                scripts=scripts,
             )
+
+        declared = node_type in self.models or node_type in (
+            self.config.conditions | self.config.actions
+        )
+        if node_type in dialect.unknown_names and not declared:
+            msg = f"<{node_type}> does not exist in BT.CPP v{dialect.version}; "
+            raise ParseError(msg + dialect.unknown_names[node_type], location)
 
         builtin = builtins.get(node_type)
         if builtin is not None:
             _check_children(
                 node_type, builtin.min_children, builtin.max_children, children, location
             )
+            if node_type in dialect.old_names:
+                self.diagnostics.append(
+                    Diagnostic("v3-name", dialect.old_names[node_type], location=location)
+                )
             return Node(
-                builtin.kind, node_type, builtin.semantics, name, ports, children, location=location
+                builtin.kind,
+                node_type,
+                builtin.semantics,
+                name,
+                ports,
+                children,
+                location=location,
+                scripts=scripts,
             )
 
         kind = self._classify(node_type, explicit_kind, len(children))
         lo, hi = _ARITY[kind]
         _check_children(node_type, lo, hi, children, location)
-        return Node(kind, node_type, Semantics.CUSTOM, name, ports, children, location=location)
+        return Node(
+            kind,
+            node_type,
+            Semantics.CUSTOM,
+            name,
+            ports,
+            children,
+            location=location,
+            scripts=scripts,
+        )
 
     def _classify(self, node_type: str, explicit: NodeKind | None, n_children: int) -> NodeKind:
         if node_type in self.config.conditions:

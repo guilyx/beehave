@@ -1,0 +1,18 @@
+START --> HasParameter#1
+HasParameter#1 --[success]--> HasParameter#2
+HasParameter#1 --[failure]--> HasParameter#2
+HasParameter#2 --[success]--> SimpleSkillActionNode#1
+HasParameter#2 --[failure]--> SimpleSkillActionNode#1
+SimpleSkillActionNode#1 --[success]--> SimpleSkillActionNode#2
+SimpleSkillActionNode#1 --[failure]--> FAILURE
+SimpleSkillActionNode#2 --[success]--> SUCCESS
+SimpleSkillActionNode#2 --[failure]--> FAILURE
+
+tree           SimpleSkillDemo (btcpp-v4)
+nodes          7 (1 control, 2 decorator, 4 action)
+actions        4
+reduction      43% (7 nodes -> 4 actions)
+transitions    9
+longest guard  0 terms (not simplified)
+approximated   none
+

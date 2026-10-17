@@ -1,0 +1,10 @@
+START --> SUCCESS
+
+tree           MainTree (btcpp-v4)
+nodes          2 (1 control, 1 action)
+actions        0
+reduction      100% (2 nodes -> 0 actions)
+transitions    1
+longest guard  0 terms (not simplified)
+approximated   none
+

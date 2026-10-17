@@ -1,0 +1,21 @@
+START --> SaySomething#1
+SaySomething#1 --[success]--> sleepA
+SaySomething#1 --[failure]--> FAILURE
+sleepA --[success]--> SaySomething#2
+sleepA --[failure]--> FAILURE
+SaySomething#2 --[success]--> sleepB
+SaySomething#2 --[failure]--> FAILURE
+sleepB --[success]--> SUCCESS
+sleepB --[failure]--> SaySomething#3
+SaySomething#3 --[success]--> SUCCESS
+SaySomething#3 --[failure]--> FAILURE
+
+tree           SleepActionSample (btcpp-v4)
+nodes          8 (2 control, 1 decorator, 5 action)
+actions        5
+reduction      38% (8 nodes -> 5 actions)
+transitions    11
+longest guard  0 terms (not simplified)
+approximated   Timeout ×1
+
+v4/btcpp-ros2/btcpp_ros2_samples/behavior_trees/sleep_action.xml:8: warning: Timeout: can also fail when time runs out; those failure edges are not shown yet [approximated]

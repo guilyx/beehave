@@ -1,0 +1,36 @@
+START --[(label == 'gate' || label == 'other') && !(n < 0) && 0 < n <= 14 and n == 14 and grade == 'high' and n > 10 and keep == true]--> ActWhile
+START --[(label == 'gate' || label == 'other') && !(n < 0) && 0 < n <= 14 and n == 14 and grade == 'high' and n > 10 and !(keep == true)]--> ActPostF
+START --[(label == 'gate' || label == 'other') && !(n < 0) && 0 < n <= 14 and n == 14 and grade == 'high' and !(n > 10)]--> ActSkip
+START --[(label == 'gate' || label == 'other') && !(n < 0) && 0 < n <= 14 and n == 14 and !(grade == 'high')]--> ActSucc
+START --[(label == 'gate' || label == 'other') && !(n < 0) && 0 < n <= 14 and !(n == 14)]--> ActFail
+START --[!((label == 'gate' || label == 'other') && !(n < 0) && 0 < n <= 14)]--> FAILURE
+ActFail --[success]--> FAILURE
+ActFail --[failure and grade == 'high' and n > 10 and keep == true]--> ActWhile
+ActFail --[failure and grade == 'high' and n > 10 and !(keep == true)]--> ActPostF
+ActFail --[failure and grade == 'high' and !(n > 10)]--> ActSkip
+ActFail --[failure and !(grade == 'high')]--> ActSucc
+ActSucc --[success and n > 10 and keep == true]--> ActWhile
+ActSucc --[success and n > 10 and !(keep == true)]--> ActPostF
+ActSucc --[success and !(n > 10)]--> ActSkip
+ActSucc --[failure]--> FAILURE
+ActSkip --[success and keep == true]--> ActWhile
+ActSkip --[success and !(keep == true)]--> ActPostF
+ActSkip --[failure]--> FAILURE
+ActWhile --[success]--> ActPostF
+ActWhile --[failure]--> ActPostF
+ActPostF --[success]--> ActScriptEnd
+ActPostF --[failure]--> ActPostS
+ActPostS --[success]--> ActScriptEnd
+ActPostS --[failure]--> FAILURE
+ActScriptEnd --[success]--> SUCCESS
+ActScriptEnd --[failure]--> FAILURE
+
+tree           Main (btcpp-v4)
+nodes          13 (2 control, 2 decorator, 1 condition, 8 action)
+actions        7
+reduction      46% (13 nodes -> 7 actions)
+transitions    26
+longest guard  5 terms (not simplified)
+approximated   ActWhile ×1
+
+v4/litebt/tests/LiteBT.Tests/DifferentialCorpus/a6-script.xml:36: warning: ActWhile: _while is checked on every tick; the interrupt edges are not shown yet [approximated]

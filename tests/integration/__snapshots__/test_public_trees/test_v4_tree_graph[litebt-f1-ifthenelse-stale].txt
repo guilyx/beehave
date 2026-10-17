@@ -1,0 +1,15 @@
+START --[gate == true]--> ActThen
+START --[!(gate == true)]--> ActRescue
+ActThen --[success]--> SUCCESS
+ActThen --[failure]--> ActRescue
+ActRescue --[success]--> SUCCESS
+ActRescue --[failure]--> FAILURE
+
+tree           Main (btcpp-v4)
+nodes          5 (2 control, 1 condition, 2 action)
+actions        2
+reduction      60% (5 nodes -> 2 actions)
+transitions    6
+longest guard  1 term (not simplified)
+approximated   none
+

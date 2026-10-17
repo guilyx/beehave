@@ -1,0 +1,15 @@
+START --[watched updated]--> ActOnUpdate
+START --[not watched updated]--> ActAfterUpdate
+ActOnUpdate --[success]--> ActAfterUpdate
+ActOnUpdate --[failure]--> FAILURE
+ActAfterUpdate --[success]--> SUCCESS
+ActAfterUpdate --[failure]--> FAILURE
+
+tree           Main (btcpp-v4)
+nodes          4 (1 control, 1 decorator, 2 action)
+actions        2
+reduction      50% (4 nodes -> 2 actions)
+transitions    6
+longest guard  1 term (not simplified)
+approximated   none
+

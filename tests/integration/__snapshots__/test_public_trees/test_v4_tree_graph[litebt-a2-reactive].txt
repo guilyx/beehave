@@ -1,0 +1,24 @@
+START --[gate == true and power > 0]--> ActGuarded
+START --[gate == true and !(power > 0) and ready == true]--> ActReactEnd
+START --[gate == true and !(power > 0) and !(ready == true)]--> ActWait
+START --[!(gate == true) and ready == true]--> ActReactEnd
+START --[!(gate == true) and !(ready == true)]--> ActWait
+ActGuarded --[success and ready == true]--> ActReactEnd
+ActGuarded --[success and !(ready == true)]--> ActWait
+ActGuarded --[failure and ready == true]--> ActReactEnd
+ActGuarded --[failure and !(ready == true)]--> ActWait
+ActWait --[success]--> ActReactEnd
+ActWait --[failure]--> FAILURE
+ActReactEnd --[success]--> SUCCESS
+ActReactEnd --[failure]--> FAILURE
+
+tree           Main (btcpp-v4)
+nodes          10 (3 control, 1 decorator, 3 condition, 3 action)
+actions        3
+reduction      70% (10 nodes -> 3 actions)
+transitions    13
+longest guard  3 terms (not simplified)
+approximated   ReactiveFallback ×1, ReactiveSequence ×1
+
+v4/litebt/tests/LiteBT.Tests/DifferentialCorpus/a2-reactive.xml:16: warning: ReactiveSequence: walked like a Sequence; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
+v4/litebt/tests/LiteBT.Tests/DifferentialCorpus/a2-reactive.xml:24: warning: ReactiveFallback: walked like a Fallback; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]

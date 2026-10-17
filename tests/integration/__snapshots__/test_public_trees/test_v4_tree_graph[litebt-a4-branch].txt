@@ -1,0 +1,50 @@
+START --[label == 'go']--> ActThen2
+START --[!(label == 'go')]--> ActCond3
+ActThen2 --[success]--> ActCond3
+ActThen2 --[failure]--> ActCond3
+ActCond3 --[success]--> ActThen3
+ActCond3 --[failure]--> ActElse3
+ActThen3 --[success and alive == true]--> ActDo2
+ActThen3 --[success and !(alive == true) and awake == true]--> ActDo3
+ActThen3 --[success and !(alive == true) and !(awake == true)]--> ActElse3W
+ActThen3 --[failure]--> FAILURE
+ActElse3 --[success and alive == true]--> ActDo2
+ActElse3 --[success and !(alive == true) and awake == true]--> ActDo3
+ActElse3 --[success and !(alive == true) and !(awake == true)]--> ActElse3W
+ActElse3 --[failure]--> FAILURE
+ActDo2 --[success and awake == true]--> ActDo3
+ActDo2 --[success and !(awake == true)]--> ActElse3W
+ActDo2 --[failure and awake == true]--> ActDo3
+ActDo2 --[failure and !(awake == true)]--> ActElse3W
+ActDo3 --[success and mode == 0]--> ActCaseA
+ActDo3 --[success and mode != 0 and mode == 1]--> ActCaseB
+ActDo3 --[success and mode != 0 and mode != 1 and mode == 2]--> ActCaseC
+ActDo3 --[success and mode != 0 and mode != 1 and mode != 2]--> ActCaseDefault
+ActDo3 --[failure]--> FAILURE
+ActElse3W --[success and mode == 0]--> ActCaseA
+ActElse3W --[success and mode != 0 and mode == 1]--> ActCaseB
+ActElse3W --[success and mode != 0 and mode != 1 and mode == 2]--> ActCaseC
+ActElse3W --[success and mode != 0 and mode != 1 and mode != 2]--> ActCaseDefault
+ActElse3W --[failure]--> FAILURE
+ActCaseA --[success]--> ActBranchEnd
+ActCaseA --[failure]--> FAILURE
+ActCaseB --[success]--> ActBranchEnd
+ActCaseB --[failure]--> FAILURE
+ActCaseC --[success]--> ActBranchEnd
+ActCaseC --[failure]--> FAILURE
+ActCaseDefault --[success]--> ActBranchEnd
+ActCaseDefault --[failure]--> FAILURE
+ActBranchEnd --[success]--> SUCCESS
+ActBranchEnd --[failure]--> FAILURE
+
+tree           Main (btcpp-v4)
+nodes          25 (7 control, 2 decorator, 3 condition, 13 action)
+actions        12
+reduction      52% (25 nodes -> 12 actions)
+transitions    38
+longest guard  3 terms (not simplified)
+approximated   ReactiveSequence ×1, WhileDoElse ×2
+
+v4/litebt/tests/LiteBT.Tests/DifferentialCorpus/a4-branch.xml:15: warning: ReactiveSequence: walked like a Sequence; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
+v4/litebt/tests/LiteBT.Tests/DifferentialCorpus/a4-branch.xml:40: warning: WhileDoElse: walked like IfThenElse; the condition is not re-checked [approximated]
+v4/litebt/tests/LiteBT.Tests/DifferentialCorpus/a4-branch.xml:47: warning: WhileDoElse: walked like IfThenElse; the condition is not re-checked [approximated]

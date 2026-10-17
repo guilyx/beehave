@@ -2,7 +2,8 @@
 
 The colours and fonts come from the brand tokens in ``.branding/tokens/``
 (light theme). Shape and line style always carry the meaning on their own
-(dashed = failure, stadium = terminal), so a graph still reads in greyscale,
+(dashed = failure, stadium = terminal, dashed outline = skipped), so a graph
+still reads in greyscale,
 on a low-quality display or for colour-blind readers. Colour is a second cue.
 """
 
@@ -39,6 +40,8 @@ MERMAID_CLASSES = {
     # A paper-coloured stroke draws the terminal's inner ring.
     "success": f"fill:{LEAF},stroke:{PAPER},stroke-width:2px,color:{PAPER}",
     "failure": f"fill:{CINNABAR},stroke:{PAPER},stroke-width:2px,color:{PAPER}",
+    # Only drawn for BT.CPP v4 trees that can skip; "not run" reads as muted.
+    "skipped": (f"fill:{PAPER},stroke:{MUTED},stroke-width:2px,stroke-dasharray:4 3,color:{MUTED}"),
 }
 MERMAID_EDGES: dict[Outcome | None, str] = {
     None: f"stroke:{INK},stroke-width:1.75px",
@@ -60,6 +63,10 @@ DOT_VERTICES = {
     "success": f'shape=doublecircle, fillcolor="{LEAF}", color="{LEAF}", fontcolor="{PAPER}"',
     "failure": (
         f'shape=doubleoctagon, fillcolor="{CINNABAR}", color="{CINNABAR}", fontcolor="{PAPER}"'
+    ),
+    "skipped": (
+        f'shape=doublecircle, style="filled,dashed", fillcolor="{PAPER}", color="{MUTED}", '
+        f'fontcolor="{MUTED}"'
     ),
 }
 DOT_EDGES: dict[Outcome | None, str] = {

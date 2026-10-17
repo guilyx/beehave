@@ -1,0 +1,44 @@
+START --> ControllerSelector
+ControllerSelector --[success]--> PlannerSelector
+ControllerSelector --[failure]--> FAILURE
+PlannerSelector --[success and PathExpiringTimer(seconds=10, path={path})]--> ComputePathToPose
+PlannerSelector --[success and not PathExpiringTimer(seconds=10, path={path}) and GlobalUpdatedGoal]--> ComputePathToPose
+PlannerSelector --[success and not PathExpiringTimer(seconds=10, path={path}) and not GlobalUpdatedGoal and IsPathValid(path={path})]--> ClearGlobalCostmap-Context
+PlannerSelector --[success and not PathExpiringTimer(seconds=10, path={path}) and not GlobalUpdatedGoal and not IsPathValid(path={path})]--> ComputePathToPose
+PlannerSelector --[failure]--> FAILURE
+ComputePathToPose --[success]--> ClearGlobalCostmap-Context
+ComputePathToPose --[failure]--> FAILURE
+ClearGlobalCostmap-Context --[success]--> FollowPath
+ClearGlobalCostmap-Context --[failure]--> FAILURE
+FollowPath --[success]--> ClearLocalCostmap-Context
+FollowPath --[failure]--> FAILURE
+ClearLocalCostmap-Context --[success and GoalUpdated]--> SUCCESS
+ClearLocalCostmap-Context --[success and not GoalUpdated]--> ClearLocalCostmap-Subtree
+ClearLocalCostmap-Context --[failure]--> FAILURE
+ClearLocalCostmap-Subtree --[success]--> ClearGlobalCostmap-Subtree
+ClearLocalCostmap-Subtree --[failure]--> FAILURE
+ClearGlobalCostmap-Subtree --[success]--> Spin
+ClearGlobalCostmap-Subtree --[failure]--> FAILURE
+Spin --[success]--> Wait
+Spin --[failure]--> FAILURE
+Wait --[success]--> BackUp
+Wait --[failure]--> FAILURE
+BackUp --[success]--> SUCCESS
+BackUp --[failure]--> FAILURE
+
+tree           MainTree (btcpp-v4)
+nodes          27 (9 control, 3 decorator, 4 condition, 11 action)
+actions        11
+reduction      59% (27 nodes -> 11 actions)
+transitions    27
+longest guard  3 terms (not simplified)
+approximated   PipelineSequence ×1, RateController ×1, ReactiveFallback ×1, ReactiveSequence ×1, RecoveryNode ×3, RoundRobin ×1
+
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/nav_to_pose_with_consistent_replanning_and_if_path_becomes_invalid.xml:8: warning: RecoveryNode "NavigateRecovery": custom control node is walked like a Sequence [unknown-control]
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/nav_to_pose_with_consistent_replanning_and_if_path_becomes_invalid.xml:9: warning: PipelineSequence "NavigateWithReplanning": custom control node is walked like a Sequence [unknown-control]
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/nav_to_pose_with_consistent_replanning_and_if_path_becomes_invalid.xml:12: warning: RateController: custom decorator is treated as transparent [unknown-decorator]
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/nav_to_pose_with_consistent_replanning_and_if_path_becomes_invalid.xml:13: warning: RecoveryNode "ComputePathToPose": custom control node is walked like a Sequence [unknown-control]
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/nav_to_pose_with_consistent_replanning_and_if_path_becomes_invalid.xml:15: warning: ReactiveSequence: walked like a Sequence; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/nav_to_pose_with_consistent_replanning_and_if_path_becomes_invalid.xml:29: warning: RecoveryNode "FollowPath": custom control node is walked like a Sequence [unknown-control]
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/nav_to_pose_with_consistent_replanning_and_if_path_becomes_invalid.xml:34: warning: ReactiveFallback "RecoveryFallback": walked like a Fallback; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/nav_to_pose_with_consistent_replanning_and_if_path_becomes_invalid.xml:36: warning: RoundRobin "RecoveryActions": custom control node is walked like a Sequence [unknown-control]

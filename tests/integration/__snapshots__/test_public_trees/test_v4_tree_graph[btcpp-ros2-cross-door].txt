@@ -1,0 +1,24 @@
+START --> IsDoorClosed
+IsDoorClosed --[success]--> OpenDoor
+IsDoorClosed --[failure]--> PassThroughDoor
+OpenDoor --[success]--> PassThroughDoor
+OpenDoor --[failure]--> PickLock
+PickLock --[success]--> PassThroughDoor
+PickLock --[failure]--> SmashDoor
+SmashDoor --[success]--> PassThroughDoor
+SmashDoor --[failure]--> FAILURE
+PassThroughDoor --[success]--> SUCCESS
+PassThroughDoor --[failure]--> FAILURE
+
+notes:
+  PickLock: retry ×5
+
+tree           CrossDoor (btcpp-v4)
+nodes          11 (3 control, 2 decorator, 5 action, 1 subtree)
+actions        5
+reduction      55% (11 nodes -> 5 actions)
+transitions    11
+longest guard  0 terms (not simplified)
+approximated   RetryUntilSuccessful ×1
+
+v4/btcpp-ros2/btcpp_ros2_samples/behavior_trees/door_closed.xml:5: warning: RetryUntilSuccessful: the retry loop is folded into a note; the loop edge is not shown yet [approximated]

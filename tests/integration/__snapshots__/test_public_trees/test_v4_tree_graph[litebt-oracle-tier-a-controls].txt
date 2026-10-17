@@ -1,0 +1,65 @@
+START --> ActM1
+ActM1 --[success]--> ActM2
+ActM1 --[failure]--> FAILURE
+ActM2 --[success]--> ActP1
+ActM2 --[failure]--> FAILURE
+ActP1 --[success]--> ActP2
+ActP1 --[failure and flag == true and phase == 1]--> ActThen
+ActP1 --[failure and flag == true and !(phase == 1)]--> ActElse
+ActP1 --[failure and !(flag == true)]--> ActR
+ActP2 --[success]--> ActP3
+ActP2 --[failure and flag == true and phase == 1]--> ActThen
+ActP2 --[failure and flag == true and !(phase == 1)]--> ActElse
+ActP2 --[failure and !(flag == true)]--> ActR
+ActP3 --[success]--> FAILURE
+ActP3 --[failure and flag == true and phase == 1]--> ActThen
+ActP3 --[failure and flag == true and !(phase == 1)]--> ActElse
+ActP3 --[failure and !(flag == true)]--> ActR
+ActR --[success and phase == 1]--> ActThen
+ActR --[success and !(phase == 1)]--> ActElse
+ActR --[failure]--> FAILURE
+ActThen --[success and phase == 0]--> ActCase0
+ActThen --[success and phase != 0 and phase == 1]--> ActCase1
+ActThen --[success and phase != 0 and phase != 1]--> ActDefault
+ActThen --[failure]--> FAILURE
+ActElse --[success and phase == 0]--> ActCase0
+ActElse --[success and phase != 0 and phase == 1]--> ActCase1
+ActElse --[success and phase != 0 and phase != 1]--> ActDefault
+ActElse --[failure]--> FAILURE
+ActCase0 --[success and phase < 2]--> ActDo
+ActCase0 --[success and !(phase < 2)]--> ActElseW
+ActCase0 --[failure]--> FAILURE
+ActCase1 --[success and phase < 2]--> ActDo
+ActCase1 --[success and !(phase < 2)]--> ActElseW
+ActCase1 --[failure]--> FAILURE
+ActDefault --[success and phase < 2]--> ActDo
+ActDefault --[success and !(phase < 2)]--> ActElseW
+ActDefault --[failure]--> FAILURE
+ActDo --[success and seen > 0 and phase == 2]--> ActK
+ActDo --[success and seen > 0 and !(phase == 2)]--> ActFailFast
+ActDo --[success and !(seen > 0)]--> ActSkipped
+ActDo --[failure]--> FAILURE
+ActElseW --[success and seen > 0 and phase == 2]--> ActK
+ActElseW --[success and seen > 0 and !(phase == 2)]--> ActFailFast
+ActElseW --[success and !(seen > 0)]--> ActSkipped
+ActElseW --[failure]--> FAILURE
+ActSkipped --[success and phase == 2]--> ActK
+ActSkipped --[success and !(phase == 2)]--> ActFailFast
+ActSkipped --[failure]--> FAILURE
+ActFailFast --[success]--> FAILURE
+ActFailFast --[failure]--> ActK
+ActK --[success]--> SUCCESS
+ActK --[failure]--> SUCCESS
+
+tree           Main (btcpp-v4)
+nodes          32 (7 control, 5 decorator, 3 condition, 17 action)
+actions        16
+reduction      50% (32 nodes -> 16 actions)
+transitions    52
+longest guard  2 terms (not simplified)
+approximated   KeepRunningUntilFailure ×1, Parallel ×1, ReactiveFallback ×1, WhileDoElse ×1
+
+v4/litebt/tools/btcpp-oracle/samples/tier-a-controls.xml:29: warning: Parallel: children are shown as if they ran one after another [approximated]
+v4/litebt/tools/btcpp-oracle/samples/tier-a-controls.xml:37: warning: ReactiveFallback: walked like a Fallback; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
+v4/litebt/tools/btcpp-oracle/samples/tier-a-controls.xml:57: warning: WhileDoElse: walked like IfThenElse; the condition is not re-checked [approximated]
+v4/litebt/tools/btcpp-oracle/samples/tier-a-controls.xml:74: warning: KeepRunningUntilFailure: never succeeds (a successful child is ticked again); walked as transparent, the loop is not shown yet [approximated]

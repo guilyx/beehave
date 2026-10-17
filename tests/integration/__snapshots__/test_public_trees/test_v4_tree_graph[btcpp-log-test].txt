@@ -1,0 +1,12 @@
+START --> Sleep#1
+Sleep#1 --[success]--> Sleep#2
+Sleep#2 --[success]--> SUCCESS
+
+tree           Main (btcpp-v4)
+nodes          9 (3 control, 4 action, 2 subtree)
+actions        2
+reduction      78% (9 nodes -> 2 actions)
+transitions    3
+longest guard  0 terms (not simplified)
+approximated   none
+

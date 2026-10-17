@@ -1,0 +1,47 @@
+START --> ControllerSelector
+ControllerSelector --[success]--> PlannerSelector
+ControllerSelector --[failure]--> FAILURE
+PlannerSelector --[success]--> ComputePathToPose
+PlannerSelector --[failure]--> FAILURE
+ComputePathToPose --[success]--> ClearGlobalCostmap-Context
+ComputePathToPose --[failure]--> FAILURE
+ClearGlobalCostmap-Context --[success]--> ControlCancel
+ClearGlobalCostmap-Context --[failure]--> FAILURE
+ControlCancel --[success]--> Wait#1
+ControlCancel --[failure]--> FAILURE
+Wait#1 --[success]--> FollowPath
+Wait#1 --[failure]--> FAILURE
+FollowPath --[success]--> ClearLocalCostmap-Context
+FollowPath --[failure]--> FAILURE
+ClearLocalCostmap-Context --[success and GoalUpdated]--> SUCCESS
+ClearLocalCostmap-Context --[success and not GoalUpdated]--> ClearLocalCostmap-Subtree
+ClearLocalCostmap-Context --[failure]--> FAILURE
+ClearLocalCostmap-Subtree --[success]--> ClearGlobalCostmap-Subtree
+ClearLocalCostmap-Subtree --[failure]--> FAILURE
+ClearGlobalCostmap-Subtree --[success]--> Spin
+ClearGlobalCostmap-Subtree --[failure]--> FAILURE
+Spin --[success]--> Wait#2
+Spin --[failure]--> FAILURE
+Wait#2 --[success]--> BackUp
+Wait#2 --[failure]--> FAILURE
+BackUp --[success]--> SUCCESS
+BackUp --[failure]--> FAILURE
+
+tree           MainTree (btcpp-v4)
+nodes          26 (9 control, 3 decorator, 1 condition, 13 action)
+actions        13
+reduction      50% (26 nodes -> 13 actions)
+transitions    28
+longest guard  1 term (not simplified)
+approximated   PathLongerOnApproach ×1, PipelineSequence ×1, RateController ×1, ReactiveFallback ×1, ReactiveSequence ×1, RecoveryNode ×3, RetryUntilSuccessful ×1, RoundRobin ×1
+
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:10: warning: RecoveryNode "NavigateRecovery": custom control node is walked like a Sequence [unknown-control]
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:11: warning: PipelineSequence "NavigateWithReplanning": custom control node is walked like a Sequence [unknown-control]
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:14: warning: RateController: custom decorator is treated as transparent [unknown-decorator]
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:15: warning: RecoveryNode "ComputePathToPose": custom control node is walked like a Sequence [unknown-control]
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:20: warning: ReactiveSequence "MonitorAndFollowPath": walked like a Sequence; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:21: warning: PathLongerOnApproach: custom decorator is treated as transparent [unknown-decorator]
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:22: warning: RetryUntilSuccessful: the retry loop is folded into a note; the loop edge is not shown yet [approximated]
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:29: warning: RecoveryNode "FollowPath": custom control node is walked like a Sequence [unknown-control]
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:35: warning: ReactiveFallback "RecoveryFallback": walked like a Fallback; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:37: warning: RoundRobin "RecoveryActions": custom control node is walked like a Sequence [unknown-control]

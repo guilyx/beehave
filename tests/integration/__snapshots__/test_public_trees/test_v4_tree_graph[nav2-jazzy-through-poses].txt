@@ -1,0 +1,48 @@
+START --> ControllerSelector
+ControllerSelector --[success]--> PlannerSelector
+ControllerSelector --[failure]--> FAILURE
+PlannerSelector --[success]--> RemovePassedGoals
+PlannerSelector --[failure]--> FAILURE
+RemovePassedGoals --[success]--> ComputePathThroughPoses
+RemovePassedGoals --[failure]--> FAILURE
+ComputePathThroughPoses --[success and WouldAPlannerRecoveryHelp(error_code={compute_path_error_code})]--> ClearGlobalCostmap-Context
+ComputePathThroughPoses --[success and not WouldAPlannerRecoveryHelp(error_code={compute_path_error_code})]--> FAILURE
+ComputePathThroughPoses --[failure]--> FAILURE
+ClearGlobalCostmap-Context --[success]--> FollowPath
+ClearGlobalCostmap-Context --[failure]--> FAILURE
+FollowPath --[success and WouldAControllerRecoveryHelp(error_code={follow_path_error_code})]--> ClearLocalCostmap-Context
+FollowPath --[success and not WouldAControllerRecoveryHelp(error_code={follow_path_error_code})]--> FAILURE
+FollowPath --[failure]--> FAILURE
+ClearLocalCostmap-Context --[success and WouldAControllerRecoveryHelp(error_code={follow_path_error_code}) and GoalUpdated]--> SUCCESS
+ClearLocalCostmap-Context --[success and WouldAControllerRecoveryHelp(error_code={follow_path_error_code}) and not GoalUpdated]--> ClearLocalCostmap-Subtree
+ClearLocalCostmap-Context --[success and not WouldAControllerRecoveryHelp(error_code={follow_path_error_code}) and WouldAPlannerRecoveryHelp(error_code={compute_path_error_code}) and GoalUpdated]--> SUCCESS
+ClearLocalCostmap-Context --[success and not WouldAControllerRecoveryHelp(error_code={follow_path_error_code}) and WouldAPlannerRecoveryHelp(error_code={compute_path_error_code}) and not GoalUpdated]--> ClearLocalCostmap-Subtree
+ClearLocalCostmap-Context --[success and not WouldAControllerRecoveryHelp(error_code={follow_path_error_code}) and not WouldAPlannerRecoveryHelp(error_code={compute_path_error_code})]--> FAILURE
+ClearLocalCostmap-Context --[failure]--> FAILURE
+ClearLocalCostmap-Subtree --[success]--> ClearGlobalCostmap-Subtree
+ClearLocalCostmap-Subtree --[failure]--> FAILURE
+ClearGlobalCostmap-Subtree --[success]--> Spin
+ClearGlobalCostmap-Subtree --[failure]--> FAILURE
+Spin --[success]--> Wait
+Spin --[failure]--> FAILURE
+Wait --[success]--> BackUp
+Wait --[failure]--> FAILURE
+BackUp --[success]--> SUCCESS
+BackUp --[failure]--> FAILURE
+
+tree           MainTree (btcpp-v4)
+nodes          30 (12 control, 1 decorator, 5 condition, 12 action)
+actions        12
+reduction      60% (30 nodes -> 12 actions)
+transitions    31
+longest guard  3 terms (not simplified)
+approximated   PipelineSequence ×1, RateController ×1, ReactiveFallback ×1, ReactiveSequence ×1, RecoveryNode ×3, RoundRobin ×1
+
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/navigate_through_poses_w_replanning_and_recovery.xml:8: warning: RecoveryNode "NavigateRecovery": custom control node is walked like a Sequence [unknown-control]
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/navigate_through_poses_w_replanning_and_recovery.xml:9: warning: PipelineSequence "NavigateWithReplanning": custom control node is walked like a Sequence [unknown-control]
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/navigate_through_poses_w_replanning_and_recovery.xml:12: warning: RateController: custom decorator is treated as transparent [unknown-decorator]
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/navigate_through_poses_w_replanning_and_recovery.xml:13: warning: RecoveryNode "ComputePathThroughPoses": custom control node is walked like a Sequence [unknown-control]
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/navigate_through_poses_w_replanning_and_recovery.xml:14: warning: ReactiveSequence: walked like a Sequence; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/navigate_through_poses_w_replanning_and_recovery.xml:24: warning: RecoveryNode "FollowPath": custom control node is walked like a Sequence [unknown-control]
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/navigate_through_poses_w_replanning_and_recovery.xml:37: warning: ReactiveFallback "RecoveryFallback": walked like a Fallback; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/navigate_through_poses_w_replanning_and_recovery.xml:39: warning: RoundRobin "RecoveryActions": custom control node is walked like a Sequence [unknown-control]

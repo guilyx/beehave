@@ -18,10 +18,23 @@ Remapping rules (BehaviorTree.CPP 3.8, see ``docs/research/btcpp-v3-xml.md``):
   ignores every other attribute.
 - Any other key is private to that subtree instance and is shown as
   ``{X/key}`` (``{X#2/key}`` for the second instance of ``X``, and so on).
+
+BehaviorTree.CPP v4 (see ``docs/research/btcpp-v4-xml.md`` §5):
+
+- ``<SubTree ID="X" inner="{outer}">`` maps ``{inner}`` to ``{outer}``, and
+  ``inner="{=}"`` maps it to the parent's key of the same name.
+- ``{@key}`` is the root blackboard's ``key``, from any depth.
+- ``inner="literal"`` (also ``${outer}``, a literal in v4) is local.
+- ``_autoremap="true"`` maps every other key to itself, except private keys
+  that start with ``_``.
+- A port written ``{=}`` or ``=`` reads the key named like the port.
+- Keys in scripts (``code``, ``if``, ``_skipIf``…) are remapped the same way.
+  The scripts on a ``<SubTree>`` element itself read the parent's blackboard.
 """
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING
 
@@ -33,6 +46,15 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
 
 _TRUE = frozenset({"true", "1"})
+_V4 = "btcpp-v4"
+# Ports that hold BT.CPP v4 scripts rather than values.
+_SCRIPT_PORTS = {
+    Semantics.SCRIPT: "code",
+    Semantics.SCRIPT_CONDITION: "code",
+    Semantics.PRECONDITION: "if",
+}
+# A script token: a quoted string, a number, or a name (a blackboard key).
+_TOKEN = re.compile(r"'[^']*'|\d[\w.]*|[A-Za-z_@]\w*")
 
 
 @dataclass(frozen=True)
@@ -115,12 +137,32 @@ class _Flattener:
     instances: dict[str, int] = field(default_factory=dict)
     diagnostics: list[Diagnostic] = field(default_factory=list)
 
+    @property
+    def v4(self) -> bool:
+        return self.document.format == _V4
+
     def inline(self, node: Node, scope: _Scope, stack: tuple[str, ...]) -> Node:
         if node.kind is NodeKind.SUBTREE:
             return self._inline_subtree(node, scope, stack)
-        ports = {name: _rewrite(value, scope) for name, value in node.ports.items()}
+        ports = {name: self._rewrite(name, value, scope) for name, value in node.ports.items()}
+        script_port = _SCRIPT_PORTS.get(node.semantics)
+        if self.v4 and script_port in ports:
+            ports[script_port] = _rewrite_script(ports[script_port], scope)
         children = tuple(self.inline(child, scope, stack) for child in node.children)
-        return replace(node, ports=ports, children=children)
+        return replace(node, ports=ports, children=children, scripts=self._scripts(node, scope))
+
+    def _rewrite(self, port: str, value: str, scope: _Scope) -> str:
+        if self.v4 and value.strip() in ("{=}", "="):
+            return scope.resolve(port)
+        key = _key(value)
+        if key is None:
+            return value
+        if self.v4 and key.startswith("@"):
+            return _ROOT_SCOPE.resolve(key[1:])
+        return scope.resolve(key)
+
+    def _scripts(self, node: Node, scope: _Scope) -> dict[str, str]:
+        return {name: _rewrite_script(code, scope) for name, code in node.scripts.items()}
 
     def _inline_subtree(self, node: Node, scope: _Scope, stack: tuple[str, ...]) -> Node:
         ref = node.ref or ""
@@ -134,7 +176,8 @@ class _Flattener:
             raise FlattenError(msg, node.location)
         inner = self._scope_for(node, ref, scope)
         body = self.inline(tree.root, inner, (*stack, ref))
-        return replace(node, children=(body,))
+        # Conditions on the <SubTree> element read the caller's blackboard.
+        return replace(node, children=(body,), scripts=self._scripts(node, scope))
 
     def _scope_for(self, node: Node, ref: str, parent: _Scope) -> _Scope:
         name = parent.prefix + ref
@@ -142,15 +185,19 @@ class _Flattener:
         self.instances[name] = count
         private_prefix = name if count == 1 else f"{name}#{count}"
 
-        if node.semantics is Semantics.SUBTREE_PLUS:
+        if node.semantics is Semantics.SUBTREE_V4:
+            explicit, shared = self._v4_remap(node, parent)
+        elif node.semantics is Semantics.SUBTREE_PLUS:
             explicit, shared = self._plus_remap(node, ref, parent)
         else:
             explicit, shared = self._classic_remap(node, ref, parent)
+        # In v4, auto-remapping leaves private keys (``_key``) local.
+        keeps_private = node.semantics is Semantics.SUBTREE_V4
 
         def resolve(key: str) -> str:
             if key in explicit:
                 return explicit[key]
-            if shared:
+            if shared and not (keeps_private and key.startswith("_")):
                 return parent.resolve(key)
             return f"{{{private_prefix}/{key}}}"
 
@@ -179,6 +226,20 @@ class _Flattener:
                     "put literals before __autoremap",
                 )
         return explicit, _flag(node.ports, "__autoremap")
+
+    def _v4_remap(self, node: Node, parent: _Scope) -> tuple[dict[str, str], bool]:
+        explicit: dict[str, str] = {}
+        for inner, value in node.ports.items():
+            if inner.startswith("_"):
+                continue
+            key = inner if value.strip() == "{=}" else _key(value)
+            if key is None:
+                explicit[inner] = value  # a literal, always local in v4
+            elif key.startswith("@"):
+                explicit[inner] = _ROOT_SCOPE.resolve(key[1:])
+            else:
+                explicit[inner] = parent.resolve(key)
+        return explicit, _flag(node.ports, "_autoremap")
 
     def _classic_remap(self, node: Node, ref: str, parent: _Scope) -> tuple[dict[str, str], bool]:
         if _flag(node.ports, "__shared_blackboard"):
@@ -213,9 +274,31 @@ def _key(value: str, *, dollar: bool = False) -> str | None:
     return None
 
 
-def _rewrite(value: str, scope: _Scope) -> str:
-    key = _key(value)
-    return value if key is None else scope.resolve(key)
+def _rewrite_script(code: str, scope: _Scope) -> str:
+    """Remap the blackboard keys a BT.CPP v4 script reads and writes."""
+
+    def substitute(match: re.Match[str]) -> str:
+        token = match.group(0)
+        if token[0] == "'" or token[0].isdigit() or token in ("true", "false"):
+            return token
+        if token.startswith("@"):
+            return token[1:]
+        resolved = scope.resolve(token)
+        key = _key(resolved)
+        if key is not None:
+            return key
+        # Remapped to a literal: the script reads that value.
+        return resolved if _is_number(resolved) else f"'{resolved}'"
+
+    return _TOKEN.sub(substitute, code)
+
+
+def _is_number(text: str) -> bool:
+    try:
+        float(text)
+    except ValueError:
+        return False
+    return True
 
 
 def _flag(ports: Mapping[str, str], name: str) -> bool:

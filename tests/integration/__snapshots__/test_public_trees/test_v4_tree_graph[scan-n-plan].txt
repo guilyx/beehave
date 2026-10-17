@@ -1,0 +1,92 @@
+START --[Reset and Halt]--> Approve Scan Motion Plan Creation
+START --[Reset and not Halt]--> SUCCESS
+START --[not Reset]--> SUCCESS
+Approve Scan Motion Plan Creation --[success]--> Load Trajectory From File
+Approve Scan Motion Plan Creation --[failure]--> SUCCESS
+Load Trajectory From File --[success]--> Publish Scan Motion Plan
+Load Trajectory From File --[failure]--> SUCCESS
+Publish Scan Motion Plan --[success and skip_scan]--> Approve Tool Path Plan
+Publish Scan Motion Plan --[success and !skip_scan]--> Approve Scan Execution
+Publish Scan Motion Plan --[failure]--> SUCCESS
+Approve Scan Execution --[success]--> Extract Trajectories
+Approve Scan Execution --[failure]--> SUCCESS
+Extract Trajectories --[success]--> Enable Robot#1
+Extract Trajectories --[failure]--> SUCCESS
+Enable Robot#1 --[success]--> Get Current Joint State#1
+Enable Robot#1 --[failure]--> SUCCESS
+Get Current Joint State#1 --[success]--> Update Trajectory Start State#1
+Get Current Joint State#1 --[failure]--> SUCCESS
+Update Trajectory Start State#1 --[success]--> Execute Scan Approach Motion
+Update Trajectory Start State#1 --[failure]--> SUCCESS
+Execute Scan Approach Motion --[success]--> Start Reconstruction
+Execute Scan Approach Motion --[failure]--> SUCCESS
+Start Reconstruction --[success]--> Execute Scan Motion
+Start Reconstruction --[failure]--> SUCCESS
+Execute Scan Motion --[success]--> Stop Reconstruction
+Execute Scan Motion --[failure]--> SUCCESS
+Stop Reconstruction --[success]--> Remove Scan Link
+Stop Reconstruction --[failure]--> SUCCESS
+Remove Scan Link --[success]--> Add Scan Link
+Remove Scan Link --[failure]--> SUCCESS
+Add Scan Link --[success]--> Execute Scan Departure Motion
+Add Scan Link --[failure]--> SUCCESS
+Execute Scan Departure Motion --[success]--> Disable Robot#1
+Execute Scan Departure Motion --[failure]--> SUCCESS
+Disable Robot#1 --[success]--> Approve Tool Path Plan
+Disable Robot#1 --[failure]--> SUCCESS
+Approve Tool Path Plan --[success]--> Plan Tool Path
+Approve Tool Path Plan --[failure]--> SUCCESS
+Plan Tool Path --[success]--> Publish Tool Paths
+Plan Tool Path --[failure]--> SUCCESS
+Publish Tool Paths --[success and Tool Path Configuration Changed]--> Approve Motion Plan Generation
+Publish Tool Paths --[success and not Tool Path Configuration Changed]--> SUCCESS
+Publish Tool Paths --[failure]--> SUCCESS
+Approve Motion Plan Generation --[success]--> Generate Process Motion Plan
+Approve Motion Plan Generation --[failure]--> SUCCESS
+Generate Process Motion Plan --[success]--> Combine Trajectories#1
+Generate Process Motion Plan --[failure]--> SUCCESS
+Combine Trajectories#1 --[success]--> Combine Trajectories#2
+Combine Trajectories#1 --[failure]--> SUCCESS
+Combine Trajectories#2 --[success]--> Publish Process Motion Plan
+Combine Trajectories#2 --[failure]--> SUCCESS
+Publish Process Motion Plan --[success]--> Approve Process Motion Execution
+Publish Process Motion Plan --[failure]--> SUCCESS
+Approve Process Motion Execution --[success]--> Enable Robot#2
+Approve Process Motion Execution --[failure]--> SUCCESS
+Enable Robot#2 --[success]--> Get Current Joint State#2
+Enable Robot#2 --[failure]--> SUCCESS
+Get Current Joint State#2 --[success]--> Update Trajectory Start State#2
+Get Current Joint State#2 --[failure]--> SUCCESS
+Update Trajectory Start State#2 --[success]--> Execute Approach Motion
+Update Trajectory Start State#2 --[failure]--> SUCCESS
+Execute Approach Motion --[success]--> Disable Robot#2
+Execute Approach Motion --[failure]--> SUCCESS
+Disable Robot#2 --[success]--> Approve Restart
+Disable Robot#2 --[failure]--> SUCCESS
+Approve Restart --[success]--> SUCCESS
+Approve Restart --[failure]--> SUCCESS
+
+tree           main (btcpp-v4)
+nodes          62 (11 control, 14 decorator, 3 condition, 31 action, 3 subtree)
+actions        31
+reduction      50% (62 nodes -> 31 actions)
+transitions    67
+longest guard  2 terms (not simplified)
+approximated   KeepRunningUntilFailure ×1, Progress ×5, ReactiveSequence ×3, SNPSequenceWithMemory ×1, SetPage ×6
+
+v4/scan-n-plan/snp_application/config/snp.xml:63: warning: ReactiveSequence: walked like a Sequence; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
+v4/scan-n-plan/snp_application/config/snp.xml:67: warning: KeepRunningUntilFailure: never succeeds (a successful child is ticked again); walked as transparent, the loop is not shown yet [approximated]
+v4/scan-n-plan/snp_application/config/snp.xml:69: warning: ReactiveSequence: walked like a Sequence; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
+v4/scan-n-plan/snp_application/config/snp.xml:103: warning: SNPSequenceWithMemory: custom control node is walked like a Sequence [unknown-control]
+v4/scan-n-plan/snp_application/config/snp.xml:104: warning: Progress: custom decorator is treated as transparent [unknown-decorator]
+v4/scan-n-plan/snp_application/config/snp.xml:107: warning: SetPage: custom decorator is treated as transparent [unknown-decorator]
+v4/scan-n-plan/snp_application/config/snp.xml:121: warning: Progress: custom decorator is treated as transparent [unknown-decorator]
+v4/scan-n-plan/snp_application/config/snp.xml:124: warning: SetPage: custom decorator is treated as transparent [unknown-decorator]
+v4/scan-n-plan/snp_application/config/snp.xml:142: warning: Progress: custom decorator is treated as transparent [unknown-decorator]
+v4/scan-n-plan/snp_application/config/snp.xml:145: warning: SetPage: custom decorator is treated as transparent [unknown-decorator]
+v4/scan-n-plan/snp_application/config/snp.xml:163: warning: Progress: custom decorator is treated as transparent [unknown-decorator]
+v4/scan-n-plan/snp_application/config/snp.xml:165: warning: ReactiveSequence: walked like a Sequence; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
+v4/scan-n-plan/snp_application/config/snp.xml:169: warning: SetPage: custom decorator is treated as transparent [unknown-decorator]
+v4/scan-n-plan/snp_application/config/snp.xml:197: warning: Progress: custom decorator is treated as transparent [unknown-decorator]
+v4/scan-n-plan/snp_application/config/snp.xml:200: warning: SetPage: custom decorator is treated as transparent [unknown-decorator]
+v4/scan-n-plan/snp_application/config/snp.xml:211: warning: SetPage: custom decorator is treated as transparent [unknown-decorator]
