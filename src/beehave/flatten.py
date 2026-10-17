@@ -173,6 +173,12 @@ class _Flattener:
         tree = self.document.trees.get(ref)
         if tree is None:
             msg = f"subtree '{ref}' is not defined in the loaded files"
+            skipped = [d for d in self.document.diagnostics if d.code == "unresolved-include"]
+            if skipped:
+                notes = "; ".join(f"{d.location}: {d.message}" for d in skipped)
+                msg += f"; an <include> was not followed, it may be there: {notes}"
+            else:
+                msg += "; pass the file that defines it too, or its folder"
             raise FlattenError(msg, node.location)
         inner = self._scope_for(node, ref, scope)
         body = self.inline(tree.root, inner, (*stack, ref))

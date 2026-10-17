@@ -25,6 +25,7 @@ from beehave.diagnostics import Diagnostic
 from beehave.errors import ParseError, UnsupportedFormatError
 from beehave.model import Document, Node, NodeKind, Semantics, SourceLocation, Tree
 from beehave.parsers._xml import Element, read_xml
+from beehave.parsers.ros import find_package
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable, Mapping
@@ -181,11 +182,36 @@ def load_string(
 
 
 def load_files(dialect: Dialect, paths: Iterable[str | Path], config: Config | None) -> Document:
-    """Parse files with ``dialect``, merging their trees into one document."""
+    """Parse files with ``dialect``, merging their trees into one document.
+
+    A folder stands for every ``.xml`` file directly in it.
+    """
     loader = Loader(dialect, config or Config())
-    for path in paths:
-        loader.load_file(Path(path), top_level=True)
+    for path in expand_paths(paths):
+        loader.load_file(path, top_level=True)
     return loader.build()
+
+
+def expand_paths(paths: Iterable[str | Path]) -> list[Path]:
+    """Replace each folder with the ``.xml`` files directly in it, sorted by name.
+
+    That is how applications such as Nav2 register a folder of trees: every
+    ``.xml`` file in it, not in its subfolders.
+
+    Raises:
+        ParseError: If a folder has no ``.xml`` file.
+    """
+    files: list[Path] = []
+    for path in map(Path, paths):
+        if not path.is_dir():
+            files.append(path)
+            continue
+        found = sorted(f for f in path.iterdir() if f.suffix == ".xml" and f.is_file())
+        if not found:
+            msg = f"no .xml files in {source_name(path)}"
+            raise ParseError(msg)
+        files += found
+    return files
 
 
 @dataclass
@@ -338,22 +364,43 @@ class Loader:
 
     def _include(self, element: Element, base_dir: Path, location: SourceLocation) -> None:
         path = element.attrs.get("path")
-        if "ros_pkg" in element.attrs or not path:
+        if not path:
+            # Other loaders add their own forms, such as AutoAPMS's autoapms="...".
+            attrs = " ".join(f'{k}="{v}"' for k, v in element.attrs.items())
+            self._unresolved(f"<include {attrs}> has no path, so it is not followed", location)
+            return
+        target = Path(path)
+        package = element.attrs.get("ros_pkg")
+        where = ""
+        if package is not None and target.is_absolute():
             self.diagnostics.append(
                 Diagnostic(
-                    "unresolved-include",
-                    "ROS package includes are not followed; pass the included file explicitly",
+                    "ros-pkg-ignored",
+                    f'ros_pkg="{package}" is ignored because path is absolute, as BT.CPP does',
                     location=location,
                 )
             )
-            return
-        target = Path(path)
+        elif package is not None:
+            directory = find_package(package, self.config.packages)
+            if directory is None:
+                self._unresolved(
+                    f'cannot find the ROS package "{package}" for <include path="{path}">; '
+                    "source its workspace, or map it with packages: in beehave.yaml "
+                    f"or --package {package}=DIR",
+                    location,
+                )
+                return
+            target = directory / target
+            where = f' (in package "{package}" at {source_name(directory)})'
         if not target.is_absolute():
             target = base_dir / target
         if not target.is_file():
-            msg = f"included file not found: {path}"
+            msg = f"included file not found: {path}{where}"
             raise ParseError(msg, location)
         self.load_file(target, top_level=False, included_from=location)
+
+    def _unresolved(self, message: str, location: SourceLocation) -> None:
+        self.diagnostics.append(Diagnostic("unresolved-include", message, location=location))
 
     # ------------------------------------------------------------ building ---
 
