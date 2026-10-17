@@ -20,6 +20,10 @@ A `flowchart TD`. Actions are boxes, `START` is a circle, `SUCCESS` and
 `FAILURE` are rounded terminals. Success edges are solid, failure edges dashed.
 Edge labels hold the outcome and the guard.
 
+A BehaviorTree.CPP v4 tree that can be skipped as a whole (every path through
+it can hit a `_skipIf`, say) also has a `SKIPPED` terminal, with a dashed
+outline. It only appears when some path reaches it.
+
 ## Graphviz DOT
 
 A `digraph` named after the tree, with the same conventions as Mermaid. Render

@@ -2,7 +2,8 @@
 
 Three small trees, one per kind of robot. Each file is plain BehaviorTree.CPP v3
 XML and declares its node kinds in `<TreeNodesModel>`, so Beehave needs no
-configuration to read it. The node names follow vocabulary that is common
+configuration to read it. Each one also exists in BT.CPP v4 and in py_trees
+([below](#every-example-in-three-formats)). The node names follow vocabulary that is common
 across autopilots, navigation stacks and motion planners, not any one product.
 
 | Example | Robot | Tree | Graph | What it shows |
@@ -254,12 +255,47 @@ flowchart TD
     linkStyle 3,5,7,9,11,14,16,18,20,22,24,26,28 stroke:#b93917,stroke-width:1.75px,stroke-dasharray:7 4
 ```
 
+## Every example in three formats
+
+Each example also exists as BehaviorTree.CPP v4 XML and as a py_trees script,
+next to the v3 file:
+
+| v3 | v4 | py_trees |
+| --- | --- | --- |
+| `aerial/drone_mission.xml` | `aerial/drone_mission_v4.xml` | `aerial/drone_mission.py` |
+| `mobile/navigate_to_goal.xml` | `mobile/navigate_to_goal_v4.xml` | `mobile/navigate_to_goal.py` |
+| `manipulation/pick_and_place.xml` | `manipulation/pick_and_place_v4.xml` | `manipulation/pick_and_place.py` |
+
+```console
+$ beehave graph examples/aerial/drone_mission_v4.xml
+$ beehave graph --py-trees examples/aerial/drone_mission.py:create_root -c examples/beehave.yaml
+```
+
+The tests check that every version gives the same graph. py_trees has no list
+of node kinds like `<TreeNodesModel>`, so
+[`examples/beehave.yaml`](https://github.com/guilyx/beehave/blob/main/examples/beehave.yaml)
+says that the behaviours derived from `Check` are conditions.
+
+There is one exception, and it is worth a look. py_trees has no `IfThenElse`,
+and the usual way to write "charge or navigate" in py_trees is a `Selector`
+over `[Sequence(IsBatteryLow, dock), navigate]`. There, a failed dock falls
+through to navigation, so a robot with a low battery that cannot dock drives
+off to its goal. The py_trees graph of the mobile example shows it as three
+arrows the XML graph does not have:
+
+```text
+PlanToDock --[failure]--> ComputePathToPose
+FollowDockPath --[failure]--> ComputePathToPose
+DockRobot --[failure]--> ComputePathToPose
+```
+
 ## Adding an example
 
 Good examples are small (under about 30 nodes), use names any robotics
 engineer would recognise, and show one or two things worth noticing. Declare
-every custom node in `<TreeNodesModel>`, add the expected graph to
-`tests/unit/test_examples.py`, then refresh the graphs in the docs:
+every custom node in `<TreeNodesModel>`, write the v4 and py_trees versions
+too, add the expected graph to `tests/unit/test_examples.py`, then refresh the
+graphs in the docs:
 
 ```console
 $ uv run python scripts/update_docs_graphs.py

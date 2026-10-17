@@ -6,7 +6,7 @@ build-backend = "uv_build"
 # "beehave" is taken on PyPI; the import name and the CLI are still `beehave`.
 name = "beehave-bt"
 version = "0.1.0.dev0"
-description = "Reads BehaviorTree.CPP trees and shows only the actions your robot can take, in order, with the conditions that lead to each one."
+description = "Reads robot behavior trees (BehaviorTree.CPP v3 and v4, py_trees) and shows only the actions your robot can take, in order, with the conditions that lead to each one."
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
@@ -16,6 +16,7 @@ dependencies = ["PyYAML>=6.0"]
 keywords = [
   "behavior-tree",
   "behaviortree-cpp",
+  "py-trees",
   "robotics",
   "ros2",
   "nav2",

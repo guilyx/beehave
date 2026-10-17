@@ -23,8 +23,8 @@ flowchart LR
     subgraph formats["Formats: what Beehave reads"]
         direction LR
         f1["<b>F1 · BT.CPP v3</b><br/>done"]
-        f2["<b>F2 · BT.CPP v4</b><br/>in progress"]
-        f3["<b>F3 · py_trees</b><br/>in progress"]
+        f2["<b>F2 · BT.CPP v4</b><br/>done"]
+        f3["<b>F3 · py_trees</b><br/>done"]
         f4["<b>F4 · Node presets</b><br/>Nav2 first"]
         f1 --> f2 --> f3 --> f4
     end
@@ -42,30 +42,40 @@ Parser, includes, `TreeNodesModel`, `SubTree` and `SubTreePlus` remapping, v4
 detection. Tested on the BT.CPP 3.8 examples, the Groot test data and the Nav2
 Humble trees.
 
-### F2: BehaviorTree.CPP v4 (in progress)
+### F2: BehaviorTree.CPP v4 (done)
 
-- [ ] One XML base shared by the v3 and v4 parsers; the version is detected
+- [x] One XML base shared by the v3 and v4 parsers; the version is detected
       from `BTCPP_format` or from v4-only constructs.
-- [ ] Every node v4 registers, mapped onto the shared model.
-- [ ] v4 `SubTree` remapping (`{key}`, literals, `{=}`, `_autoremap`).
-- [ ] Scripts as guards: `ScriptCondition`, `Precondition`, and the
+- [x] Every node v4 registers, mapped onto the shared model.
+- [x] v4 `SubTree` remapping (`{key}`, literals, `{=}`, `{@key}`,
+      `_autoremap`), keys inside scripts included.
+- [x] Scripts as guards: `ScriptCondition`, `Precondition`, and the
       `_failureIf`, `_successIf`, `_skipIf` and `_while` pre-conditions,
-      including the `SKIPPED` status.
-- [ ] Tested on the Nav2 Jazzy trees and the BT.CPP 4 examples.
-- [ ] Gate: the v3 and v4 versions of the same tree (our examples, the Nav2
-      Humble/Jazzy pairs, random trees) give the same graph.
+      including the `SKIPPED` status ([ADR 0009](adr/0009-bt-cpp-v4-skipped.md)).
+- [x] Tested on the Nav2 Jazzy trees, the BT.CPP 4 examples and tests, and
+      other public v4 trees (39 snapshots).
+- [x] Gate: the v3 and v4 versions of the same tree give the same graph: our
+      examples, six BT.CPP pairs, the one Nav2 tree that is the same in Humble
+      and Jazzy, and random trees. The other Nav2 pairs differ on purpose:
+      Jazzy added selector actions and recovery guards.
 
-### F3: py_trees (in progress)
+Left for later: post-conditions are read but not drawn, `<TreeNodesModel>`
+subtree port defaults are not applied, and scripts are compared as text, not
+as expressions (`a > b` and `b < a` are two conditions).
 
-- [ ] An adapter from a live py_trees tree to the shared model
-      (`beehave.from_py_trees(root)`), with py_trees as an optional extra.
-- [ ] A CLI form that imports a factory function
+### F3: py_trees (done)
+
+- [x] An adapter from a live py_trees tree to the shared model
+      (`beehave.from_py_trees(root)`), with py_trees as an optional extra
+      ([ADR 0010](adr/0010-py-trees-live-trees.md)).
+- [x] A CLI form that imports a factory function
       (`beehave graph --py-trees package.module:create_root`).
-- [ ] Composites, decorators and blackboard checks mapped; `memory=False`
+- [x] Composites, decorators and blackboard checks mapped; `memory=False`
       handled like BT.CPP's reactive nodes.
-- [ ] Tested on the py_trees demos.
-- [ ] Gate: the py_trees versions of our examples give the same graph as the
-      XML versions.
+- [x] Tested on the py_trees demos, on py_trees 2.2.3 and 2.6.
+- [x] Gate: the py_trees versions of our examples give the same graph as the
+      XML versions, except where py_trees has no equivalent node: it has no
+      `IfThenElse`, and the mobile example shows what that changes.
 
 py_trees also opens the door to Phase 4: BehaVerify, the model-checking tool
 in our reading list, takes py_trees trees as input.
@@ -86,7 +96,7 @@ in our reading list, takes py_trees trees as input.
 failure edges, readable by someone who did not write the tree.
 
 - [x] Parse BT.CPP v3 XML, with includes and `TreeNodesModel`
-- [x] Detect v4 files and refuse them clearly
+- [x] Detect v4 files and refuse them clearly (now read by F2)
 - [x] Flatten `SubTree` and `SubTreePlus`, including `__autoremap`
 - [x] Walk: actions, success and failure edges, raw guards
 - [x] Render text, Mermaid, Graphviz DOT and JSON

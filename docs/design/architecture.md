@@ -1,13 +1,14 @@
 # Architecture
 
-Beehave is a pipeline. A tree file goes in, an action graph comes out. Every
-step has one job and one input type, so each can be tested and replaced on its
-own.
+Beehave is a pipeline. A tree goes in, an action graph comes out. Every step
+has one job and one input type, so each can be tested and replaced on its own.
 
 ```mermaid
 flowchart LR
-    xml[/"BT.CPP XML<br/>(v3 today)"/] --> parse
+    xml[/"BT.CPP XML<br/>v3 or v4"/] --> parse
+    py[/"py_trees tree<br/>(live objects)"/] --> adapt["1. Adapt"]
     parse["1. Parse"] --> model[("Tree model<br/>Document")]
+    adapt --> model
     model --> flatten["2. Flatten"]
     flatten --> flat[("FlatTree")]
     flat --> walk["3. Walk"]
@@ -27,14 +28,16 @@ consume.
 
 | Step | Module | Input | Output | Job |
 | --- | --- | --- | --- | --- |
-| Parse | `beehave.parsers` | XML files | `Document` | Read every tree, classify every node, check structure. |
+| Parse | `beehave.parsers` | XML files | `Document` | Detect the BT.CPP version, read every tree, classify every node, check structure. |
+| Adapt | `beehave.parsers.pytrees` | a py_trees root | `Document` | Read a live py_trees tree without running it. |
 | Flatten | `beehave.flatten` | `Document` | `FlatTree` | Inline every subtree, apply port remapping. |
 | Walk | `beehave.walk` | `FlatTree` | `ActionGraph` | For each action: what runs next on success, on failure, and under which guard. |
 | Render | `beehave.render` | `ActionGraph` | `str` | Text, Mermaid, Graphviz DOT, JSON. |
 | Stats | `beehave.stats` | `FlatTree` + `ActionGraph` | `Stats` | Size, reduction, longest guard, breakage. |
 
-`beehave.analyze()` runs parse, flatten and walk in one call. The CLI
-(`beehave graph | stats | trees`) is a thin layer over that function.
+`beehave.analyze()` runs parse, flatten and walk in one call, and
+`beehave.analyze_py_trees()` does the same from a py_trees tree. The CLI
+(`beehave graph | stats | trees`) is a thin layer over those functions.
 
 ## One internal model, many parsers
 
@@ -48,20 +51,30 @@ has:
 - its **type** as written, its optional **name**, its **ports**, its
   **children**, and where it was read from.
 
-Adding a format (BT.CPP v4, py_trees) means writing a parser that produces
-this model. Flatten, walk and render do not change. See
-[ADR 0002](adr/0002-one-model-many-parsers.md).
+For BT.CPP v4, a node also carries its pre- and post-condition **scripts**
+(`_skipIf`, `_onSuccess`…), which are not ports.
+
+Adding a format means writing a parser that produces this model. Flatten,
+walk and render do not change. That is how BT.CPP v4 and py_trees were added.
+See [ADR 0002](adr/0002-one-model-many-parsers.md) and
+[the formats guide](../guide/formats.md).
 
 ## Parse
 
-`beehave.parsers.btcpp_v3` reads one or more files, follows `<include>`
-tags, and reads `<TreeNodesModel>`. It uses expat directly so every node keeps
-its line number, and it refuses any `DOCTYPE`, which rules out entity
-expansion attacks.
+`beehave.parsers.detect` tells which BT.CPP version a set of files is
+written in, from `BTCPP_format` or from v4-only constructs, and hands them to
+`btcpp_v3` or `btcpp_v4`. Both are dialects of one loader
+(`beehave.parsers._btcpp`): it reads one or more files, follows `<include>`
+tags, and reads `<TreeNodesModel>`. A dialect only says what differs: the
+built-in nodes, the subtree syntax, which attributes are scripts, and which
+definition of a duplicate tree wins. The loader uses expat directly so every
+node keeps its line number, and it refuses any `DOCTYPE`, which rules out
+entity expansion attacks.
 
-The format is detected from the root element and from the content. A file
-with `BTCPP_format="4"`, or one that uses v4-only nodes, attributes or port
-values, is refused with a clear message rather than misread.
+`beehave.parsers.pytrees` reads a live py_trees tree instead. It classifies
+each object by the class that owns its tick logic, and never calls user code.
+Importing the module that builds the tree is a separate, explicit step
+([ADR 0010](adr/0010-py-trees-live-trees.md)).
 
 A user-defined node is classified by the strongest signal available:
 
@@ -75,8 +88,8 @@ disguise": nodes registered as actions that only check something.
 
 ## Flatten
 
-Every `SubTree` / `SubTreePlus` becomes a subtree node whose single child is
-the inlined body. Port values inside the body are rewritten through the
+Every `SubTree` / `SubTreePlus` (v3) or `SubTree` (v4) becomes a subtree node
+whose single child is the inlined body. Port values inside the body are rewritten through the
 reference's remapping, so a node deep inside nested subtrees shows the
 blackboard key it really reads. Keys that are not remapped are private to the
 subtree instance and are shown as `{Subtree/key}`.
@@ -88,7 +101,9 @@ The walk is a continuation-passing compilation. It is described in detail in
 [ADR 0003](adr/0003-continuation-passing-walk.md). In short: compile each node
 with "where to go on success" and "where to go on failure", and return "what
 runs first". Actions become vertices, conditions become branch points, and
-branch points are expanded into guards on the edges.
+branch points are expanded into guards on the edges. For BT.CPP v4 a third
+continuation says where to go when a node is skipped
+([ADR 0009](adr/0009-bt-cpp-v4-skipped.md)).
 
 Nodes that Phase 1 cannot model exactly are walked with a documented
 approximation and reported as diagnostics

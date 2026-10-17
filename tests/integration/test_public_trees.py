@@ -264,3 +264,15 @@ def test_files_bt_cpp_rejects_are_rejected(relative: str, message: str) -> None:
 def test_a_marker_less_v4_file_is_read_as_v4() -> None:
     # Check.xml has no BTCPP_format; SequenceWithMemory gives it away.
     assert beehave.analyze("v4/btcpp/examples/test_files/Check.xml").graph.format == "btcpp-v4"
+
+
+def test_nav2_humble_and_jazzy_odometry_calibration_give_the_same_graph() -> None:
+    # The only Nav2 tree that is the same in Humble (v3) and Jazzy (v4); the
+    # others gained selector actions and recovery guards in Jazzy.
+    humble = beehave.analyze(
+        "nav2/nav2_bt_navigator/behavior_trees/odometry_calibration.xml",
+        NAV2_MODELS.relative_to(PUBLIC),
+    )
+    jazzy = beehave.analyze(f"{_JAZZY}odometry_calibration.xml", NAV2_JAZZY_MODELS)
+
+    assert beehave.to_text(jazzy.graph) == beehave.to_text(humble.graph)
