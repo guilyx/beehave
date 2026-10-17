@@ -6,10 +6,15 @@ check the walk on realistic trees, not just on itself.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 
 import beehave
 from tests.conftest import EXAMPLES
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 AERIAL = EXAMPLES / "aerial" / "drone_mission.xml"
 MOBILE = EXAMPLES / "mobile" / "navigate_to_goal.xml"
@@ -134,8 +139,20 @@ def test_pick_and_place() -> None:
 
 
 @pytest.mark.parametrize("example", [AERIAL, MOBILE, MANIPULATION], ids=lambda p: p.stem)
-def test_examples_render_in_every_format(example: object) -> None:
-    graph = beehave.analyze(example).graph  # type: ignore[arg-type]
+def test_examples_render_in_every_format(example: Path) -> None:
+    graph = beehave.analyze(example).graph
 
     for render in (beehave.to_text, beehave.to_mermaid, beehave.to_dot, beehave.to_json):
         assert render(graph)
+
+
+# ------------------------------------------------- one tree, every format ---
+
+
+@pytest.mark.parametrize("example", [AERIAL, MOBILE, MANIPULATION], ids=lambda p: p.stem)
+def test_btcpp_v4_twin_gives_the_same_graph(example: Path) -> None:
+    graph_v3 = beehave.analyze(example).graph
+    graph_v4 = beehave.analyze(example.with_name(f"{example.stem}_v4.xml")).graph
+
+    assert graph_v4.format == "btcpp-v4"
+    assert beehave.to_text(graph_v4) == beehave.to_text(graph_v3)
