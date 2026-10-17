@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TIER A, exact match: the whole scripting layer against the oracle — all four
+  pre-conditions, all four post-conditions, <Script> and <ScriptCondition>, operator
+  precedence including chained comparison and ternary. _while at /5 is the one
+  pre-condition that can interrupt a RUNNING node; _skipIf at /4 is where delta row 4 fires.
+  Trap: every numeric key must be created from an INTEGER LITERAL before arithmetic touches
+  it — every BT.CPP binary operator returns double, so an expression-created key would be
+  double there and Int here (delta row 10, which tier A forbids). Same reason `keep` (bool)
+  is pre-typed in blackboard_init.
+-->
+<root BTCPP_format="4" main_tree_to_execute="Main">
+
+  <BehaviorTree ID="Main">
+    <Sequence>
+
+      <!-- /0 — `seed`/`tag` come from the scenario, so one tree yields two arithmetic outcomes -->
+      <Script code="n := seed; n += 4; n *= 2; label := tag; grade := n &gt; 10 ? 'high' : 'low'" />
+
+      <!-- /1 -->
+      <ScriptCondition code="(label == 'gate' || label == 'other') &amp;&amp; !(n &lt; 0) &amp;&amp; 0 &lt; n &lt;= 14" />
+
+      <!-- /2 -->
+      <Inverter>
+        <ActFail _failureIf="n == 14" />
+      </Inverter>
+
+      <!-- /3 -->
+      <ActSucc _successIf="grade == 'high'" />
+
+      <!-- /4 -->
+      <ActSkip _skipIf="n &gt; 10" />
+
+      <!-- /5 -->
+      <ForceSuccess>
+        <ActWhile _while="keep == true" _onHalted="log := log + 1" />
+      </ForceSuccess>
+
+      <!-- /6 -->
+      <Fallback>
+        <ActPostF _onFailure="fails := fails + 1" _post="touched := touched + 1" />
+        <ActPostS _onSuccess="wins := wins + 1" _post="touched := touched + 1" />
+      </Fallback>
+
+      <!-- /7 -->
+      <ActScriptEnd />
+
+    </Sequence>
+  </BehaviorTree>
+
+</root>

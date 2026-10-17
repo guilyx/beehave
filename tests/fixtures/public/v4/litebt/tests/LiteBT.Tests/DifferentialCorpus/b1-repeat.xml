@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TIER B, exactly ONE divergent structure: <Repeat>. Every divergence must be delta row 2.
+  The configuration matters: BT.CPP's RepeatNode only yields when the child ENTERS the tick
+  IDLE; a RUNNING child finishing mid-tick makes the while loop tick it AGAIN in the same
+  tick. The scenario builds exactly that: ActLoop RUNNING first, SUCCESS later.
+-->
+<root BTCPP_format="4" main_tree_to_execute="Main">
+  <BehaviorTree ID="Main">
+    <Sequence>
+      <Repeat num_cycles="6">
+        <ActLoop />
+      </Repeat>
+      <ActAfterRepeat />
+    </Sequence>
+  </BehaviorTree>
+</root>

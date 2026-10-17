@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TIER A, exact match: the EVALUATION ORDER of the four pre-conditions (_failureIf,
+  _successIf, _skipIf, _while), scored by the oracle. Each probe puts TWO opinionated
+  pre-conditions on ONE node; the returned status says which won. Before this tree the loop
+  order was unobservable — reversing it kept the whole harness green.
+  FAILURE probes sit under <Inverter> because decorators halt a completed child, and
+  Inverter's status faithfully encodes what the child returned (ForceSuccess would not).
+  Declared unmeasurable pair: _skipIf and _while both yield SKIPPED, so /5 cannot rank them;
+  it stays for the trace shape and fires delta row 4. `v` is an int LITERAL in
+  blackboard_init, never built by <Script>, to dodge the int/double trap of delta row 10.
+-->
+<root BTCPP_format="4" main_tree_to_execute="Main">
+
+  <BehaviorTree ID="Main">
+    <Sequence>
+
+      <!-- /0 — anchor, always runs, marks that the pass started -->
+      <ActHead />
+
+      <!-- /1 — _failureIf BEATS _successIf -->
+      <Inverter>
+        <ActFS _failureIf="v == 1" _successIf="v == 1" />
+      </Inverter>
+
+      <!-- /2 — _successIf BEATS _skipIf -->
+      <ActSK _successIf="v == 1" _skipIf="v == 1" />
+
+      <!-- /3 — _failureIf BEATS _while (false) -->
+      <Inverter>
+        <ActFW _failureIf="v == 1" _while="v == 0" />
+      </Inverter>
+
+      <!-- /4 — _successIf BEATS _while (false) -->
+      <ActSW _successIf="v == 1" _while="v == 0" />
+
+      <!-- /5 — _skipIf and _while: both yield SKIPPED, order unobservable -->
+      <ActKW _skipIf="v == 1" _while="v == 0" />
+
+      <!-- /6 — all four hold an opinion; _failureIf must beat them all -->
+      <Inverter>
+        <ActAll _failureIf="v == 1" _successIf="v == 1" _skipIf="v == 1" _while="v == 0" />
+      </Inverter>
+
+      <!-- /7 — tail, scenario-driven so the tree finishes the pass and restarts -->
+      <ActTail />
+
+    </Sequence>
+  </BehaviorTree>
+
+</root>

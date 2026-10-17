@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TIER B — <SkipUnlessUpdated>. BT.CPP has the node, and it returns SKIPPED whenever the
+  key has not changed — so delta row 4 fires on every update-free tick.
+-->
+<root BTCPP_format="4" main_tree_to_execute="Main">
+  <BehaviorTree ID="Main">
+    <Sequence>
+      <SkipUnlessUpdated entry="{watched}">
+        <ActOnUpdate />
+      </SkipUnlessUpdated>
+      <ActAfterUpdate />
+    </Sequence>
+  </BehaviorTree>
+</root>

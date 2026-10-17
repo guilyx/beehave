@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TIER B, exactly ONE divergent structure: <AsyncFallback>, the other half of delta row 3
+  (tier-b-async.xml covers AsyncSequence). Lite-BT loads AsyncFallback as a plain Fallback,
+  so the next child runs within the same tick.
+-->
+<root BTCPP_format="4" main_tree_to_execute="Main">
+  <BehaviorTree ID="Main">
+    <AsyncFallback>
+      <ActAF1 />
+      <ActAF2 />
+    </AsyncFallback>
+  </BehaviorTree>
+</root>

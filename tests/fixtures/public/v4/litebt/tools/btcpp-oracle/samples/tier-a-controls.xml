@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Second tier-A tree, same rule as tier-a.xml: no structure known to diverge. Covers what
+  tier-a.xml leaves out — SequenceWithMemory, Parallel hitting the FAILURE threshold,
+  ReactiveFallback, IfThenElse, WhileDoElse, Switch2, ForceFailure,
+  KeepRunningUntilFailure, and the remaining pre/post-condition directions.
+  The list came from a mutation round: an off-by-one on the FAILURE threshold survives
+  tier-a.xml, whose branches never fail.
+-->
+<root BTCPP_format="4" main_tree_to_execute="Main">
+
+  <BehaviorTree ID="Main">
+    <Sequence>
+
+      <!-- /0 — initial state, reruns whenever the root ends a pass -->
+      <Script code="phase := 0; seen := 0; flag := false" />
+
+      <!-- /1 — SequenceWithMemory: the index must survive across ticks, unlike Sequence -->
+      <SequenceWithMemory>
+        <ActM1 _onSuccess="seen := seen + 1" />
+        <ActM2 />
+      </SequenceWithMemory>
+
+      <!-- /2 — Parallel hitting the FAILURE threshold; Inverter keeps the pass alive.
+           THREE children with success_count=2 is deliberate: with two, the "not enough
+           SUCCESS left" branch (n - nF < needS) concludes first and the failure_count
+           threshold is unobservable — an off-by-one mutant on it would survive. -->
+      <Inverter>
+        <Parallel success_count="2" failure_count="1">
+          <ActP1 />
+          <ActP2 _onFailure="phase := 1" />
+          <ActP3 />
+        </Parallel>
+      </Inverter>
+
+      <!-- /3 — ReactiveFallback: condition rechecked every tick, the second branch turns itself off -->
+      <ReactiveFallback>
+        <ScriptCondition code="flag == true" />
+        <ActR _onSuccess="flag := true" />
+      </ReactiveFallback>
+
+      <!-- /4 — three-child IfThenElse -->
+      <IfThenElse>
+        <ScriptCondition code="phase == 1" />
+        <ActThen />
+        <ActElse />
+      </IfThenElse>
+
+      <!-- /5 — Switch2: branch picked by blackboard value, reactive every tick -->
+      <Switch2 variable="{phase}" case_1="0" case_2="1">
+        <ActCase0 />
+        <ActCase1 _post="phase := 2" />
+        <ActDefault />
+      </Switch2>
+
+      <!-- /6 — WhileDoElse: the condition flips mid-run, cancelling the running branch -->
+      <WhileDoElse>
+        <ScriptCondition code="phase &lt; 2" />
+        <ActDo />
+        <ActElseW />
+      </WhileDoElse>
+
+      <!-- /7 — overriding pre-condition: _successIf blocks the node body entirely -->
+      <ActSkipped _successIf="seen &gt; 0" />
+
+      <!-- /8 — _failureIf, wrapped in Inverter so the pass continues -->
+      <Inverter>
+        <ActFailFast _failureIf="phase == 2" />
+      </Inverter>
+
+      <!-- /9 — ForceFailure + KeepRunningUntilFailure, the stateless decorator pair
+           mirroring the Inverter / ForceSuccess coverage in tier-a.xml -->
+      <Inverter>
+        <KeepRunningUntilFailure>
+          <ForceFailure>
+            <ActK />
+          </ForceFailure>
+        </KeepRunningUntilFailure>
+      </Inverter>
+
+    </Sequence>
+  </BehaviorTree>
+
+</root>

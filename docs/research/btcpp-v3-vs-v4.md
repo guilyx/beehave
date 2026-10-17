@@ -101,7 +101,7 @@ flowchart TD
 
 **v3-only signals:** `SubTreePlus`, `SequenceStar`, `BlackboardCheck*`, `ManualSelector`, `__autoremap`, `__shared_blackboard`, `Parallel` with `success_threshold` or `failure_threshold`, a port value equal to `=`, and a classic `SubTree` whose remap values have no braces.
 
-If a file has no marker and no signal, Beehave should assume v3 and say so in the report. The paired fixtures `tests/fixtures/public/nav2/…/navigate_to_pose_w_replanning_and_recovery.xml` (humble, v3) and `tests/fixtures/public/v4/nav2-jazzy/…/navigate_to_pose_w_replanning_and_recovery.xml` (jazzy, v4) are the same tree in both formats and are good regression inputs.
+If a file has no marker and no signal, Beehave should assume v3 and say so in the report. The paired fixtures `tests/fixtures/public/nav2/…/navigate_to_pose_w_replanning_and_recovery.xml` (humble, v3) and `tests/fixtures/public/v4/nav2-jazzy/…/navigate_to_pose_w_replanning_and_recovery.xml` (jazzy, v4) are **not** the same tree: Jazzy added guard conditions to the recovery branch. The pairs that do give the same graph are listed in [the v4 reference](btcpp-v4-xml.md).
 
 ---
 

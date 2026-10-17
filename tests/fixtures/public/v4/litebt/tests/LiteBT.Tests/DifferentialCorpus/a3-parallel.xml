@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TIER A, exact match: Parallel — the one node that ticks several children per tick. Four
+  ways to conclude, one Parallel each: /0 positive SUCCESS threshold (third child gets
+  cancelled, _onHalted counts it); /1 negative thresholds (-1 = all); /2 the "not enough
+  SUCCESS left" branch; /3 the failure_count threshold ALONE.
+  /3 is not redundant: it came from a mutation round — with needS large, the "not enough
+  SUCCESS" branch always concludes first and an off-by-one on `nF >= needF` survives.
+-->
+<root BTCPP_format="4" main_tree_to_execute="Main">
+
+  <BehaviorTree ID="Main">
+    <Sequence>
+
+      <!-- /0 — positive SUCCESS threshold, third child cancelled mid-run -->
+      <Parallel success_count="2" failure_count="3">
+        <ActPA1 />
+        <ActPA2 />
+        <ActPA3 _onHalted="halts := halts + 1" />
+      </Parallel>
+
+      <!-- /1 — NEGATIVE thresholds: -1 means n, wait for all -->
+      <Parallel success_count="-1" failure_count="-1">
+        <ActPB1 />
+        <ActPB2 />
+      </Parallel>
+
+      <!-- /2 — concludes via the "n - nF < needS" branch -->
+      <Inverter>
+        <Parallel success_count="3" failure_count="1">
+          <ActPC1 />
+          <ActPC2 _onHalted="halts := halts + 1" />
+          <ActPC3 />
+        </Parallel>
+      </Inverter>
+
+      <!-- /3 — concludes via the failure_count THRESHOLD, and only it -->
+      <Inverter>
+        <Parallel success_count="1" failure_count="1">
+          <ActPD1 _onHalted="halts := halts + 1" />
+          <ActPD2 />
+          <ActPD3 />
+        </Parallel>
+      </Inverter>
+
+      <!-- /4 -->
+      <ActParEnd />
+
+    </Sequence>
+  </BehaviorTree>
+
+</root>

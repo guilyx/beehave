@@ -9,6 +9,11 @@ not only against its documentation.
   semantics. This is what the parser and the walk are built against.
 - [BT.CPP v3 vs v4](btcpp-v3-vs-v4.md): what changed, what a parser must
   know, and how to tell a v4 file from a v3 one.
+- [BT.CPP v4 XML reference](btcpp-v4-xml.md): every built-in node of v4.10
+  with its walk rule, the SKIPPED status, pre- and post-conditions, the
+  scripting language and v4 subtree remapping.
+- [py_trees reference](py-trees.md): the tick semantics of every py_trees
+  class, how to read a live tree without running it, and the adapter's API.
 - [Prior art](prior-art.md): Groot, py_trees, Nav2 tooling, BehaVerify and
   other tools, and the gap Beehave fills.
 - [Literature](literature.md): an annotated reading list, by roadmap phase.

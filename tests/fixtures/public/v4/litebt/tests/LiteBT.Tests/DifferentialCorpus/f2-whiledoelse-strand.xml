@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  FINDING #2 — belongs to no tier. A Lite-BT BUG REPORT, pinned by a green test: two-child
+  <WhileDoElse>, the condition turning false while the `do` branch is RUNNING. BT.CPP falls
+  through to resetChildren(); the original Lite-BT returned FAILURE bare, stranding ActDo
+  at RUNNING with an INACTIVE action_out cell — breaking the committed invariant, which is
+  why this is a bug and not a delta row. The fix lives in its own commit; the companion
+  test measures the action_out invariant directly on the engine, no oracle needed.
+-->
+<root BTCPP_format="4" main_tree_to_execute="Main">
+  <BehaviorTree ID="Main">
+    <Fallback>
+      <WhileDoElse>
+        <ScriptCondition code="gate == true" />
+        <ActDo />
+      </WhileDoElse>
+      <ActRescue />
+    </Fallback>
+  </BehaviorTree>
+</root>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TIER B, exactly ONE divergent structure: <SubTree>. Fires both halves of delta row 7:
+  the blackboard half (`jobs` grows only in Worker's copy on BT.CPP; Lite-BT has one shared
+  number) and the macro half (BT.CPP's SubTreeNode resets the subtree root to IDLE;
+  Lite-BT macro-expands and keeps the status).
+-->
+<root BTCPP_format="4" main_tree_to_execute="Main">
+
+  <BehaviorTree ID="Main">
+    <Sequence>
+      <SubTree ID="Worker" />
+      <ActMainEnd />
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="Worker">
+    <Sequence>
+      <Script code="jobs := jobs + 1" />
+      <ActWork />
+    </Sequence>
+  </BehaviorTree>
+
+</root>

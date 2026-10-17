@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Driver self-check tree, tier-A shape: DELIBERATELY free of every structure known to
+  diverge — no Repeat/RetryUntilSuccessful (BT.CPP loops within a tick), no SubTree
+  (per-subtree blackboards), no async/wake-up nodes (Lite-BT drops WakeUpSignal).
+  What remains is the valuable part: Sequence, Fallback, ReactiveSequence, Parallel,
+  Inverter / ForceSuccess / Precondition, Script and _skipIf.
+-->
+<root BTCPP_format="4" main_tree_to_execute="Main">
+
+  <BehaviorTree ID="Main">
+    <Sequence>
+
+      <!-- /0 — runs once, sets the initial state -->
+      <Script code="phase := 0; guard := true" />
+
+      <!-- /1 — Fallback: A fails, falls through to B -->
+      <Fallback>
+        <ActA />
+        <ActB />
+      </Fallback>
+
+      <!-- /2 — ReactiveSequence: the condition is rechecked every tick -->
+      <ReactiveSequence>
+        <ScriptCondition code="guard == true" />
+        <ActC />
+      </ReactiveSequence>
+
+      <!-- /3 — two-branch Parallel, waits for both -->
+      <Parallel success_count="2" failure_count="1">
+        <Inverter>
+          <ActD />
+        </Inverter>
+        <ForceSuccess>
+          <ActE />
+        </ForceSuccess>
+      </Parallel>
+
+      <!-- /4 — _skipIf: skipped while phase is 0 (the SKIPPED divergence shows here:
+           Lite-BT stores SKIPPED in tree_state, BT.CPP does not) -->
+      <ActF _skipIf="phase == 0" />
+
+      <!-- /5 — Precondition decorator with an explicit else branch -->
+      <Precondition if="phase >= 0" else="FAILURE">
+        <ActG />
+      </Precondition>
+
+    </Sequence>
+  </BehaviorTree>
+
+</root>

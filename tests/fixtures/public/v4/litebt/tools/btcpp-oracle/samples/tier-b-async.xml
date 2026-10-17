@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Second tier-B tree: exactly ONE structure known to diverge — <AsyncSequence>. On BT.CPP a
+  child finishing SUCCESS straight from IDLE makes the node emit a wake-up and return
+  RUNNING; under tickExactlyOnce() nobody picks the signal up, so each child costs an extra
+  tick. Lite-BT drops WakeUpSignal (AsyncSequence = Sequence) and ticks the next child at
+  once. The evidence sits at tick 1: Lite-BT ticks /1, BT.CPP does not.
+-->
+<root BTCPP_format="4" main_tree_to_execute="Main">
+
+  <BehaviorTree ID="Main">
+    <AsyncSequence>
+      <ActFirst />
+      <ActSecond />
+    </AsyncSequence>
+  </BehaviorTree>
+
+</root>

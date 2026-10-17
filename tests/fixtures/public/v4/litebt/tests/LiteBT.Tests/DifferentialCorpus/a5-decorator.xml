@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TIER A, exact match: the stateless decorators plus Precondition — Inverter, ForceSuccess,
+  ForceFailure, KeepRunningUntilFailure, and all three Precondition else= exits. The
+  else=SKIPPED probe at /6 is where delta table row 4 fires, the only row tier A allows.
+  Trap: never halt a Precondition mid-child — BT.CPP's _children_running flag survives
+  halt() while Lite-BT derives `started` from the child status, and the two would disagree.
+-->
+<root BTCPP_format="4" main_tree_to_execute="Main">
+
+  <BehaviorTree ID="Main">
+    <Sequence>
+
+      <!-- /0 -->
+      <Inverter>
+        <ActInv />
+      </Inverter>
+
+      <!-- /1 -->
+      <ForceSuccess>
+        <ActFS />
+      </ForceSuccess>
+
+      <!-- /2 -->
+      <Inverter>
+        <ForceFailure>
+          <ActFF />
+        </ForceFailure>
+      </Inverter>
+
+      <!-- /3 -->
+      <Inverter>
+        <KeepRunningUntilFailure>
+          <ActKR />
+        </KeepRunningUntilFailure>
+      </Inverter>
+
+      <!-- /4 -->
+      <ForceSuccess>
+        <Precondition if="tokens &gt; 0" else="FAILURE">
+          <ActPre1 />
+        </Precondition>
+      </ForceSuccess>
+
+      <!-- /5 -->
+      <Precondition if="tokens &gt; 5" else="SUCCESS">
+        <ActPre2 />
+      </Precondition>
+
+      <!-- /6 -->
+      <Precondition if="tokens &gt; 99" else="SKIPPED">
+        <ActPre3 />
+      </Precondition>
+
+      <!-- /7 -->
+      <ActDecEnd />
+
+    </Sequence>
+  </BehaviorTree>
+
+</root>

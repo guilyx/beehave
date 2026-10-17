@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TIER B, exactly ONE divergent structure: <SubTree>, same delta row 7 as b3-subtree but a
+  DIFFERENT shape: `wlocal` is created by the <Script> INSIDE Worker, so on BT.CPP it lives
+  only in Worker's blackboard and Main has no key — a BlackboardKey divergence, not
+  BlackboardValue. The most natural shape of row 7 (a subtree-local variable); the first
+  version of delta-7-shared-blackboard could not fire on it. Also fires the macro half.
+-->
+<root BTCPP_format="4" main_tree_to_execute="Main">
+
+  <BehaviorTree ID="Main">
+    <Sequence>
+      <SubTree ID="Worker" />
+      <ActEnd />
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="Worker">
+    <Sequence>
+      <Script code="wlocal := 7" />
+      <ActWork />
+    </Sequence>
+  </BehaviorTree>
+
+</root>

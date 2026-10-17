@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TIER A, exact match: the branching nodes — IfThenElse / WhileDoElse / Switch, both child
+  counts, latched vs reactive, plus the Switch default branch.
+  Trap 1: the root ReactiveSequence reruns <Script code="mode := sel"/> each tick because
+  Switch's variable="{mode}" port declares `mode` as std::string at build time — an int
+  blackboard write would be rejected by BT.CPP; driving via the untouched key `sel` works
+  on both engines.
+  Trap 2: the ForceSuccess around /1/2 predates the WhileDoElse cleanup fix; kept as plain
+  ForceSuccess coverage. The fix itself is pinned by f2-whiledoelse-strand.
+-->
+<root BTCPP_format="4" main_tree_to_execute="Main">
+
+  <BehaviorTree ID="Main">
+    <ReactiveSequence>
+
+      <!-- /0 — reruns every tick, feeding `sel` into the Switch variable -->
+      <Script code="mode := sel" />
+
+      <!-- /1 -->
+      <Sequence>
+
+        <!-- /1/0 — two-child IfThenElse -->
+        <ForceSuccess>
+          <IfThenElse>
+            <ScriptCondition code="label == 'go'" />
+            <ActThen2 />
+          </IfThenElse>
+        </ForceSuccess>
+
+        <!-- /1/1 — three-child IfThenElse; the condition is an Action, so it latches across ticks -->
+        <IfThenElse>
+          <ActCond3 />
+          <ActThen3 />
+          <ActElse3 />
+        </IfThenElse>
+
+        <!-- /1/2 — two-child WhileDoElse -->
+        <ForceSuccess>
+          <WhileDoElse>
+            <ScriptCondition code="alive == true" />
+            <ActDo2 />
+          </WhileDoElse>
+        </ForceSuccess>
+
+        <!-- /1/3 — three-child WhileDoElse, reactive -->
+        <WhileDoElse>
+          <ScriptCondition code="awake == true" />
+          <ActDo3 />
+          <ActElse3W />
+        </WhileDoElse>
+
+        <!-- /1/4 — Switch3, three cases + default -->
+        <Switch3 variable="{mode}" case_1="0" case_2="1" case_3="2">
+          <ActCaseA />
+          <ActCaseB />
+          <ActCaseC />
+          <ActCaseDefault />
+        </Switch3>
+
+        <!-- /1/5 -->
+        <ActBranchEnd />
+
+      </Sequence>
+    </ReactiveSequence>
+  </BehaviorTree>
+
+</root>

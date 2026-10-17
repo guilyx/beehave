@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TIER B — forwarding <SubTree>s: subtree A's root is ITSELF a <SubTree>. Regression for a
+  HARNESS bug, not a delta row: wrapper nodes occupy no level in the flat path, so two
+  stacked wrappers both computed `flat + "#sub"` — the driver silently lost a node to the
+  overwrite (exit 0) and the C# reader threw a generic duplicate-key error.
+  Fix: depth-unique suffixes ("#sub", "#sub2", ...) plus explicit diagnostics on both
+  halves. The observable divergence is the macro half of delta row 7, like every SubTree.
+-->
+<root BTCPP_format="4" main_tree_to_execute="Main">
+
+  <BehaviorTree ID="Main">
+    <Sequence>
+      <ActHead />
+      <SubTree ID="A" />
+      <!-- A node AFTER the <SubTree> is required — otherwise the subtree completes exactly
+           when the whole tree does and SubTreeNode's reset hides inside the root's reset. -->
+      <ActTail />
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- A's root IS a <SubTree> — the exact shape that made two wrappers share a path. -->
+  <BehaviorTree ID="A">
+    <SubTree ID="B" />
+  </BehaviorTree>
+
+  <BehaviorTree ID="B">
+    <Sequence>
+      <ActDeep />
+    </Sequence>
+  </BehaviorTree>
+
+</root>

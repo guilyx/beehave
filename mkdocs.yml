@@ -42,6 +42,8 @@ nav:
       - research/index.md
       - BT.CPP v3 XML reference: research/btcpp-v3-xml.md
       - BT.CPP v3 vs v4: research/btcpp-v3-vs-v4.md
+      - BT.CPP v4 XML reference: research/btcpp-v4-xml.md
+      - py_trees reference: research/py-trees.md
       - Prior art: research/prior-art.md
       - Literature: research/literature.md
   - Community:
