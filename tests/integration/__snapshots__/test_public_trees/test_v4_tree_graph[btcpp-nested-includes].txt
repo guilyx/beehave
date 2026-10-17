@@ -1,0 +1,10 @@
+START --> SUCCESS
+
+tree           ParentIncludeChildIncludeParent (btcpp-v4)
+nodes          7 (2 control, 3 action, 2 subtree)
+actions        0
+reduction      100% (7 nodes -> 0 actions)
+transitions    1
+longest guard  0 terms (not simplified)
+approximated   none
+

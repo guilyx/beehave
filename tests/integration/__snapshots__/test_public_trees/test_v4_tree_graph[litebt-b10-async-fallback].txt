@@ -1,0 +1,14 @@
+START --> ActAF1
+ActAF1 --[success]--> SUCCESS
+ActAF1 --[failure]--> ActAF2
+ActAF2 --[success]--> SUCCESS
+ActAF2 --[failure]--> FAILURE
+
+tree           Main (btcpp-v4)
+nodes          3 (1 control, 2 action)
+actions        2
+reduction      33% (3 nodes -> 2 actions)
+transitions    5
+longest guard  0 terms (not simplified)
+approximated   none
+

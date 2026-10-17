@@ -1,0 +1,17 @@
+START --> EveryN
+EveryN --[success]--> SUCCESS
+EveryN --[failure]--> Periodic
+Periodic --[success]--> Finisher
+Periodic --[failure]--> SUCCESS
+Finisher --[success]--> SUCCESS
+Finisher --[failure]--> SUCCESS
+
+tree           Demo Tree (py_trees)
+nodes          7 (2 control, 5 action)
+actions        3
+reduction      57% (7 nodes -> 3 actions)
+transitions    7
+longest guard  0 terms (not simplified)
+approximated   Selector(memory=False) ×1
+
+warning: Selector(memory=False) "Demo Tree": walked like a Fallback; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]

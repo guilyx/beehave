@@ -1,0 +1,16 @@
+START --[gate == true]--> ActDo
+START --[!(gate == true)]--> ActRescue
+ActDo --[success]--> SUCCESS
+ActDo --[failure]--> ActRescue
+ActRescue --[success]--> SUCCESS
+ActRescue --[failure]--> FAILURE
+
+tree           Main (btcpp-v4)
+nodes          5 (2 control, 1 condition, 2 action)
+actions        2
+reduction      60% (5 nodes -> 2 actions)
+transitions    6
+longest guard  1 term (not simplified)
+approximated   WhileDoElse ×1
+
+v4/litebt/tests/LiteBT.Tests/DifferentialCorpus/f2-whiledoelse-strand.xml:13: warning: WhileDoElse: walked like IfThenElse; the condition is not re-checked [approximated]

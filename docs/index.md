@@ -8,7 +8,7 @@ hide:
 
 <div class="bh-hero" markdown>
 
-<p class="bh-hero__plate bh-label"><img src="assets/brand/mark.svg" alt="" width="24" height="24"> <span>Beehave <span aria-hidden="true">&middot;</span> static analysis for BehaviorTree.CPP</span></p>
+<p class="bh-hero__plate bh-label"><img src="assets/brand/mark.svg" alt="" width="24" height="24"> <span>Beehave <span aria-hidden="true">&middot;</span> static analysis for robot behavior trees</span></p>
 
 <p class="bh-hero__wordmark" aria-hidden="true">beehave</p>
 
@@ -16,7 +16,8 @@ hide:
 
 # The small branch that matters
 
-Beehave reads a [BehaviorTree.CPP](https://www.behaviortree.dev/) tree and
+Beehave reads a [BehaviorTree.CPP](https://www.behaviortree.dev/) tree (v3 or
+v4) or a [py_trees](https://github.com/splintered-reality/py_trees) tree and
 shows only the actions your robot can take, in order, with the conditions that
 lead to each one.
 
@@ -134,7 +135,11 @@ again. The same works for [mobile robots and manipulators](guide/examples.md).
 - **[Examples](guide/examples.md)**
 
     A drone mission, a mobile robot navigating with recovery, and a
-    pick-and-place arm.
+    pick-and-place arm, each in BT.CPP v3, v4 and py_trees.
+
+- **[Formats](guide/formats.md)**
+
+    BehaviorTree.CPP v3 and v4, `SKIPPED` and scripts, and py_trees.
 
 - **[Design](design/index.md)**
 
@@ -154,5 +159,5 @@ again. The same works for [mobile robots and manipulators](guide/examples.md).
 
 !!! note "Not the Godot addon"
     This Beehave is a static analysis tool for robot behavior trees
-    (BehaviorTree.CPP, ROS 2, Nav2). It is unrelated to the Beehave behavior
-    tree addon for the Godot game engine.
+    (BehaviorTree.CPP, py_trees, ROS 2, Nav2). It is unrelated to the Beehave
+    behavior tree addon for the Godot game engine.

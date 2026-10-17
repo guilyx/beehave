@@ -49,7 +49,7 @@ def test_diagnostics_go_to_stderr(capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["graph", DRONE]) == 0
 
     err = capsys.readouterr().err
-    assert "warning: ReactiveFallback: walked like a Fallback" in err
+    assert 'warning: ReactiveFallback "mission_with_failsafe": walked like a Fallback' in err
     assert "[approximated]" in err
 
 
@@ -115,7 +115,13 @@ def test_config_in_the_working_directory_is_found(
 @pytest.mark.parametrize(
     ("xml", "message"),
     [
-        ('<root BTCPP_format="4"><BehaviorTree ID="T"><A/></BehaviorTree></root>', "BT.CPP v4"),
+        (
+            (
+                "<root><BehaviorTree ID='T'><Sequence memory='true'><A/></Sequence>"
+                "</BehaviorTree></root>"
+            ),
+            "looks like py_trees XML",
+        ),
         ("<root><BehaviorTree ID='T'><SubTree ID='Nope'/></BehaviorTree></root>", "'Nope'"),
         ("<root><BehaviorTree ID='T'><A></root>", "not well-formed"),
     ],
@@ -171,3 +177,11 @@ def test_module_entry_point() -> None:
 
     assert result.returncode == 0
     assert result.stdout.startswith("DroneMission (main)")
+
+
+def test_graph_reads_bt_cpp_v4(capsys: pytest.CaptureFixture[str]) -> None:
+    drone_v4 = str(EXAMPLES / "aerial" / "drone_mission_v4.xml")
+
+    assert main(["graph", drone_v4, "-q"]) == 0
+
+    assert capsys.readouterr().out.startswith("START --[IsBatteryCritical]--> LandNow\n")

@@ -1,0 +1,18 @@
+START --> Logger#1
+Logger#1 --[success]--> Sleep#1
+Logger#1 --[failure]--> FAILURE
+Sleep#1 --[success]--> GetParameterString
+GetParameterString --[success]--> Logger#2
+GetParameterString --[failure]--> Logger#2
+Logger#2 --[success]--> Sleep#2
+Logger#2 --[failure]--> FAILURE
+Sleep#2 --[success]--> SUCCESS
+
+tree           HelloWorld (btcpp-v4)
+nodes          9 (2 control, 1 decorator, 6 action)
+actions        5
+reduction      44% (9 nodes -> 5 actions)
+transitions    9
+longest guard  0 terms (not simplified)
+approximated   none
+

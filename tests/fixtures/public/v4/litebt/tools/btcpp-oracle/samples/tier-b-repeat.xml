@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Tier-B self-check tree: exactly ONE structure known to diverge — Repeat. BT.CPP loops
+  within a tick (the child is ticked several times in one tick); Lite-BT yields after each
+  attempt, keeping the once-per-tick invariant.
+  The evidence is the trace's "ticked" array: the child's path appears SEVERAL times in one
+  tick record — which is why that array must never be deduplicated.
+-->
+<root BTCPP_format="4" main_tree_to_execute="Main">
+
+  <BehaviorTree ID="Main">
+    <Sequence>
+      <Repeat num_cycles="3">
+        <ActLoop />
+      </Repeat>
+      <ActDone />
+    </Sequence>
+  </BehaviorTree>
+
+</root>

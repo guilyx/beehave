@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<!--
+  Manipulator: pick an object and place it, in BehaviorTree.CPP v4.
+
+  The same tree as the v3 file next to it; Beehave must give the same graph.
+
+  Detect the object, check it is reachable, plan a grasp (up to three tries),
+  approach, close the gripper and check the grasp before lifting. If any step
+  of the pick fails, release, return home and report failure. Then move to the
+  place pose, release and retreat. Node names follow common motion-planning
+  vocabulary.
+-->
+<root BTCPP_format="4" main_tree_to_execute="PickAndPlace">
+  <BehaviorTree ID="PickAndPlace">
+    <Sequence>
+      <SubTree ID="Pick" _autoremap="true"/>
+      <SubTree ID="Place" _autoremap="true"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="Pick">
+    <Fallback name="pick_or_give_up">
+      <Sequence name="pick">
+        <DetectObject object="{object}" pose="{object_pose}"/>
+        <IsObjectReachable/>
+        <RetryUntilSuccessful num_attempts="3">
+          <PlanGrasp pose="{object_pose}" grasp="{grasp}"/>
+        </RetryUntilSuccessful>
+        <MoveToPregrasp grasp="{grasp}"/>
+        <OpenGripper/>
+        <ApproachObject grasp="{grasp}"/>
+        <CloseGripper/>
+        <IsObjectGrasped/>
+        <LiftObject/>
+      </Sequence>
+      <Sequence name="give_up">
+        <OpenGripper name="SafeRelease"/>
+        <MoveToHome name="AbortToHome"/>
+        <AlwaysFailure/>
+      </Sequence>
+    </Fallback>
+  </BehaviorTree>
+
+  <BehaviorTree ID="Place">
+    <Sequence>
+      <MoveToPlace pose="{place_pose}"/>
+      <OpenGripper name="Release"/>
+      <Retreat/>
+      <MoveToHome/>
+    </Sequence>
+  </BehaviorTree>
+
+  <TreeNodesModel>
+    <Condition ID="IsObjectReachable"/>
+    <Condition ID="IsObjectGrasped"/>
+    <Action ID="DetectObject"/>
+    <Action ID="PlanGrasp"/>
+    <Action ID="MoveToPregrasp"/>
+    <Action ID="OpenGripper"/>
+    <Action ID="ApproachObject"/>
+    <Action ID="CloseGripper"/>
+    <Action ID="LiftObject"/>
+    <Action ID="MoveToHome"/>
+    <Action ID="MoveToPlace"/>
+    <Action ID="Retreat"/>
+  </TreeNodesModel>
+</root>

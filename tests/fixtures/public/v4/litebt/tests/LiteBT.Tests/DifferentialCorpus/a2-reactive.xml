@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TIER A, exact match: ReactiveSequence / ReactiveFallback — conditions rechecked every
+  tick, a flipped condition cancels the running branch mid-walk.
+  Proves: /0/0 cancellation from the second condition; /1 the symmetric fallback case; and
+  `halts` counts each cancel via _onHalted, so an extra or missing halt on either engine
+  shows up as a different number, never silently.
+-->
+<root BTCPP_format="4" main_tree_to_execute="Main">
+
+  <BehaviorTree ID="Main">
+    <Sequence>
+
+      <!-- /0 — ForceSuccess so the pass survives the ReactiveSequence failing -->
+      <ForceSuccess>
+        <ReactiveSequence>
+          <ScriptCondition code="gate == true" />
+          <ScriptCondition code="power &gt; 0" />
+          <ActGuarded _onHalted="halts := halts + 1" />
+        </ReactiveSequence>
+      </ForceSuccess>
+
+      <!-- /1 — ReactiveFallback: the condition turning on cancels the running Action -->
+      <ReactiveFallback>
+        <ScriptCondition code="ready == true" />
+        <ActWait _onHalted="halts := halts + 1" />
+      </ReactiveFallback>
+
+      <!-- /2 -->
+      <ActReactEnd />
+
+    </Sequence>
+  </BehaviorTree>
+
+</root>

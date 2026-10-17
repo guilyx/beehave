@@ -1,0 +1,25 @@
+START --[Joystick 1 and Joystick 2 and (joystick_one == 'enabled' xor joystick_two == 'enabled') and either_or/1 == True]--> Task 1
+START --[Joystick 1 and Joystick 2 and (joystick_one == 'enabled' xor joystick_two == 'enabled') and not either_or/1 == True and either_or/2 == True]--> Task 2
+START --[Joystick 1 and Joystick 2 and (joystick_one == 'enabled' xor joystick_two == 'enabled') and not either_or/1 == True and not either_or/2 == True]--> Idle
+START --[Joystick 1 and Joystick 2 and not (joystick_one == 'enabled' xor joystick_two == 'enabled')]--> Idle
+START --[Joystick 1 and not Joystick 2]--> FAILURE
+START --[not Joystick 1]--> FAILURE
+Task 1 --[success]--> SUCCESS
+Task 1 --[failure and either_or/2 == True]--> Task 2
+Task 1 --[failure and not either_or/2 == True]--> Idle
+Task 2 --[success]--> SUCCESS
+Task 2 --[failure]--> Idle
+
+tree           Root (py_trees)
+nodes          23 (9 control, 2 decorator, 5 condition, 7 action)
+actions        3
+reduction      87% (23 nodes -> 3 actions)
+transitions    11
+longest guard  5 terms (not simplified)
+approximated   FailureIsRunning ×2, Parallel ×1, Selector(memory=False) ×2
+
+warning: Parallel "Root": children are shown as if they ran one after another [approximated]
+warning: FailureIsRunning "FisR": the retry loop is folded into a note; the loop edge is not shown yet [approximated]
+warning: FailureIsRunning "FisR": the retry loop is folded into a note; the loop edge is not shown yet [approximated]
+warning: Selector(memory=False) "Tasks": walked like a Fallback; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
+warning: Selector(memory=False) "Chooser": walked like a Fallback; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]

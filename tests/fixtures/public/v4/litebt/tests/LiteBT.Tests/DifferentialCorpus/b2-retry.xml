@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TIER B, exactly ONE divergent structure: <RetryUntilSuccessful>, the mirror of b1-repeat.
+  Retry counts FAILURE instead of SUCCESS (same prev_status == IDLE gate), so it must
+  diverge on delta row 2 and no other.
+-->
+<root BTCPP_format="4" main_tree_to_execute="Main">
+  <BehaviorTree ID="Main">
+    <Sequence>
+      <RetryUntilSuccessful num_attempts="6">
+        <ActTry />
+      </RetryUntilSuccessful>
+      <ActAfterRetry />
+    </Sequence>
+  </BehaviorTree>
+</root>

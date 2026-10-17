@@ -6,7 +6,7 @@ build-backend = "uv_build"
 # "beehave" is taken on PyPI; the import name and the CLI are still `beehave`.
 name = "beehave-bt"
 version = "0.1.0.dev0"
-description = "Reads BehaviorTree.CPP trees and shows only the actions your robot can take, in order, with the conditions that lead to each one."
+description = "Reads robot behavior trees (BehaviorTree.CPP v3 and v4, py_trees) and shows only the actions your robot can take, in order, with the conditions that lead to each one."
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
@@ -16,6 +16,7 @@ dependencies = ["PyYAML>=6.0"]
 keywords = [
   "behavior-tree",
   "behaviortree-cpp",
+  "py-trees",
   "robotics",
   "ros2",
   "nav2",
@@ -48,6 +49,10 @@ Source = "https://github.com/guilyx/beehave"
 Issues = "https://github.com/guilyx/beehave/issues"
 Changelog = "https://github.com/guilyx/beehave/blob/main/CHANGELOG.md"
 
+[project.optional-dependencies]
+# Reading live py_trees trees. Under ROS 2, use the py_trees of the distro instead.
+py-trees = ["py_trees>=2.2"]
+
 [project.scripts]
 beehave = "beehave.cli:main"
 
@@ -57,12 +62,14 @@ test = [
   "pytest-cov>=6.0",
   "hypothesis>=6.120",
   "syrupy>=4.8",
+  "py_trees>=2.2",
 ]
 lint = [
   "ruff>=0.15",
   "mypy>=1.15",
   "types-PyYAML>=6.0",
   "prek>=0.5",
+  "py_trees>=2.2",
 ]
 docs = [
   "zensical>=0.0.70",
@@ -145,6 +152,8 @@ convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101", "D", "PLR2004", "S603"]
+# The walk rules mirror compile(node, path, S, F, K, subtrees) from the research notes.
+"src/beehave/walk.py" = ["PLR0913", "PLR0917"]
 # Colour-science scripts keep the conventional names (L, C, h; l, m, s).
 ".branding/tools/**" = ["N802", "N803", "N806", "E741", "T201"]
 

@@ -1,0 +1,40 @@
+START --> ActHead
+ActHead --[success and v == 1]--> ActTail
+ActHead --[success and !(v == 1)]--> ActFS
+ActHead --[failure]--> FAILURE
+ActFS --[success]--> FAILURE
+ActFS --[failure and v == 1]--> ActTail
+ActFS --[failure and !(v == 1)]--> ActSK
+ActSK --[success and v == 1]--> ActTail
+ActSK --[success and !(v == 1) and v == 0]--> ActFW
+ActSK --[success and !(v == 1) and !(v == 0)]--> ActTail
+ActSK --[failure]--> FAILURE
+ActFW --[success]--> FAILURE
+ActFW --[failure and v == 1]--> ActTail
+ActFW --[failure and !(v == 1) and v == 0]--> ActSW
+ActFW --[failure and !(v == 1) and !(v == 0)]--> ActTail
+ActSW --[success and v == 1]--> ActTail
+ActSW --[success and !(v == 1) and v == 0]--> ActKW
+ActSW --[success and !(v == 1) and !(v == 0)]--> ActTail
+ActSW --[failure]--> FAILURE
+ActKW --[success and v == 1]--> ActTail
+ActKW --[success and !(v == 1) and v == 0]--> ActAll
+ActKW --[success and !(v == 1) and !(v == 0)]--> ActTail
+ActKW --[failure]--> FAILURE
+ActAll --[success]--> FAILURE
+ActAll --[failure]--> ActTail
+ActTail --[success]--> SUCCESS
+ActTail --[failure]--> FAILURE
+
+tree           Main (btcpp-v4)
+nodes          12 (1 control, 3 decorator, 8 action)
+actions        8
+reduction      33% (12 nodes -> 8 actions)
+transitions    27
+longest guard  2 terms (not simplified)
+approximated   ActAll ×1, ActFW ×1, ActKW ×1, ActSW ×1
+
+v4/litebt/tests/LiteBT.Tests/DifferentialCorpus/a7-precond-order.xml:31: warning: ActFW: _while is checked on every tick; the interrupt edges are not shown yet [approximated]
+v4/litebt/tests/LiteBT.Tests/DifferentialCorpus/a7-precond-order.xml:35: warning: ActSW: _while is checked on every tick; the interrupt edges are not shown yet [approximated]
+v4/litebt/tests/LiteBT.Tests/DifferentialCorpus/a7-precond-order.xml:38: warning: ActKW: _while is checked on every tick; the interrupt edges are not shown yet [approximated]
+v4/litebt/tests/LiteBT.Tests/DifferentialCorpus/a7-precond-order.xml:42: warning: ActAll: _while is checked on every tick; the interrupt edges are not shown yet [approximated]

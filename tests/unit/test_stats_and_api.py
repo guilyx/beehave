@@ -93,6 +93,9 @@ def test_analyze_accepts_config_and_tree(tmp_path: Path) -> None:
 def test_public_api_surface() -> None:
     for name in (
         "analyze",
+        "analyze_py_trees",
+        "from_py_trees",
+        "load_py_trees",
         "Analysis",
         "Config",
         "load_config",

@@ -233,7 +233,11 @@ That one check proves the guards are complete and mutually exclusive.
 
 BT.CPP 3.8 has no built-in condition nodes. The exact semantics behind this
 table, checked against the BT.CPP 3.8.8 source, are in
-[the v3 XML reference](../research/btcpp-v3-xml.md).
+[the v3 XML reference](../research/btcpp-v3-xml.md). BT.CPP v4 and py_trees
+nodes, which came after Phase 1 on the formats track, are covered in
+[the formats guide](../guide/formats.md) and in the
+[v4](../research/btcpp-v4-xml.md) and [py_trees](../research/py-trees.md)
+references.
 
 Every approximated node produces a diagnostic with its location. The
 `approximated` line of `beehave stats` is the plan's **breakage** metric: what
@@ -258,12 +262,13 @@ Beehave follows BT.CPP 3.8 where it matters, and warns where BT.CPP is silent:
   as a subtree, with a warning, because BT.CPP 3.8 rejects it.
 
 **Detecting v4.** v3.8 ignores `BTCPP_format`, and v4 files often omit it.
-Beehave refuses a file as v4 if it has `BTCPP_format="4"`, or if it uses a
+Beehave takes a file as v4 if it has `BTCPP_format="4"`, or if it uses a
 v4-only node (`SequenceWithMemory`, `Script`, `Precondition`…), a v4-only
 attribute (`_skipIf`, `_failureIf`, `_while`, `_autoremap`…), a v4 port value
 (`{=}`, `{@key}`) or v4 `Parallel` ports. A node type declared in
 `TreeNodesModel` or the config is never taken as evidence, so a v3 project can
-still have its own `Sleep` action.
+still have its own `Sleep` action. Phase 1 refused such files; since the v4
+parser landed they are read as v4 ([Formats](../guide/formats.md)).
 
 ## Configuration
 

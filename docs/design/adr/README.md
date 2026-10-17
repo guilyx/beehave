@@ -13,6 +13,9 @@ new ADR that supersedes the old one.
 | [0005](0005-python-minimal-dependencies.md) | Python, with minimal dependencies | Accepted |
 | [0006](0006-distribution-name.md) | Publish as `beehave-bt` | Accepted |
 | [0007](0007-test-driven-with-a-reference-interpreter.md) | Test-driven, with a reference interpreter | Accepted |
+| [0008](0008-formats-track.md) | Grow formats on their own track | Accepted |
+| [0009](0009-bt-cpp-v4-skipped.md) | Read BT.CPP v4 with a third continuation for SKIPPED | Accepted |
+| [0010](0010-py-trees-live-trees.md) | Read py_trees trees live, and import user code only on request | Accepted |
 
 To propose a decision, copy [the template](template.md), take the next number,
 and open a pull request. Discussion happens on the pull request.

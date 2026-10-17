@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TIER B, exactly ONE divergent structure: <RunOnce>. After its one run, then_skip="true"
+  makes it return SKIPPED forever — and SKIPPED is what Lite-BT stores and BT.CPP does not
+  (delta row 4).
+-->
+<root BTCPP_format="4" main_tree_to_execute="Main">
+  <BehaviorTree ID="Main">
+    <Sequence>
+      <RunOnce then_skip="true">
+        <ActOnce />
+      </RunOnce>
+      <ActAfterOnce />
+    </Sequence>
+  </BehaviorTree>
+</root>

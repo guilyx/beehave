@@ -1,0 +1,117 @@
+START --[is_emergency == true and event_id == '' && is_emergency == false and contingency_inactive == true]--> SUCCESS
+START --[is_emergency == true and event_id == '' && is_emergency == false and !(contingency_inactive == true) and is_emergency == false]--> FAILURE
+START --[is_emergency == true and event_id == '' && is_emergency == false and !(contingency_inactive == true) and !(is_emergency == false)]--> FAILURE
+START --[is_emergency == true and !(event_id == '' && is_emergency == false) and is_emergency == false and contingency_inactive == true]--> SUCCESS
+START --[is_emergency == true and !(event_id == '' && is_emergency == false) and is_emergency == false and !(contingency_inactive == true)]--> FAILURE
+START --[is_emergency == true and !(event_id == '' && is_emergency == false) and !(is_emergency == false) and contingency_inactive == true]--> SUCCESS
+START --[is_emergency == true and !(event_id == '' && is_emergency == false) and !(is_emergency == false) and !(contingency_inactive == true)]--> FAILURE
+START --[!(is_emergency == true) and prev_event_id != event_id and event_id == '']--> ResetEvent
+START --[!(is_emergency == true) and prev_event_id != event_id and !(event_id == '')]--> EmergencyEvent
+START --[!(is_emergency == true) and !(prev_event_id != event_id) and event_id == '' && is_emergency == false and contingency_inactive == true]--> SUCCESS
+START --[!(is_emergency == true) and !(prev_event_id != event_id) and event_id == '' && is_emergency == false and !(contingency_inactive == true) and is_emergency == false]--> FAILURE
+START --[!(is_emergency == true) and !(prev_event_id != event_id) and event_id == '' && is_emergency == false and !(contingency_inactive == true) and !(is_emergency == false)]--> FAILURE
+START --[!(is_emergency == true) and !(prev_event_id != event_id) and !(event_id == '' && is_emergency == false) and is_emergency == false and contingency_inactive == true]--> SUCCESS
+START --[!(is_emergency == true) and !(prev_event_id != event_id) and !(event_id == '' && is_emergency == false) and is_emergency == false and !(contingency_inactive == true)]--> FAILURE
+START --[!(is_emergency == true) and !(prev_event_id != event_id) and !(event_id == '' && is_emergency == false) and !(is_emergency == false) and contingency_inactive == true]--> SUCCESS
+START --[!(is_emergency == true) and !(prev_event_id != event_id) and !(event_id == '' && is_emergency == false) and !(is_emergency == false) and !(contingency_inactive == true)]--> FAILURE
+BringUpError --[success and is_emergency == true and event_id == '' && is_emergency == false and contingency_inactive == true]--> SUCCESS
+BringUpError --[success and is_emergency == true and event_id == '' && is_emergency == false and !(contingency_inactive == true) and is_emergency == false]--> FAILURE
+BringUpError --[success and is_emergency == true and event_id == '' && is_emergency == false and !(contingency_inactive == true) and !(is_emergency == false)]--> FAILURE
+BringUpError --[success and is_emergency == true and !(event_id == '' && is_emergency == false) and is_emergency == false and contingency_inactive == true]--> SUCCESS
+BringUpError --[success and is_emergency == true and !(event_id == '' && is_emergency == false) and is_emergency == false and !(contingency_inactive == true)]--> FAILURE
+BringUpError --[success and is_emergency == true and !(event_id == '' && is_emergency == false) and !(is_emergency == false) and contingency_inactive == true]--> SUCCESS
+BringUpError --[success and is_emergency == true and !(event_id == '' && is_emergency == false) and !(is_emergency == false) and !(contingency_inactive == true)]--> FAILURE
+BringUpError --[success and !(is_emergency == true) and prev_event_id != event_id and event_id == '']--> ResetEvent
+BringUpError --[success and !(is_emergency == true) and prev_event_id != event_id and !(event_id == '')]--> EmergencyEvent
+BringUpError --[success and !(is_emergency == true) and !(prev_event_id != event_id) and event_id == '' && is_emergency == false and contingency_inactive == true]--> SUCCESS
+BringUpError --[success and !(is_emergency == true) and !(prev_event_id != event_id) and event_id == '' && is_emergency == false and !(contingency_inactive == true) and is_emergency == false]--> FAILURE
+BringUpError --[success and !(is_emergency == true) and !(prev_event_id != event_id) and event_id == '' && is_emergency == false and !(contingency_inactive == true) and !(is_emergency == false)]--> FAILURE
+BringUpError --[success and !(is_emergency == true) and !(prev_event_id != event_id) and !(event_id == '' && is_emergency == false) and is_emergency == false and contingency_inactive == true]--> SUCCESS
+BringUpError --[success and !(is_emergency == true) and !(prev_event_id != event_id) and !(event_id == '' && is_emergency == false) and is_emergency == false and !(contingency_inactive == true)]--> FAILURE
+BringUpError --[success and !(is_emergency == true) and !(prev_event_id != event_id) and !(event_id == '' && is_emergency == false) and !(is_emergency == false) and contingency_inactive == true]--> SUCCESS
+BringUpError --[success and !(is_emergency == true) and !(prev_event_id != event_id) and !(event_id == '' && is_emergency == false) and !(is_emergency == false) and !(contingency_inactive == true)]--> FAILURE
+BringUpError --[failure]--> FAILURE
+ResetEvent --[success and event_id == '' && is_emergency == false and contingency_inactive == true]--> SUCCESS
+ResetEvent --[success and event_id == '' && is_emergency == false and !(contingency_inactive == true) and is_emergency == false]--> FAILURE
+ResetEvent --[success and event_id == '' && is_emergency == false and !(contingency_inactive == true) and !(is_emergency == false)]--> FAILURE
+ResetEvent --[success and !(event_id == '' && is_emergency == false) and is_emergency == false and contingency_inactive == true]--> SUCCESS
+ResetEvent --[success and !(event_id == '' && is_emergency == false) and is_emergency == false and !(contingency_inactive == true)]--> FAILURE
+ResetEvent --[success and !(event_id == '' && is_emergency == false) and !(is_emergency == false) and contingency_inactive == true]--> SUCCESS
+ResetEvent --[success and !(event_id == '' && is_emergency == false) and !(is_emergency == false) and !(contingency_inactive == true)]--> FAILURE
+ResetEvent --[failure and event_id == '' && is_emergency == false and contingency_inactive == true]--> SUCCESS
+ResetEvent --[failure and event_id == '' && is_emergency == false and !(contingency_inactive == true) and is_emergency == false]--> FAILURE
+ResetEvent --[failure and event_id == '' && is_emergency == false and !(contingency_inactive == true) and !(is_emergency == false)]--> FAILURE
+ResetEvent --[failure and !(event_id == '' && is_emergency == false) and is_emergency == false and contingency_inactive == true]--> SUCCESS
+ResetEvent --[failure and !(event_id == '' && is_emergency == false) and is_emergency == false and !(contingency_inactive == true)]--> FAILURE
+ResetEvent --[failure and !(event_id == '' && is_emergency == false) and !(is_emergency == false) and contingency_inactive == true]--> SUCCESS
+ResetEvent --[failure and !(event_id == '' && is_emergency == false) and !(is_emergency == false) and !(contingency_inactive == true)]--> FAILURE
+EmergencyEvent --[success and event_id == '' && is_emergency == false and contingency_inactive == true]--> SUCCESS
+EmergencyEvent --[success and event_id == '' && is_emergency == false and !(contingency_inactive == true) and is_emergency == false]--> FAILURE
+EmergencyEvent --[success and event_id == '' && is_emergency == false and !(contingency_inactive == true) and !(is_emergency == false)]--> FAILURE
+EmergencyEvent --[success and !(event_id == '' && is_emergency == false) and is_emergency == false and contingency_inactive == true]--> SUCCESS
+EmergencyEvent --[success and !(event_id == '' && is_emergency == false) and is_emergency == false and !(contingency_inactive == true)]--> FAILURE
+EmergencyEvent --[success and !(event_id == '' && is_emergency == false) and !(is_emergency == false) and contingency_inactive == true]--> SUCCESS
+EmergencyEvent --[success and !(event_id == '' && is_emergency == false) and !(is_emergency == false) and !(contingency_inactive == true)]--> FAILURE
+EmergencyEvent --[failure and event_id == '' && is_emergency == false and contingency_inactive == true]--> SUCCESS
+EmergencyEvent --[failure and event_id == '' && is_emergency == false and !(contingency_inactive == true) and is_emergency == false]--> FAILURE
+EmergencyEvent --[failure and event_id == '' && is_emergency == false and !(contingency_inactive == true) and !(is_emergency == false)]--> FAILURE
+EmergencyEvent --[failure and !(event_id == '' && is_emergency == false) and is_emergency == false and contingency_inactive == true]--> SUCCESS
+EmergencyEvent --[failure and !(event_id == '' && is_emergency == false) and is_emergency == false and !(contingency_inactive == true)]--> FAILURE
+EmergencyEvent --[failure and !(event_id == '' && is_emergency == false) and !(is_emergency == false) and contingency_inactive == true]--> SUCCESS
+EmergencyEvent --[failure and !(event_id == '' && is_emergency == false) and !(is_emergency == false) and !(contingency_inactive == true)]--> FAILURE
+ContingencyEvent --[success and event_id == '' && is_emergency == false and contingency_inactive == true]--> SUCCESS
+ContingencyEvent --[success and event_id == '' && is_emergency == false and !(contingency_inactive == true) and is_emergency == false]--> FAILURE
+ContingencyEvent --[success and event_id == '' && is_emergency == false and !(contingency_inactive == true) and !(is_emergency == false)]--> FAILURE
+ContingencyEvent --[success and !(event_id == '' && is_emergency == false) and is_emergency == false and contingency_inactive == true]--> SUCCESS
+ContingencyEvent --[success and !(event_id == '' && is_emergency == false) and is_emergency == false and !(contingency_inactive == true)]--> FAILURE
+ContingencyEvent --[success and !(event_id == '' && is_emergency == false) and !(is_emergency == false) and contingency_inactive == true]--> SUCCESS
+ContingencyEvent --[success and !(event_id == '' && is_emergency == false) and !(is_emergency == false) and !(contingency_inactive == true)]--> FAILURE
+ContingencyEvent --[failure and event_id == '' && is_emergency == false and contingency_inactive == true]--> SUCCESS
+ContingencyEvent --[failure and event_id == '' && is_emergency == false and !(contingency_inactive == true) and is_emergency == false]--> FAILURE
+ContingencyEvent --[failure and event_id == '' && is_emergency == false and !(contingency_inactive == true) and !(is_emergency == false)]--> FAILURE
+ContingencyEvent --[failure and !(event_id == '' && is_emergency == false) and is_emergency == false and contingency_inactive == true]--> SUCCESS
+ContingencyEvent --[failure and !(event_id == '' && is_emergency == false) and is_emergency == false and !(contingency_inactive == true)]--> FAILURE
+ContingencyEvent --[failure and !(event_id == '' && is_emergency == false) and !(is_emergency == false) and contingency_inactive == true]--> SUCCESS
+ContingencyEvent --[failure and !(event_id == '' && is_emergency == false) and !(is_emergency == false) and !(contingency_inactive == true)]--> FAILURE
+UnknownEventID --[success and event_id == '' && is_emergency == false and contingency_inactive == true]--> SUCCESS
+UnknownEventID --[success and event_id == '' && is_emergency == false and !(contingency_inactive == true) and is_emergency == false]--> FAILURE
+UnknownEventID --[success and event_id == '' && is_emergency == false and !(contingency_inactive == true) and !(is_emergency == false)]--> FAILURE
+UnknownEventID --[success and !(event_id == '' && is_emergency == false) and is_emergency == false and contingency_inactive == true]--> SUCCESS
+UnknownEventID --[success and !(event_id == '' && is_emergency == false) and is_emergency == false and !(contingency_inactive == true)]--> FAILURE
+UnknownEventID --[success and !(event_id == '' && is_emergency == false) and !(is_emergency == false) and contingency_inactive == true]--> SUCCESS
+UnknownEventID --[success and !(event_id == '' && is_emergency == false) and !(is_emergency == false) and !(contingency_inactive == true)]--> FAILURE
+UnknownEventID --[failure and event_id == '' && is_emergency == false and contingency_inactive == true]--> SUCCESS
+UnknownEventID --[failure and event_id == '' && is_emergency == false and !(contingency_inactive == true) and is_emergency == false]--> FAILURE
+UnknownEventID --[failure and event_id == '' && is_emergency == false and !(contingency_inactive == true) and !(is_emergency == false)]--> FAILURE
+UnknownEventID --[failure and !(event_id == '' && is_emergency == false) and is_emergency == false and contingency_inactive == true]--> SUCCESS
+UnknownEventID --[failure and !(event_id == '' && is_emergency == false) and is_emergency == false and !(contingency_inactive == true)]--> FAILURE
+UnknownEventID --[failure and !(event_id == '' && is_emergency == false) and !(is_emergency == false) and contingency_inactive == true]--> SUCCESS
+UnknownEventID --[failure and !(event_id == '' && is_emergency == false) and !(is_emergency == false) and !(contingency_inactive == true)]--> FAILURE
+MissionError --[success]--> SUCCESS
+MissionError --[failure and is_emergency == false and contingency_inactive == true]--> FAILURE
+MissionError --[failure and is_emergency == false and !(contingency_inactive == true)]--> FAILURE
+MissionError --[failure and !(is_emergency == false) and contingency_inactive == true]--> SUCCESS
+MissionError --[failure and !(is_emergency == false) and !(contingency_inactive == true)]--> FAILURE
+EmergencyHandlingError --[success]--> SUCCESS
+EmergencyHandlingError --[failure and contingency_inactive == true]--> FAILURE
+EmergencyHandlingError --[failure and !(contingency_inactive == true)]--> FAILURE
+ContingencyHandlingError --[success]--> FAILURE
+ContingencyHandlingError --[failure]--> FAILURE
+ShutDownError --[success]--> SUCCESS
+ShutDownError --[failure]--> FAILURE
+
+tree           MissionOrchestrator (btcpp-v4)
+nodes          60 (19 control, 10 decorator, 4 condition, 19 action, 8 subtree)
+actions        9
+reduction      85% (60 nodes -> 9 actions)
+transitions    101
+longest guard  5 terms (not simplified)
+approximated   KeepRunningUntilFailure ×1, Parallel ×1, ReactiveFallback ×1, RetryUntilSuccessful ×3, Sequence ×1
+
+v4/auto-apms/auto_apms_mission/config/orchestrator_base.xml:13: warning: Parallel: children are shown as if they ran one after another [approximated]
+v4/auto-apms/auto_apms_mission/config/orchestrator_base.xml:15: warning: KeepRunningUntilFailure: never succeeds (a successful child is ticked again); walked as transparent, the loop is not shown yet [approximated]
+v4/auto-apms/auto_apms_mission/config/orchestrator_base.xml:65: warning: RetryUntilSuccessful: the retry loop is folded into a note; the loop edge is not shown yet [approximated]
+v4/auto-apms/auto_apms_mission/config/orchestrator_base.xml:66: warning: ReactiveFallback: walked like a Fallback; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
+v4/auto-apms/auto_apms_mission/config/orchestrator_base.xml:67: warning: Sequence: _while is checked on every tick; the interrupt edges are not shown yet [approximated]
+v4/auto-apms/auto_apms_mission/config/orchestrator_base.xml:68: warning: RetryUntilSuccessful "HaltContingencyHandler": the retry loop is folded into a note; the loop edge is not shown yet [approximated]
+v4/auto-apms/auto_apms_mission/config/orchestrator_base.xml:80: warning: RetryUntilSuccessful "HaltContingencyHandler": the retry loop is folded into a note; the loop edge is not shown yet [approximated]

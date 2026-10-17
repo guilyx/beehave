@@ -1,0 +1,14 @@
+START --[EveryN]--> SUCCESS
+START --[not EveryN]--> Periodic
+Periodic --[success]--> SUCCESS
+Periodic --[failure]--> SUCCESS
+
+tree           Logging (py_trees)
+nodes          7 (2 control, 1 condition, 4 action)
+actions        1
+reduction      86% (7 nodes -> 1 actions)
+transitions    4
+longest guard  1 term (not simplified)
+approximated   Selector(memory=False) ×1
+
+warning: Selector(memory=False) "Logging": walked like a Fallback; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]

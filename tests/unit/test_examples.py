@@ -1,19 +1,29 @@
 """The three examples in examples/, one per kind of robot.
 
 The expected graphs below were derived by hand from the trees, so these tests
-check the walk on realistic trees, not just on itself.
+check the walk on realistic trees, not just on itself. Each example is also
+written for BT.CPP v4 and for py_trees; the same tree must give the same graph.
 """
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 
 import beehave
+from beehave.config import load_config
 from tests.conftest import EXAMPLES
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 AERIAL = EXAMPLES / "aerial" / "drone_mission.xml"
 MOBILE = EXAMPLES / "mobile" / "navigate_to_goal.xml"
 MANIPULATION = EXAMPLES / "manipulation" / "pick_and_place.xml"
+# py_trees has no list of node kinds like <TreeNodesModel>; this file says which
+# behaviours of the py_trees examples are conditions.
+EXAMPLES_CONFIG = load_config(EXAMPLES / "beehave.yaml")
 
 
 def test_drone_mission() -> None:
@@ -134,8 +144,56 @@ def test_pick_and_place() -> None:
 
 
 @pytest.mark.parametrize("example", [AERIAL, MOBILE, MANIPULATION], ids=lambda p: p.stem)
-def test_examples_render_in_every_format(example: object) -> None:
-    graph = beehave.analyze(example).graph  # type: ignore[arg-type]
+def test_examples_render_in_every_format(example: Path) -> None:
+    graph = beehave.analyze(example).graph
 
     for render in (beehave.to_text, beehave.to_mermaid, beehave.to_dot, beehave.to_json):
         assert render(graph)
+
+
+# ------------------------------------------------- one tree, every format ---
+
+
+@pytest.mark.parametrize("example", [AERIAL, MOBILE, MANIPULATION], ids=lambda p: p.stem)
+def test_btcpp_v4_twin_gives_the_same_graph(example: Path) -> None:
+    graph_v3 = beehave.analyze(example).graph
+    graph_v4 = beehave.analyze(example.with_name(f"{example.stem}_v4.xml")).graph
+
+    assert graph_v4.format == "btcpp-v4"
+    assert beehave.to_text(graph_v4) == beehave.to_text(graph_v3)
+
+
+@pytest.mark.parametrize("example", [AERIAL, MANIPULATION], ids=lambda p: p.stem)
+def test_py_trees_twin_gives_the_same_graph(example: Path) -> None:
+    pytest.importorskip("py_trees")
+    graph_xml = beehave.analyze(example).graph
+    root = beehave.load_py_trees(f"{example.with_suffix('.py')}:create_root")
+
+    graph = beehave.analyze_py_trees(root, config=EXAMPLES_CONFIG).graph
+
+    assert graph.format == "py_trees"
+    assert beehave.to_text(graph) == beehave.to_text(graph_xml)
+
+
+def test_py_trees_has_no_if_then_else() -> None:
+    # The usual py_trees way to write "charge or navigate" is a Selector over
+    # [Sequence(IsBatteryLow, dock), navigate]. Unlike IfThenElse, a failed
+    # dock falls through to navigation: the three edges marked below.
+    pytest.importorskip("py_trees")
+    root = beehave.load_py_trees(f"{MOBILE.with_suffix('.py')}:create_root")
+
+    graph = beehave.analyze_py_trees(root, config=EXAMPLES_CONFIG).graph
+
+    xml = beehave.to_text(beehave.analyze(MOBILE).graph)
+    expected = (
+        xml.replace(
+            "PlanToDock --[failure]--> FAILURE", "PlanToDock --[failure]--> ComputePathToPose"
+        )
+        .replace(
+            "FollowDockPath --[failure]--> FAILURE",
+            "FollowDockPath --[failure]--> ComputePathToPose",
+        )
+        .replace("DockRobot --[failure]--> FAILURE", "DockRobot --[failure]--> ComputePathToPose")
+    )
+    assert expected != xml
+    assert beehave.to_text(graph) == expected

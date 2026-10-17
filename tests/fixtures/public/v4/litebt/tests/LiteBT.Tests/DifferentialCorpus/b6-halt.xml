@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TIER B, exactly ONE divergent structure: HALT — delta row 9, never observed on any tree
+  before this one. Requires a COMPLETED node that still has IDLE children getting swept by
+  its parent: BT.CPP only halt-recurses RUNNING children (completed ones get a shallow
+  resetStatus), Lite-BT recurses into every non-IDLE branch.
+  Only SequenceWithMemory failing produces that shape (it keeps its SUCCESS prefix); the
+  Fallback swallows the FAILURE until `gate` closes, then the halt sweep leaves ActH1 at
+  SUCCESS on BT.CPP.
+-->
+<root BTCPP_format="4" main_tree_to_execute="Main">
+  <BehaviorTree ID="Main">
+    <ReactiveSequence>
+      <ScriptCondition code="gate == true" />
+      <Fallback>
+        <SequenceWithMemory>
+          <ActH1 />
+          <ActH2 />
+        </SequenceWithMemory>
+        <ActRescue />
+      </Fallback>
+    </ReactiveSequence>
+  </BehaviorTree>
+</root>

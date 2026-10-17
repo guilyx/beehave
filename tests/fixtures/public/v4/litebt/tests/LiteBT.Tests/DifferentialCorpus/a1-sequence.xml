@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TIER A, exact match: Sequence / Fallback / SequenceWithMemory against the real oracle;
+  no structure known to diverge (no Repeat/Retry, SubTree, or async nodes).
+  Proves: /0 Fallback walks all children; /1 Sequence fails mid-walk and restarts; /2
+  SequenceWithMemory keeps its index across ticks (aux).
+  Trap: /2 must never fail — SequenceWithMemory keeps its SUCCESS prefix on FAILURE, and a
+  parent reset over that shape is delta table row 9, which tier A forbids (that case is b6).
+-->
+<root BTCPP_format="4" main_tree_to_execute="Main">
+
+  <BehaviorTree ID="Main">
+    <Sequence>
+
+      <!-- /0 — three-child Fallback -->
+      <Fallback>
+        <ActF1 />
+        <ActF2 />
+        <ActF3 />
+      </Fallback>
+
+      <!-- /1 — Sequence fails mid-walk; ForceSuccess keeps the pass moving -->
+      <ForceSuccess>
+        <Sequence>
+          <ActS1 />
+          <ActS2 />
+          <ActS3 />
+        </Sequence>
+      </ForceSuccess>
+
+      <!-- /2 — SequenceWithMemory: each child spans ticks, so the index must survive -->
+      <SequenceWithMemory>
+        <ActM1 />
+        <ActM2 />
+        <ActM3 />
+      </SequenceWithMemory>
+
+      <!-- /3 -->
+      <ActDone />
+
+    </Sequence>
+  </BehaviorTree>
+
+</root>

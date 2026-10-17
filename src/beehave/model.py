@@ -1,6 +1,6 @@
 """The format-agnostic tree model.
 
-Every parser (BT.CPP v3 today, v4 and py_trees later) turns its input into these
+Every parser (BT.CPP XML, and the py_trees adapter) turns its input into these
 types. The flatten, walk and render steps only ever see this model, so adding a
 format means adding a parser and nothing else.
 """
@@ -44,10 +44,14 @@ class Semantics(str, Enum):
     FALLBACK = "fallback"
     REACTIVE_FALLBACK = "reactive_fallback"
     PARALLEL = "parallel"
+    PARALLEL_ALL = "parallel_all"
+    """Runs every child to the end; fails when enough of them failed (BT.CPP v4)."""
     IF_THEN_ELSE = "if_then_else"
     WHILE_DO_ELSE = "while_do_else"
     SWITCH = "switch"
     MANUAL_SELECTOR = "manual_selector"
+    TRY_CATCH = "try_catch"
+    """Runs the other children as a Sequence; on a failure, runs the last child, then fails."""
 
     # Decorators.
     INVERTER = "inverter"
@@ -59,15 +63,41 @@ class Semantics(str, Enum):
     TIMEOUT = "timeout"
     DELAY = "delay"
     BLACKBOARD_CHECK = "blackboard_check"
+    PASS_THROUGH = "pass_through"  # noqa: S105 - not a password
+    """Returns its child's result unchanged (py_trees ``PassThrough``, ``Count``)."""
+    STATUS_MAP = "status_map"
+    """Maps each child result to another, as ports ``on_success``, ``on_failure``
+    and ``on_running`` say. ``RUNNING`` for a finished child means "tick it again"."""
+    RUN_ONCE = "run_once"
+    """Runs its child until it completes once; later activations skip it or return that result."""
+    PRECONDITION = "precondition"
+    """Ticks its child when the script in port ``if`` holds, else returns port ``else``."""
+    LOOP_QUEUE = "loop_queue"
+    """Ticks its child once per element of the queue in port ``queue`` (BT.CPP v4 ``Loop*``)."""
+    SKIP_UNLESS_UPDATED = "skip_unless_updated"
+    """Ticks its child only if the entry in port ``entry`` changed since it last looked."""
 
     # Built-in leaves.
     ALWAYS_SUCCESS = "always_success"
     ALWAYS_FAILURE = "always_failure"
+    ALWAYS_RUNNING = "always_running"
+    """Never finishes (py_trees ``Running``), so it has no outgoing edge."""
+    WAIT = "wait"
+    """Waits, then succeeds; it never fails (py_trees ``Timer`` and ``WaitFor…``)."""
     SET_BLACKBOARD = "set_blackboard"
+    SCRIPT = "script"
+    """Runs the BT.CPP script in port ``code`` and succeeds."""
+    BLACKBOARD_CONDITION = "blackboard_condition"
+    """A check written as an expression over blackboard entries, in port ``expression``."""
+    SCRIPT_CONDITION = "script_condition"
+    """A check written as a BT.CPP script, in port ``code``."""
+    ENTRY_UPDATED = "entry_updated"
+    """Holds if the entry in port ``entry`` changed since this node last looked."""
 
     # Subtree references.
     SUBTREE = "subtree"
     SUBTREE_PLUS = "subtree_plus"
+    SUBTREE_V4 = "subtree_v4"
 
 
 @dataclass(frozen=True)
@@ -95,6 +125,8 @@ class Node:
         children: Child nodes, in order.
         ref: For subtree nodes, the ID of the tree they point to.
         location: Where the node was read from, if known.
+        scripts: BT.CPP v4 pre- and post-conditions (``_skipIf``, ``_onSuccess``…),
+            by attribute name. They are not ports.
     """
 
     kind: NodeKind
@@ -105,6 +137,7 @@ class Node:
     children: tuple[Node, ...] = ()
     ref: str | None = None
     location: SourceLocation | None = field(default=None, compare=False)
+    scripts: Mapping[str, str] = field(default_factory=dict)
 
     @property
     def label(self) -> str:

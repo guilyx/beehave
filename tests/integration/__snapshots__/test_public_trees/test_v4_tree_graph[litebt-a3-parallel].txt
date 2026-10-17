@@ -1,0 +1,38 @@
+START --> ActPA1
+ActPA1 --[success]--> ActPA2
+ActPA1 --[failure]--> FAILURE
+ActPA2 --[success]--> ActPA3
+ActPA2 --[failure]--> FAILURE
+ActPA3 --[success]--> ActPB1
+ActPA3 --[failure]--> FAILURE
+ActPB1 --[success]--> ActPB2
+ActPB1 --[failure]--> FAILURE
+ActPB2 --[success]--> ActPC1
+ActPB2 --[failure]--> FAILURE
+ActPC1 --[success]--> ActPC2
+ActPC1 --[failure]--> ActPD1
+ActPC2 --[success]--> ActPC3
+ActPC2 --[failure]--> ActPD1
+ActPC3 --[success]--> FAILURE
+ActPC3 --[failure]--> ActPD1
+ActPD1 --[success]--> ActPD2
+ActPD1 --[failure]--> ActParEnd
+ActPD2 --[success]--> ActPD3
+ActPD2 --[failure]--> ActParEnd
+ActPD3 --[success]--> FAILURE
+ActPD3 --[failure]--> ActParEnd
+ActParEnd --[success]--> SUCCESS
+ActParEnd --[failure]--> FAILURE
+
+tree           Main (btcpp-v4)
+nodes          19 (5 control, 2 decorator, 12 action)
+actions        12
+reduction      37% (19 nodes -> 12 actions)
+transitions    25
+longest guard  0 terms (not simplified)
+approximated   Parallel ×4
+
+v4/litebt/tests/LiteBT.Tests/DifferentialCorpus/a3-parallel.xml:16: warning: Parallel: children are shown as if they ran one after another [approximated]
+v4/litebt/tests/LiteBT.Tests/DifferentialCorpus/a3-parallel.xml:23: warning: Parallel: children are shown as if they ran one after another [approximated]
+v4/litebt/tests/LiteBT.Tests/DifferentialCorpus/a3-parallel.xml:30: warning: Parallel: children are shown as if they ran one after another [approximated]
+v4/litebt/tests/LiteBT.Tests/DifferentialCorpus/a3-parallel.xml:39: warning: Parallel: children are shown as if they ran one after another [approximated]

@@ -1,0 +1,16 @@
+START --> ActHead
+ActHead --[success]--> ActDeep
+ActHead --[failure]--> FAILURE
+ActDeep --[success]--> ActTail
+ActDeep --[failure]--> FAILURE
+ActTail --[success]--> SUCCESS
+ActTail --[failure]--> FAILURE
+
+tree           Main (btcpp-v4)
+nodes          7 (2 control, 3 action, 2 subtree)
+actions        3
+reduction      57% (7 nodes -> 3 actions)
+transitions    7
+longest guard  0 terms (not simplified)
+approximated   none
+

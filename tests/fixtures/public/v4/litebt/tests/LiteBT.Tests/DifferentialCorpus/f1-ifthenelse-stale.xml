@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  FINDING #1 — belongs to no tier. Pins a divergence that maps to NO delta table row:
+  two-child <IfThenElse> with a FAILURE condition. BT.CPP returns the bare condition status
+  (the condition child stays FAILURE indefinitely); Lite-BT deliberately calls ResetChildren
+  first. Verdict: not a Lite-BT bug — the delta table is missing a row. No row is added,
+  Lite-BT is not changed. The outer Fallback keeps anyone from cleaning up on our behalf,
+  so BT.CPP's stale FAILURE stays countable every tick.
+-->
+<root BTCPP_format="4" main_tree_to_execute="Main">
+  <BehaviorTree ID="Main">
+    <Fallback>
+      <IfThenElse>
+        <ScriptCondition code="gate == true" />
+        <ActThen />
+      </IfThenElse>
+      <ActRescue />
+    </Fallback>
+  </BehaviorTree>
+</root>

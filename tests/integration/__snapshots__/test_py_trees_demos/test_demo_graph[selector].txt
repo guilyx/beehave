@@ -1,0 +1,13 @@
+START --> FFS
+FFS --[success]--> SUCCESS
+FFS --[failure]--> Running
+
+tree           Selector (py_trees)
+nodes          3 (1 control, 2 action)
+actions        2
+reduction      33% (3 nodes -> 2 actions)
+transitions    3
+longest guard  0 terms (not simplified)
+approximated   Selector(memory=False) ×1
+
+warning: Selector(memory=False) "Selector": walked like a Fallback; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]

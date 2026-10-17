@@ -7,8 +7,9 @@
 
 <p align="center">
   <b>The small branch that matters.</b><br>
-  Beehave reads a BehaviorTree.CPP tree and shows only the actions your robot
-  can take, in order, with the conditions that lead to each one.
+  Beehave reads a robot behavior tree (BehaviorTree.CPP v3 or v4, or py_trees)
+  and shows only the actions your robot can take, in order, with the
+  conditions that lead to each one.
 </p>
 
 <p align="center">
@@ -23,8 +24,9 @@
 
 > **Not the Godot addon.** This Beehave is a static analysis tool for robot
 > behavior trees written for [BehaviorTree.CPP](https://www.behaviortree.dev/)
-> (ROS 2, Nav2: drones, mobile robots, manipulators). It is unrelated to the
-> Beehave addon for the Godot game engine.
+> or [py_trees](https://github.com/splintered-reality/py_trees) (ROS 2, Nav2:
+> drones, mobile robots, manipulators). It is unrelated to the Beehave addon
+> for the Godot game engine.
 
 ## Why
 
@@ -121,14 +123,22 @@ generic trees:
 | [Navigate to a goal, with recovery and docking](examples/mobile/navigate_to_goal.xml) | Mobile base | 23 nodes → 11 actions |
 | [Pick and place](examples/manipulation/pick_and_place.xml) | Arm and gripper | 24 nodes → 13 actions |
 
+Each one is also written in BehaviorTree.CPP v4 (`*_v4.xml`) and in py_trees
+(`*.py`), and every version gives the same graph. The one exception is
+instructive: py_trees has no `IfThenElse`, and the usual py_trees way to write
+the mobile robot's "charge or navigate" lets a failed dock fall through to
+navigation. Beehave shows it as three extra arrows.
+
 ## Install
 
 ```console
-$ pip install beehave-bt        # or: uv tool install beehave-bt
+$ pip install beehave-bt                # or: uv tool install beehave-bt
+$ pip install 'beehave-bt[py-trees]'    # to read py_trees trees too
 ```
 
 The PyPI package is `beehave-bt`; the command and the module are `beehave`.
-Python 3.10+ (ROS 2 Humble and newer).
+Python 3.10+ (ROS 2 Humble and newer). Under ROS 2, skip the extra and use the
+py_trees of your distribution.
 
 ## Use
 
@@ -139,7 +149,12 @@ $ beehave graph mission.xml -f dot | dot -Tsvg > mission.svg
 $ beehave graph mission.xml -f json               # for other tools
 $ beehave stats mission.xml                       # size, reduction, breakage
 $ beehave trees mission.xml                       # list the trees
+$ beehave graph --py-trees robot.trees:create_root  # a py_trees tree
 ```
+
+BT.CPP v3 and v4 files are told apart automatically. `--py-trees` imports
+your module and calls the function, so it runs that code: only point it at
+code you would run yourself.
 
 ```python
 import beehave
@@ -158,18 +173,30 @@ conditions: [BatteryOK, IsEmergency]
 
 ## Status
 
-Beehave is in **Phase 1** of a four-phase plan.
+Beehave moves along two tracks ([roadmap](https://guilyx.github.io/beehave/design/roadmap/)).
+
+**Phases** — what the graph says:
 
 | Phase | What | Status |
 | --- | --- | --- |
-| 1. Action graph | Parse BT.CPP v3, flatten subtrees, walk, render | **in progress** |
-| 2. Guards and metrics | Simplified guards, exact Reactive/Retry/Parallel, gap report, BT.CPP v4 | planned |
+| 1. Action graph | Parse, flatten subtrees, walk, render | **done**, readability gate open |
+| 2. Guards and metrics | Simplified guards, exact Reactive/Retry/Parallel, gap report | planned |
 | 3. Operator view | Operator labels, phase view, JSON for ground-control UIs, live status | planned |
 | 4. LTL checks | Temporal-logic safety rules and model checking | optional |
 
-Nodes Phase 1 cannot model exactly (reactive nodes, loops, Parallel, unknown
-custom nodes) are approximated **and always reported**, never silently. See
-the [node support table](https://guilyx.github.io/beehave/design/phase-1/#node-support).
+**Formats** — what Beehave reads:
+
+| Format | Status |
+| --- | --- |
+| BehaviorTree.CPP v3 | **supported** |
+| BehaviorTree.CPP v4 | **supported**, including `SKIPPED` and pre-conditions |
+| py_trees (2.2 and newer) | **supported** |
+| Node presets (Nav2 first) | planned |
+
+Nodes Beehave cannot model exactly yet (reactive nodes, loops, Parallel,
+unknown custom nodes) are approximated **and always reported**, never
+silently. See the
+[node support table](https://guilyx.github.io/beehave/design/phase-1/#node-support).
 
 ## Learn more
 

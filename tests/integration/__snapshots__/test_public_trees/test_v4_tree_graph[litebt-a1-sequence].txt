@@ -1,0 +1,30 @@
+START --> ActF1
+ActF1 --[success]--> ActS1
+ActF1 --[failure]--> ActF2
+ActF2 --[success]--> ActS1
+ActF2 --[failure]--> ActF3
+ActF3 --[success]--> ActS1
+ActF3 --[failure]--> FAILURE
+ActS1 --[success]--> ActS2
+ActS1 --[failure]--> ActM1
+ActS2 --[success]--> ActS3
+ActS2 --[failure]--> ActM1
+ActS3 --[success]--> ActM1
+ActS3 --[failure]--> ActM1
+ActM1 --[success]--> ActM2
+ActM1 --[failure]--> FAILURE
+ActM2 --[success]--> ActM3
+ActM2 --[failure]--> FAILURE
+ActM3 --[success]--> ActDone
+ActM3 --[failure]--> FAILURE
+ActDone --[success]--> SUCCESS
+ActDone --[failure]--> FAILURE
+
+tree           Main (btcpp-v4)
+nodes          15 (4 control, 1 decorator, 10 action)
+actions        10
+reduction      33% (15 nodes -> 10 actions)
+transitions    21
+longest guard  0 terms (not simplified)
+approximated   none
+

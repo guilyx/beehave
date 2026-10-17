@@ -1,0 +1,35 @@
+START --> ActInv
+ActInv --[success]--> FAILURE
+ActInv --[failure]--> ActFS
+ActFS --[success]--> ActFF
+ActFS --[failure]--> ActFF
+ActFF --[success]--> ActKR
+ActFF --[failure]--> ActKR
+ActKR --[success]--> FAILURE
+ActKR --[failure and tokens > 0]--> ActPre1
+ActKR --[failure and !(tokens > 0) and tokens > 5]--> ActPre2
+ActKR --[failure and !(tokens > 0) and !(tokens > 5) and tokens > 99]--> ActPre3
+ActKR --[failure and !(tokens > 0) and !(tokens > 5) and !(tokens > 99)]--> ActDecEnd
+ActPre1 --[success and tokens > 5]--> ActPre2
+ActPre1 --[success and !(tokens > 5) and tokens > 99]--> ActPre3
+ActPre1 --[success and !(tokens > 5) and !(tokens > 99)]--> ActDecEnd
+ActPre1 --[failure and tokens > 5]--> ActPre2
+ActPre1 --[failure and !(tokens > 5) and tokens > 99]--> ActPre3
+ActPre1 --[failure and !(tokens > 5) and !(tokens > 99)]--> ActDecEnd
+ActPre2 --[success and tokens > 99]--> ActPre3
+ActPre2 --[success and !(tokens > 99)]--> ActDecEnd
+ActPre2 --[failure]--> FAILURE
+ActPre3 --[success]--> ActDecEnd
+ActPre3 --[failure]--> FAILURE
+ActDecEnd --[success]--> SUCCESS
+ActDecEnd --[failure]--> FAILURE
+
+tree           Main (btcpp-v4)
+nodes          19 (1 control, 10 decorator, 8 action)
+actions        8
+reduction      58% (19 nodes -> 8 actions)
+transitions    25
+longest guard  3 terms (not simplified)
+approximated   KeepRunningUntilFailure ×1
+
+v4/litebt/tests/LiteBT.Tests/DifferentialCorpus/a5-decorator.xml:33: warning: KeepRunningUntilFailure: never succeeds (a successful child is ticked again); walked as transparent, the loop is not shown yet [approximated]

@@ -2,8 +2,9 @@
 # mkdocs.yml form so it also builds with Material for MkDocs if needed.
 site_name: Beehave
 site_description: >-
-  Reads BehaviorTree.CPP trees and shows only the actions your robot can take,
-  in order, with the conditions that lead to each one.
+  Reads robot behavior trees (BehaviorTree.CPP v3 and v4, py_trees) and shows
+  only the actions your robot can take, in order, with the conditions that
+  lead to each one.
 site_url: https://guilyx.github.io/beehave/
 site_author: Erwin Lejeune
 repo_url: https://github.com/guilyx/beehave
@@ -16,6 +17,7 @@ nav:
   - Guide:
       - Getting started: guide/getting-started.md
       - Examples: guide/examples.md
+      - Formats: guide/formats.md
       - Command line: guide/cli.md
       - Configuration: guide/configuration.md
       - Output formats: guide/output-formats.md
@@ -36,11 +38,16 @@ nav:
           - 0005 Minimal dependencies: design/adr/0005-python-minimal-dependencies.md
           - 0006 Distribution name: design/adr/0006-distribution-name.md
           - 0007 Reference interpreter: design/adr/0007-test-driven-with-a-reference-interpreter.md
+          - 0008 Formats track: design/adr/0008-formats-track.md
+          - 0009 BT.CPP v4 and SKIPPED: design/adr/0009-bt-cpp-v4-skipped.md
+          - 0010 py_trees live trees: design/adr/0010-py-trees-live-trees.md
           - Template: design/adr/template.md
   - Research:
       - research/index.md
       - BT.CPP v3 XML reference: research/btcpp-v3-xml.md
       - BT.CPP v3 vs v4: research/btcpp-v3-vs-v4.md
+      - BT.CPP v4 XML reference: research/btcpp-v4-xml.md
+      - py_trees reference: research/py-trees.md
       - Prior art: research/prior-art.md
       - Literature: research/literature.md
   - Community:

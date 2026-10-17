@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TIER B, exactly ONE divergent structure: the <SequenceWithMemory> yield — a finding of
+  this harness. Its yield branch (sequence_with_memory_node.cpp:59) has no `asynch_` gate,
+  and requiresWakeUp() is always true in a factory-built tree, so BT.CPP's
+  SequenceWithMemory ALWAYS behaves like an async node: a child finishing straight from
+  IDLE costs one extra tick. Delta row 3 by MECHANISM, though the row's text does not name
+  this node — recorded as a gap in row 3, no row added.
+-->
+<root BTCPP_format="4" main_tree_to_execute="Main">
+  <BehaviorTree ID="Main">
+    <SequenceWithMemory>
+      <ActY1 />
+      <ActY2 />
+    </SequenceWithMemory>
+  </BehaviorTree>
+</root>

@@ -31,13 +31,13 @@ transitions    24
 longest guard  1 term (not simplified)
 approximated   PathLongerOnApproach ×1, PipelineSequence ×1, RateController ×1, ReactiveFallback ×1, ReactiveSequence ×1, RecoveryNode ×3, RetryUntilSuccessful ×1, RoundRobin ×1
 
-nav2/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:10: warning: RecoveryNode: custom control node is walked like a Sequence [unknown-control]
-nav2/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:11: warning: PipelineSequence: custom control node is walked like a Sequence [unknown-control]
+nav2/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:10: warning: RecoveryNode "NavigateRecovery": custom control node is walked like a Sequence [unknown-control]
+nav2/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:11: warning: PipelineSequence "NavigateWithReplanning": custom control node is walked like a Sequence [unknown-control]
 nav2/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:12: warning: RateController: custom decorator is treated as transparent [unknown-decorator]
-nav2/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:13: warning: RecoveryNode: custom control node is walked like a Sequence [unknown-control]
-nav2/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:18: warning: ReactiveSequence: walked like a Sequence; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
+nav2/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:13: warning: RecoveryNode "ComputePathToPose": custom control node is walked like a Sequence [unknown-control]
+nav2/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:18: warning: ReactiveSequence "MonitorAndFollowPath": walked like a Sequence; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
 nav2/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:19: warning: PathLongerOnApproach: custom decorator is treated as transparent [unknown-decorator]
 nav2/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:20: warning: RetryUntilSuccessful: the retry loop is folded into a note; the loop edge is not shown yet [approximated]
-nav2/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:27: warning: RecoveryNode: custom control node is walked like a Sequence [unknown-control]
-nav2/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:33: warning: ReactiveFallback: walked like a Fallback; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
-nav2/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:35: warning: RoundRobin: custom control node is walked like a Sequence [unknown-control]
+nav2/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:27: warning: RecoveryNode "FollowPath": custom control node is walked like a Sequence [unknown-control]
+nav2/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:33: warning: ReactiveFallback "RecoveryFallback": walked like a Fallback; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
+nav2/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_goal_patience_and_recovery.xml:35: warning: RoundRobin "RecoveryActions": custom control node is walked like a Sequence [unknown-control]

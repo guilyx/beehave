@@ -1,0 +1,17 @@
+START --> Context
+Context --[success]--> Action 1
+Context --[failure]--> FAILURE
+Action 1 --[success]--> Action 2
+Action 1 --[failure]--> FAILURE
+Action 2 --[success]--> SUCCESS
+Action 2 --[failure]--> FAILURE
+
+tree           Parallel (py_trees)
+nodes          5 (2 control, 3 action)
+actions        3
+reduction      40% (5 nodes -> 3 actions)
+transitions    7
+longest guard  0 terms (not simplified)
+approximated   Parallel ×1
+
+warning: Parallel: children are shown as if they ran one after another [approximated]

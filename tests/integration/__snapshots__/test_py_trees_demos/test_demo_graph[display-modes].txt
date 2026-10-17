@@ -1,0 +1,18 @@
+START --> RS#1
+RS#1 --[success]--> RS#2
+RS#1 --[failure]--> FAILURE
+RS#2 --[success]--> RS#3
+RS#2 --[failure]--> FAILURE
+RS#3 --[success]--> RS#4
+RS#3 --[failure]--> FAILURE
+RS#4 --[success]--> SUCCESS
+RS#4 --[failure]--> FAILURE
+
+tree           root (py_trees)
+nodes          9 (5 control, 4 action)
+actions        4
+reduction      56% (9 nodes -> 4 actions)
+transitions    9
+longest guard  0 terms (not simplified)
+approximated   none
+

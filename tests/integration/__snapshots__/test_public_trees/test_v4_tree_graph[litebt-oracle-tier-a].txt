@@ -1,0 +1,33 @@
+START --> ActA
+ActA --[success and guard == true]--> ActC
+ActA --[success and !(guard == true)]--> FAILURE
+ActA --[failure]--> ActB
+ActB --[success and guard == true]--> ActC
+ActB --[success and !(guard == true)]--> FAILURE
+ActB --[failure]--> FAILURE
+ActC --[success]--> ActD
+ActC --[failure]--> FAILURE
+ActD --[success]--> FAILURE
+ActD --[failure]--> ActE
+ActE --[success and phase == 0 and phase >= 0]--> ActG
+ActE --[success and phase == 0 and !(phase >= 0)]--> FAILURE
+ActE --[success and !(phase == 0)]--> ActF
+ActE --[failure and phase == 0 and phase >= 0]--> ActG
+ActE --[failure and phase == 0 and !(phase >= 0)]--> FAILURE
+ActE --[failure and !(phase == 0)]--> ActF
+ActF --[success and phase >= 0]--> ActG
+ActF --[success and !(phase >= 0)]--> FAILURE
+ActF --[failure]--> FAILURE
+ActG --[success]--> SUCCESS
+ActG --[failure]--> FAILURE
+
+tree           Main (btcpp-v4)
+nodes          16 (4 control, 3 decorator, 1 condition, 8 action)
+actions        7
+reduction      56% (16 nodes -> 7 actions)
+transitions    22
+longest guard  2 terms (not simplified)
+approximated   Parallel ×1, ReactiveSequence ×1
+
+v4/litebt/tools/btcpp-oracle/samples/tier-a.xml:24: warning: ReactiveSequence: walked like a Sequence; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
+v4/litebt/tools/btcpp-oracle/samples/tier-a.xml:30: warning: Parallel: children are shown as if they ran one after another [approximated]

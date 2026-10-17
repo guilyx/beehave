@@ -1,0 +1,15 @@
+START --> Condition 1
+Condition 1 --[success]--> Condition 2
+Condition 1 --[failure]--> FAILURE
+Condition 2 --[success]--> Worker 2
+Condition 2 --[failure]--> FAILURE
+
+tree           Eternal Guard (py_trees)
+nodes          6 (2 control, 4 action)
+actions        3
+reduction      50% (6 nodes -> 3 actions)
+transitions    5
+longest guard  0 terms (not simplified)
+approximated   Sequence(memory=False) ×1
+
+warning: Sequence(memory=False) "Eternal Guard": walked like a Sequence; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]

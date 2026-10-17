@@ -20,6 +20,7 @@ _SHAPES = {
     VertexKind.ACTION: ("[", "]"),
     VertexKind.SUCCESS: ("([", "])"),
     VertexKind.FAILURE: ("([", "])"),
+    VertexKind.SKIPPED: ("([", "])"),
 }
 
 
@@ -53,10 +54,14 @@ def _vertex(vertex: Vertex) -> str:
 
 
 def _styles(graph: ActionGraph) -> list[str]:
-    lines = [f"    classDef {name} {style}" for name, style in theme.MERMAID_CLASSES.items()]
     groups: dict[str, list[str]] = {}
     for vertex in graph.vertices:
         groups.setdefault(vertex.kind.value, []).append(vertex.id)
+    lines = [
+        f"    classDef {name} {style}"
+        for name, style in theme.MERMAID_CLASSES.items()
+        if name != "skipped" or name in groups
+    ]
     lines += [f"    class {','.join(ids)} {kind}" for kind, ids in groups.items()]
     by_outcome: dict[Outcome | None, list[str]] = {}
     for index, edge in enumerate(graph.edges):

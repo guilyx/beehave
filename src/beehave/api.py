@@ -1,4 +1,4 @@
-"""One call to run the whole pipeline: parse, flatten, walk."""
+"""One call to run the whole pipeline: read, flatten, walk."""
 
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 from beehave.flatten import FlatTree, flatten
 from beehave.parsers import parse_file
+from beehave.parsers.pytrees import from_py_trees
 from beehave.stats import Stats, compute_stats
 from beehave.walk import DEFAULT_MAX_PATHS, build_graph
 
@@ -64,7 +65,40 @@ def analyze(
         >>> result = beehave.analyze("mission.xml")  # doctest: +SKIP
         >>> print(beehave.to_mermaid(result.graph))  # doctest: +SKIP
     """
-    document = parse_file(*paths, config=config)
+    return _analyze(parse_file(*paths, config=config), tree, max_paths)
+
+
+def analyze_py_trees(
+    tree: object,
+    *,
+    config: Config | None = None,
+    max_paths: int = DEFAULT_MAX_PATHS,
+) -> Analysis:
+    """Build the action graph of a live py_trees tree.
+
+    The tree is only read: no behaviour is set up or ticked. Use
+    :func:`beehave.load_py_trees` to import a tree from a module first.
+
+    Args:
+        tree: The root ``Behaviour``, or a ``BehaviourTree``.
+        config: Project settings (which behaviour classes are conditions).
+        max_paths: Cap on guarded transitions per action outcome.
+
+    Returns:
+        The document, the tree and its action graph.
+
+    Raises:
+        beehave.BeehaveError: If the tree cannot be read, or py_trees is missing.
+
+    Example:
+        >>> import beehave
+        >>> result = beehave.analyze_py_trees(create_root())  # doctest: +SKIP
+        >>> print(beehave.to_mermaid(result.graph))  # doctest: +SKIP
+    """
+    return _analyze(from_py_trees(tree, config=config), None, max_paths)
+
+
+def _analyze(document: Document, tree: str | None, max_paths: int) -> Analysis:
     flat = flatten(document, tree)
     graph = build_graph(flat, max_paths=max_paths)
     graph = replace(graph, diagnostics=document.diagnostics + graph.diagnostics)

@@ -1,6 +1,7 @@
 """The action graph: the output of the walk.
 
-Vertices are actions plus three terminals (``START``, ``SUCCESS``, ``FAILURE``).
+Vertices are actions plus the terminals ``START``, ``SUCCESS`` and ``FAILURE``, and
+``SKIPPED`` when a BT.CPP v4 tree can skip.
 An edge says "when ``source`` ends with ``outcome`` and ``guard`` holds, the
 next action is ``target``". Conditions never become vertices; they only appear
 in guards.
@@ -26,6 +27,7 @@ class VertexKind(str, Enum):
     ACTION = "action"
     SUCCESS = "success"
     FAILURE = "failure"
+    SKIPPED = "skipped"
 
 
 class Outcome(str, Enum):
@@ -38,6 +40,7 @@ class Outcome(str, Enum):
 START = "start"
 SUCCESS = "success"
 FAILURE = "failure"
+SKIPPED = "skipped"
 
 
 @dataclass(frozen=True)
@@ -51,8 +54,8 @@ class Condition:
     """
 
     key: str
-    label: str
-    negated_label: str | None = None
+    label: str = field(compare=False)
+    negated_label: str | None = field(default=None, compare=False)
 
 
 @dataclass(frozen=True)

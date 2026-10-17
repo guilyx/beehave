@@ -10,8 +10,7 @@ import pytest
 from beehave.config import Config
 from beehave.errors import ParseError, UnsupportedFormatError
 from beehave.model import NodeKind, Semantics
-from beehave.parsers import parse_file, parse_string
-from beehave.parsers.btcpp_v3 import source_name
+from beehave.parsers.btcpp_v3 import parse_file, parse_string, source_name
 from tests.conftest import tree_xml
 
 if TYPE_CHECKING:

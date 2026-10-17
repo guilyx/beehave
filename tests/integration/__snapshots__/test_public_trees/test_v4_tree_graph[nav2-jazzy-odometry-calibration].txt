@@ -1,0 +1,27 @@
+START --> DriveOnHeading#1
+DriveOnHeading#1 --[success]--> Spin#1
+DriveOnHeading#1 --[failure]--> FAILURE
+Spin#1 --[success]--> DriveOnHeading#2
+Spin#1 --[failure]--> FAILURE
+DriveOnHeading#2 --[success]--> Spin#2
+DriveOnHeading#2 --[failure]--> FAILURE
+Spin#2 --[success]--> DriveOnHeading#3
+Spin#2 --[failure]--> FAILURE
+DriveOnHeading#3 --[success]--> Spin#3
+DriveOnHeading#3 --[failure]--> FAILURE
+Spin#3 --[success]--> DriveOnHeading#4
+Spin#3 --[failure]--> FAILURE
+DriveOnHeading#4 --[success]--> Spin#4
+DriveOnHeading#4 --[failure]--> FAILURE
+Spin#4 --[success]--> SUCCESS
+Spin#4 --[failure]--> FAILURE
+
+tree           MainTree (btcpp-v4)
+nodes          10 (1 control, 1 decorator, 8 action)
+actions        8
+reduction      20% (10 nodes -> 8 actions)
+transitions    17
+longest guard  0 terms (not simplified)
+approximated   Repeat ×1
+
+v4/nav2-jazzy/nav2_bt_navigator/behavior_trees/odometry_calibration.xml:7: warning: Repeat: the repeat loop is folded into a note; the loop edge is not shown yet [approximated]

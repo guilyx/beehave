@@ -1,0 +1,15 @@
+START --> ActOnce
+ActOnce --[success]--> ActAfterOnce
+ActOnce --[failure]--> FAILURE
+ActAfterOnce --[success]--> SUCCESS
+ActAfterOnce --[failure]--> FAILURE
+
+tree           Main (btcpp-v4)
+nodes          4 (1 control, 1 decorator, 2 action)
+actions        2
+reduction      50% (4 nodes -> 2 actions)
+transitions    5
+longest guard  0 terms (not simplified)
+approximated   RunOnce ×1
+
+v4/litebt/tests/LiteBT.Tests/DifferentialCorpus/b4-runonce.xml:10: warning: RunOnce: after its child completes once, later activations return that result without running it; those edges are not shown yet [approximated]

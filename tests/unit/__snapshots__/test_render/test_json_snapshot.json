@@ -340,7 +340,7 @@
     {
       "code": "approximated",
       "severity": "warning",
-      "message": "ReactiveFallback: walked like a Fallback; its conditions are re-checked every tick, but preemption edges are not shown yet",
+      "message": "ReactiveFallback \"mission_with_failsafe\": walked like a Fallback; its conditions are re-checked every tick, but preemption edges are not shown yet",
       "node_type": "ReactiveFallback",
       "location": {
         "file": "drone_mission.xml",
@@ -350,7 +350,7 @@
     {
       "code": "approximated",
       "severity": "warning",
-      "message": "ReactiveSequence: walked like a Sequence; its conditions are re-checked every tick, but preemption edges are not shown yet",
+      "message": "ReactiveSequence \"failsafe\": walked like a Sequence; its conditions are re-checked every tick, but preemption edges are not shown yet",
       "node_type": "ReactiveSequence",
       "location": {
         "file": "drone_mission.xml",
