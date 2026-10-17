@@ -8,5 +8,6 @@ misread.
 from __future__ import annotations
 
 from beehave.parsers.btcpp_v3 import parse_file, parse_string
+from beehave.parsers.detect import detect_string_version, detect_version
 
-__all__ = ["parse_file", "parse_string"]
+__all__ = ["detect_string_version", "detect_version", "parse_file", "parse_string"]
