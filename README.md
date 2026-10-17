@@ -149,10 +149,13 @@ $ beehave graph mission.xml -f dot | dot -Tsvg > mission.svg
 $ beehave graph mission.xml -f json               # for other tools
 $ beehave stats mission.xml                       # size, reduction, breakage
 $ beehave trees mission.xml                       # list the trees
+$ beehave graph behavior_trees/ -t NavigateToPose  # every tree in a folder
 $ beehave graph --py-trees robot.trees:create_root  # a py_trees tree
 ```
 
-BT.CPP v3 and v4 files are told apart automatically. `--py-trees` imports
+BT.CPP v3 and v4 files are told apart automatically. Subtrees are inlined
+wherever they live: in the same file, in an `<include>`, in a ROS package
+(`ros_pkg`), or in a folder of trees registered from code. `--py-trees` imports
 your module and calls the function, so it runs that code: only point it at
 code you would run yourself.
 

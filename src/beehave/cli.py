@@ -7,6 +7,7 @@ Examples::
     beehave stats mission.xml                 # size, reduction, breakage
     beehave trees mission.xml                 # list the trees in the files
     beehave graph --py-trees robot.trees:create_root   # a py_trees tree (runs that code)
+    beehave graph behavior_trees/ -t NavigateToPose     # every tree in a folder
 """
 
 from __future__ import annotations
@@ -14,6 +15,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from dataclasses import replace
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -81,7 +83,13 @@ def _parser() -> argparse.ArgumentParser:
 
 
 def _inputs(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("files", nargs="*", type=Path, metavar="FILE", help="BT.CPP XML files")
+    parser.add_argument(
+        "files",
+        nargs="*",
+        type=Path,
+        metavar="FILE",
+        help="BT.CPP XML files, or folders: every .xml file directly in a folder is read",
+    )
     parser.add_argument(
         "--py-trees",
         metavar="SPEC",
@@ -94,6 +102,13 @@ def _inputs(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "-c", "--config", type=Path, help="project config (default: ./beehave.yaml)"
     )
+    parser.add_argument(
+        "--package",
+        action="append",
+        default=[],
+        metavar="NAME=DIR",
+        help='where <include ros_pkg="NAME"> finds the package; repeat for several',
+    )
 
 
 def _common(parser: argparse.ArgumentParser) -> None:
@@ -104,6 +119,10 @@ def _common(parser: argparse.ArgumentParser) -> None:
 
 def _check_inputs(args: argparse.Namespace) -> None:
     error = args.parser.error
+    for value in args.package:
+        name, _, directory = value.partition("=")
+        if not name or not directory:
+            error("--package takes NAME=DIR, for example --package my_robot_bt=src/my_robot_bt")
     if args.files and args.py_trees:
         error("give tree files or --py-trees, not both")
     if not args.files and not args.py_trees:
@@ -125,7 +144,14 @@ def _check_inputs(args: argparse.Namespace) -> None:
 
 def _config(args: argparse.Namespace) -> Config:
     path = args.config or find_config()
-    return load_config(path) if path else Config()
+    config = load_config(path) if path else Config()
+    if not args.package:
+        return config
+    packages = dict(config.packages)
+    for value in args.package:
+        name, _, directory = value.partition("=")
+        packages[name] = Path(directory)
+    return replace(config, packages=packages)
 
 
 def _analysis(args: argparse.Namespace) -> Analysis:

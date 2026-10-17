@@ -276,3 +276,16 @@ def test_nav2_humble_and_jazzy_odometry_calibration_give_the_same_graph() -> Non
     jazzy = beehave.analyze(f"{_JAZZY}odometry_calibration.xml", NAV2_JAZZY_MODELS)
 
     assert beehave.to_text(jazzy.graph) == beehave.to_text(humble.graph)
+
+
+def test_a_folder_of_trees_reads_like_its_files() -> None:
+    # BehaviorTree.ROS2's sample app registers every tree of this folder from
+    # code; cross_door.xml uses DoorClosed from door_closed.xml without including it.
+    folder = "v4/btcpp-ros2/btcpp_ros2_samples/behavior_trees"
+    from_files = beehave.analyze(
+        f"{folder}/cross_door.xml", f"{folder}/door_closed.xml", tree="CrossDoor"
+    )
+
+    from_folder = beehave.analyze(folder, tree="CrossDoor")
+
+    assert beehave.to_text(from_folder.graph) == beehave.to_text(from_files.graph)

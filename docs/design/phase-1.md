@@ -248,7 +248,9 @@ Phase 2 has to fix.
 Beehave follows BT.CPP 3.8 where it matters, and warns where BT.CPP is silent:
 
 - `<include>` paths are relative to the including file. Included files are
-  loaded before the including file's own trees.
+  loaded before the including file's own trees. `ros_pkg` includes are
+  followed through the package's directory (see
+  [Subtrees and includes](../guide/subtrees.md)).
 - If two trees share an ID, the first one loaded wins (as in BT.CPP) and a
   `duplicate-tree` warning is printed.
 - The main tree comes from `main_tree_to_execute` on the first given file
