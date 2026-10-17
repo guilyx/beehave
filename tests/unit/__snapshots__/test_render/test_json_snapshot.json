@@ -1,0 +1,371 @@
+{
+  "schema": "beehave.action-graph",
+  "version": 1,
+  "tree": "DroneMission",
+  "source_format": "btcpp-v3",
+  "nodes": [
+    {
+      "id": "start",
+      "kind": "start",
+      "label": "START"
+    },
+    {
+      "id": "a1",
+      "kind": "action",
+      "label": "LandNow",
+      "type": "LandNow",
+      "ports": {},
+      "notes": [],
+      "subtrees": [],
+      "location": {
+        "file": "drone_mission.xml",
+        "line": 14
+      }
+    },
+    {
+      "id": "a2",
+      "kind": "action",
+      "label": "Arm",
+      "type": "Arm",
+      "ports": {},
+      "notes": [],
+      "subtrees": [],
+      "location": {
+        "file": "drone_mission.xml",
+        "line": 17
+      }
+    },
+    {
+      "id": "a3",
+      "kind": "action",
+      "label": "TakeOff",
+      "type": "TakeOff",
+      "ports": {
+        "altitude": "{cruise_altitude}"
+      },
+      "notes": [],
+      "subtrees": [],
+      "location": {
+        "file": "drone_mission.xml",
+        "line": 18
+      }
+    },
+    {
+      "id": "a4",
+      "kind": "action",
+      "label": "FlyToWaypoint",
+      "type": "FlyToWaypoint",
+      "ports": {
+        "waypoint": "{survey_point}"
+      },
+      "notes": [
+        "retry ×3"
+      ],
+      "subtrees": [],
+      "location": {
+        "file": "drone_mission.xml",
+        "line": 23
+      }
+    },
+    {
+      "id": "a5",
+      "kind": "action",
+      "label": "CaptureImage",
+      "type": "CaptureImage",
+      "ports": {},
+      "notes": [],
+      "subtrees": [],
+      "location": {
+        "file": "drone_mission.xml",
+        "line": 25
+      }
+    },
+    {
+      "id": "a6",
+      "kind": "action",
+      "label": "FlyHome",
+      "type": "FlyHome",
+      "ports": {
+        "home": "{home_position}"
+      },
+      "notes": [],
+      "subtrees": [
+        "ReturnToLaunch"
+      ],
+      "location": {
+        "file": "drone_mission.xml",
+        "line": 36
+      }
+    },
+    {
+      "id": "a7",
+      "kind": "action",
+      "label": "FindLandingSpot",
+      "type": "FindLandingSpot",
+      "ports": {
+        "spot": "{landing_spot}"
+      },
+      "notes": [],
+      "subtrees": [
+        "ReturnToLaunch"
+      ],
+      "location": {
+        "file": "drone_mission.xml",
+        "line": 38
+      }
+    },
+    {
+      "id": "a8",
+      "kind": "action",
+      "label": "FlyToLandingSpot",
+      "type": "FlyToLandingSpot",
+      "ports": {
+        "spot": "{landing_spot}"
+      },
+      "notes": [],
+      "subtrees": [
+        "ReturnToLaunch"
+      ],
+      "location": {
+        "file": "drone_mission.xml",
+        "line": 39
+      }
+    },
+    {
+      "id": "a9",
+      "kind": "action",
+      "label": "Land",
+      "type": "Land",
+      "ports": {},
+      "notes": [],
+      "subtrees": [
+        "ReturnToLaunch"
+      ],
+      "location": {
+        "file": "drone_mission.xml",
+        "line": 42
+      }
+    },
+    {
+      "id": "a10",
+      "kind": "action",
+      "label": "Disarm",
+      "type": "Disarm",
+      "ports": {},
+      "notes": [],
+      "subtrees": [
+        "ReturnToLaunch"
+      ],
+      "location": {
+        "file": "drone_mission.xml",
+        "line": 43
+      }
+    },
+    {
+      "id": "success",
+      "kind": "success",
+      "label": "SUCCESS"
+    },
+    {
+      "id": "failure",
+      "kind": "failure",
+      "label": "FAILURE"
+    }
+  ],
+  "edges": [
+    {
+      "from": "start",
+      "to": "a1",
+      "outcome": null,
+      "guard": [
+        {
+          "condition": "IsBatteryCritical",
+          "key": "IsBatteryCritical()",
+          "holds": true
+        }
+      ]
+    },
+    {
+      "from": "start",
+      "to": "a2",
+      "outcome": null,
+      "guard": [
+        {
+          "condition": "IsBatteryCritical",
+          "key": "IsBatteryCritical()",
+          "holds": false
+        }
+      ]
+    },
+    {
+      "from": "a1",
+      "to": "success",
+      "outcome": "success",
+      "guard": []
+    },
+    {
+      "from": "a1",
+      "to": "a2",
+      "outcome": "failure",
+      "guard": []
+    },
+    {
+      "from": "a2",
+      "to": "a3",
+      "outcome": "success",
+      "guard": []
+    },
+    {
+      "from": "a2",
+      "to": "failure",
+      "outcome": "failure",
+      "guard": []
+    },
+    {
+      "from": "a3",
+      "to": "a4",
+      "outcome": "success",
+      "guard": [
+        {
+          "condition": "IsBatteryOK",
+          "key": "IsBatteryOK()",
+          "holds": true
+        }
+      ]
+    },
+    {
+      "from": "a3",
+      "to": "a6",
+      "outcome": "success",
+      "guard": [
+        {
+          "condition": "IsBatteryOK",
+          "key": "IsBatteryOK()",
+          "holds": false
+        }
+      ]
+    },
+    {
+      "from": "a3",
+      "to": "failure",
+      "outcome": "failure",
+      "guard": []
+    },
+    {
+      "from": "a4",
+      "to": "a5",
+      "outcome": "success",
+      "guard": []
+    },
+    {
+      "from": "a4",
+      "to": "a6",
+      "outcome": "failure",
+      "guard": []
+    },
+    {
+      "from": "a5",
+      "to": "a6",
+      "outcome": "success",
+      "guard": []
+    },
+    {
+      "from": "a5",
+      "to": "a6",
+      "outcome": "failure",
+      "guard": []
+    },
+    {
+      "from": "a6",
+      "to": "a9",
+      "outcome": "success",
+      "guard": []
+    },
+    {
+      "from": "a6",
+      "to": "a7",
+      "outcome": "failure",
+      "guard": []
+    },
+    {
+      "from": "a7",
+      "to": "a8",
+      "outcome": "success",
+      "guard": []
+    },
+    {
+      "from": "a7",
+      "to": "failure",
+      "outcome": "failure",
+      "guard": []
+    },
+    {
+      "from": "a8",
+      "to": "a9",
+      "outcome": "success",
+      "guard": []
+    },
+    {
+      "from": "a8",
+      "to": "failure",
+      "outcome": "failure",
+      "guard": []
+    },
+    {
+      "from": "a9",
+      "to": "a10",
+      "outcome": "success",
+      "guard": []
+    },
+    {
+      "from": "a9",
+      "to": "failure",
+      "outcome": "failure",
+      "guard": []
+    },
+    {
+      "from": "a10",
+      "to": "success",
+      "outcome": "success",
+      "guard": []
+    },
+    {
+      "from": "a10",
+      "to": "failure",
+      "outcome": "failure",
+      "guard": []
+    }
+  ],
+  "diagnostics": [
+    {
+      "code": "approximated",
+      "severity": "warning",
+      "message": "ReactiveFallback: walked like a Fallback; its conditions are re-checked every tick, but preemption edges are not shown yet",
+      "node_type": "ReactiveFallback",
+      "location": {
+        "file": "drone_mission.xml",
+        "line": 11
+      }
+    },
+    {
+      "code": "approximated",
+      "severity": "warning",
+      "message": "ReactiveSequence: walked like a Sequence; its conditions are re-checked every tick, but preemption edges are not shown yet",
+      "node_type": "ReactiveSequence",
+      "location": {
+        "file": "drone_mission.xml",
+        "line": 12
+      }
+    },
+    {
+      "code": "approximated",
+      "severity": "warning",
+      "message": "RetryUntilSuccessful: the retry loop is folded into a note; the loop edge is not shown yet",
+      "node_type": "RetryUntilSuccessful",
+      "location": {
+        "file": "drone_mission.xml",
+        "line": 22
+      }
+    }
+  ]
+}

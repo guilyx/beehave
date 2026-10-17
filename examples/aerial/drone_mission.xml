@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<!--
+  Aerial: a multirotor survey mission.
+
+  Arm, take off, fly to a waypoint and take a picture, then return to launch
+  whether or not the survey worked. A failsafe lands at once if the battery
+  becomes critical. Node names follow common autopilot vocabulary.
+-->
+<root main_tree_to_execute="DroneMission">
+  <BehaviorTree ID="DroneMission">
+    <ReactiveFallback name="mission_with_failsafe">
+      <ReactiveSequence name="failsafe">
+        <IsBatteryCritical/>
+        <LandNow/>
+      </ReactiveSequence>
+      <Sequence name="mission">
+        <Arm/>
+        <TakeOff altitude="{cruise_altitude}"/>
+        <ForceSuccess>
+          <Sequence name="survey">
+            <IsBatteryOK/>
+            <RetryUntilSuccessful num_attempts="3">
+              <FlyToWaypoint waypoint="{survey_point}"/>
+            </RetryUntilSuccessful>
+            <CaptureImage/>
+          </Sequence>
+        </ForceSuccess>
+        <SubTreePlus ID="ReturnToLaunch" __autoremap="true"/>
+      </Sequence>
+    </ReactiveFallback>
+  </BehaviorTree>
+
+  <BehaviorTree ID="ReturnToLaunch">
+    <Sequence>
+      <Fallback name="get_home">
+        <FlyHome home="{home_position}"/>
+        <Sequence name="divert">
+          <FindLandingSpot spot="{landing_spot}"/>
+          <FlyToLandingSpot spot="{landing_spot}"/>
+        </Sequence>
+      </Fallback>
+      <Land/>
+      <Disarm/>
+    </Sequence>
+  </BehaviorTree>
+
+  <TreeNodesModel>
+    <Condition ID="IsBatteryCritical"/>
+    <Condition ID="IsBatteryOK"/>
+    <Action ID="LandNow"/>
+    <Action ID="Arm"/>
+    <Action ID="TakeOff"/>
+    <Action ID="FlyToWaypoint"/>
+    <Action ID="CaptureImage"/>
+    <Action ID="FlyHome"/>
+    <Action ID="FindLandingSpot"/>
+    <Action ID="FlyToLandingSpot"/>
+    <Action ID="Land"/>
+    <Action ID="Disarm"/>
+  </TreeNodesModel>
+</root>

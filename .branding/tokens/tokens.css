@@ -1,0 +1,173 @@
+/* Beehave design tokens. Built from tokens.json with tools/build_css.py;
+   edit the JSON, not this file. */
+
+:root {
+  color-scheme: light dark;
+
+  /* Primitives: step number = OKLCH lightness x 100 */
+  --bh-comb-99: #fdfbf9; /* oklch(0.99 0.004 80) */
+  --bh-comb-96: #f5f0e9; /* oklch(0.958 0.011 80) */
+  --bh-comb-93: #ece6dd; /* oklch(0.928 0.014 80) */
+  --bh-comb-90: #e4ddd2; /* oklch(0.9 0.016 80) */
+  --bh-comb-86: #d6d0c6; /* oklch(0.86 0.015 80) */
+  --bh-comb-78: #bdb6ac; /* oklch(0.78 0.016 80) */
+  --bh-comb-70: #a39e94; /* oklch(0.7 0.015 80) */
+  --bh-comb-60: #857f77; /* oklch(0.6 0.014 80) */
+  --bh-comb-50: #67635a; /* oklch(0.5 0.014 80) */
+  --bh-comb-40: #4b4740; /* oklch(0.4 0.013 80) */
+  --bh-comb-33: #39352f; /* oklch(0.33 0.012 80) */
+  --bh-comb-25: #24211c; /* oklch(0.25 0.011 80) */
+  --bh-comb-21: #1b1813; /* oklch(0.21 0.01 80) */
+  --bh-comb-17: #110f0b; /* oklch(0.17 0.009 80) */
+  --bh-pollen-85: #fcc50e; /* oklch(0.85 0.172 88) */
+  --bh-pollen-80: #ecb42e; /* oklch(0.8 0.152 84) */
+  --bh-pollen-52: #8f5d04; /* oklch(0.52 0.11 72) */
+  --bh-leaf-50: #107550; /* oklch(0.5 0.105 162) */
+  --bh-leaf-76: #60c99a; /* oklch(0.76 0.12 162) */
+  --bh-cinnabar-53: #b93917; /* oklch(0.53 0.17 35) */
+  --bh-cinnabar-70: #eb7a52; /* oklch(0.7 0.15 40) */
+  --bh-prussian-37: #063e7d; /* oklch(0.37 0.12 256) */
+  --bh-prussian-69: #6da0d1; /* oklch(0.69 0.09 248) */
+
+  /* Light theme (default) */
+  --bh-bg: var(--bh-comb-96);
+  --bh-surface: var(--bh-comb-99);
+  --bh-sunken: var(--bh-comb-93);
+  --bh-rule: var(--bh-comb-86);
+  --bh-border: var(--bh-comb-60);
+  --bh-text: var(--bh-comb-21);
+  --bh-text-2: var(--bh-comb-40);
+  --bh-text-3: var(--bh-comb-50);
+  --bh-inverse: var(--bh-comb-21);
+  --bh-on-inverse: var(--bh-comb-96);
+  --bh-accent: var(--bh-pollen-85);
+  --bh-on-accent: var(--bh-comb-21);
+  --bh-accent-line: var(--bh-pollen-52);
+  --bh-success: var(--bh-leaf-50);
+  --bh-failure: var(--bh-cinnabar-53);
+  --bh-preempt: var(--bh-prussian-37);
+  --bh-on-status: var(--bh-comb-99);
+  --bh-edge: var(--bh-comb-21);
+  --bh-warn-fill: var(--bh-pollen-85);
+  --bh-warn-line: var(--bh-comb-21);
+  --bh-focus: var(--bh-prussian-37);
+
+  /* Type. --bh-text-* fit the font shorthand. */
+  --bh-font-sans: "Archivo", "Archivo Variable", "Helvetica Neue", "Helvetica", "Nimbus Sans", "Arial", sans-serif;
+  --bh-font-mono: "Martian Mono", "Martian Mono Variable", "Menlo", "Consolas", "DejaVu Sans Mono", monospace;
+  --bh-weight-regular: 400;
+  --bh-weight-medium: 500;
+  --bh-weight-semibold: 600;
+  --bh-weight-bold: 700;
+  --bh-weight-extrabold: 800;
+  --bh-width-condensed: 87.5%;
+  --bh-width-normal: 100%;
+  --bh-width-wide: 112.5%;
+  --bh-width-expanded: 125%;
+  --bh-text-display: var(--bh-weight-extrabold) 64px/1.0 var(--bh-font-sans);
+  --bh-tracking-display: -1.28px;
+  --bh-text-h1: var(--bh-weight-extrabold) 40px/1.1 var(--bh-font-sans);
+  --bh-tracking-h1: -0.4px;
+  --bh-text-h2: var(--bh-weight-bold) 28px/1.15 var(--bh-font-sans);
+  --bh-tracking-h2: -0.14px;
+  --bh-text-h3: var(--bh-weight-bold) 20px/1.25 var(--bh-font-sans);
+  --bh-text-body: var(--bh-weight-regular) 16px/1.5 var(--bh-font-sans);
+  --bh-text-body-sm: var(--bh-weight-regular) 14px/1.45 var(--bh-font-sans);
+  --bh-tracking-body-sm: 0.07px;
+  --bh-text-label: var(--bh-weight-medium) 12px/1.3 var(--bh-font-mono);
+  --bh-tracking-label: 0.96px;
+  --bh-text-code: var(--bh-weight-regular) 14px/1.5 var(--bh-font-mono);
+  --bh-text-graph-node: var(--bh-weight-semibold) 14px/1.2 var(--bh-font-sans);
+  --bh-text-graph-guard: var(--bh-weight-regular) 12px/1.2 var(--bh-font-mono);
+  --bh-text-graph-note: var(--bh-weight-regular) 12px/1.2 var(--bh-font-mono);
+  --bh-text-operator: var(--bh-weight-bold) 20px/1.2 var(--bh-font-sans);
+
+  /* Space (4px grid), radius, stroke */
+  --bh-space-0: 0;
+  --bh-space-1: 2px;
+  --bh-space-2: 4px;
+  --bh-space-3: 8px;
+  --bh-space-4: 12px;
+  --bh-space-5: 16px;
+  --bh-space-6: 24px;
+  --bh-space-7: 32px;
+  --bh-space-8: 48px;
+  --bh-space-9: 64px;
+  --bh-space-10: 96px;
+  --bh-space-11: 128px;
+  --bh-radius-none: 0;
+  --bh-radius-xs: 2px;
+  --bh-radius-sm: 4px;
+  --bh-radius-round: 999px;
+  --bh-stroke-hairline: 1px;
+  --bh-stroke-node: 1.5px;
+  --bh-stroke-edge: 1.75px;
+  --bh-stroke-edge-strong: 2.5px;
+  --bh-stroke-emphasis: 3px;
+  --bh-dash-success: none;
+  --bh-dash-failure: 7 4;
+  --bh-linecap-failure: butt;
+  --bh-dash-preempt: 0.01 5;
+  --bh-linecap-preempt: round;
+  --bh-dash-warn: 4 3;
+  --bh-linecap-warn: butt;
+  --bh-dash-edge: none;
+}
+
+/* Dark theme follows the system unless the page pins data-theme="light". */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bh-bg: var(--bh-comb-21);
+    --bh-surface: var(--bh-comb-25);
+    --bh-sunken: var(--bh-comb-17);
+    --bh-rule: var(--bh-comb-33);
+    --bh-border: var(--bh-comb-60);
+    --bh-text: var(--bh-comb-90);
+    --bh-text-2: var(--bh-comb-78);
+    --bh-text-3: var(--bh-comb-70);
+    --bh-inverse: var(--bh-comb-90);
+    --bh-on-inverse: var(--bh-comb-21);
+    --bh-accent: var(--bh-pollen-80);
+    --bh-on-accent: var(--bh-comb-21);
+    --bh-accent-line: var(--bh-pollen-80);
+    --bh-success: var(--bh-leaf-76);
+    --bh-failure: var(--bh-cinnabar-70);
+    --bh-preempt: var(--bh-prussian-69);
+    --bh-on-status: var(--bh-comb-21);
+    --bh-edge: var(--bh-comb-90);
+    --bh-warn-fill: var(--bh-pollen-80);
+    --bh-warn-line: var(--bh-comb-21);
+    --bh-focus: var(--bh-prussian-69);
+  }
+}
+
+/* Explicit dark theme, e.g. <html data-theme="dark"> on a field display. */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bh-bg: var(--bh-comb-21);
+  --bh-surface: var(--bh-comb-25);
+  --bh-sunken: var(--bh-comb-17);
+  --bh-rule: var(--bh-comb-33);
+  --bh-border: var(--bh-comb-60);
+  --bh-text: var(--bh-comb-90);
+  --bh-text-2: var(--bh-comb-78);
+  --bh-text-3: var(--bh-comb-70);
+  --bh-inverse: var(--bh-comb-90);
+  --bh-on-inverse: var(--bh-comb-21);
+  --bh-accent: var(--bh-pollen-80);
+  --bh-on-accent: var(--bh-comb-21);
+  --bh-accent-line: var(--bh-pollen-80);
+  --bh-success: var(--bh-leaf-76);
+  --bh-failure: var(--bh-cinnabar-70);
+  --bh-preempt: var(--bh-prussian-69);
+  --bh-on-status: var(--bh-comb-21);
+  --bh-edge: var(--bh-comb-90);
+  --bh-warn-fill: var(--bh-pollen-80);
+  --bh-warn-line: var(--bh-comb-21);
+  --bh-focus: var(--bh-prussian-69);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+}

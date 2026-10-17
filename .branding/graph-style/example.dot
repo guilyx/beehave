@@ -1,0 +1,75 @@
+// Beehave graph style for Graphviz, light theme.
+// Hex values come from .branding/tokens/tokens.json (color.light.*).
+// Graph: examples/aerial/drone_mission.xml.
+//
+//   then         ink       #1b1813  solid    1.75
+//   on success   leaf      #107550  solid    1.75
+//   on failure   cinnabar  #b93917  dashed   1.75  + label "fail" (not into FAILURE)
+//   preemption   prussian  #063e7d  dotted   2.5   + [Guard] label
+//
+// Node reference (not used in this figure):
+//   condition [shape=hexagon, fillcolor="#ece6dd"]
+//   approx    [fillcolor="#fcc50e", style="filled,dashed", label=<Name<BR/><FONT FACE="Martian Mono" POINT-SIZE="12">~ approximated</FONT>>]
+
+digraph beehave {
+  graph [
+    label="FIG. 1  SURVEY MISSION: FLY OUT, CAPTURE, RETURN, LAND\n ", labelloc=t, labeljust=l,
+    fontname="Martian Mono", fontsize=12, fontcolor="#4b4740",
+    bgcolor="#f5f0e9", pad=0.4, nodesep=0.8, ranksep=0.55,
+    rankdir=TB, compound=true, newrank=true
+  ];
+  node [
+    shape=box, style=filled, fillcolor="#fdfbf9", color="#1b1813", penwidth=1.5,
+    fontname="Archivo", fontsize=14, fontcolor="#1b1813",
+    margin="0.24,0.12", height=0.5
+  ];
+  edge [
+    color="#107550", penwidth=1.75, arrowhead=normal, arrowsize=0.7,
+    fontname="Martian Mono", fontsize=12, fontcolor="#4b4740"
+  ];
+
+  START [shape=circle, fixedsize=true, width=0.8, fillcolor="#1b1813", color="#1b1813",
+         fontcolor="#f5f0e9", fontsize=12, label="START"];
+  SUCCESS [shape=doublecircle, fixedsize=true, width=1.05, fillcolor="#107550", color="#107550",
+           fontcolor="#fdfbf9", fontsize=12, label="SUCCESS"];
+  FAILURE [shape=doubleoctagon, fixedsize=true, width=1.1, height=0.75, fillcolor="#b93917",
+           color="#b93917", fontcolor="#fdfbf9", fontsize=12, label="FAILURE"];
+  LandNow;
+
+  subgraph cluster_mission {
+    label="any step"; labeljust=l;
+    fontname="Martian Mono"; fontsize=12; fontcolor="#4b4740";
+    style=solid; color="#857f77"; penwidth=1; margin=16;
+
+    Arm; TakeOff;
+    FlyToWaypoint [label=<FlyToWaypoint<BR/><FONT FACE="Martian Mono" POINT-SIZE="12" COLOR="#67635a">retry ×3</FONT>>];
+    CaptureImage; FlyHome; FindLandingSpot; FlyToLandingSpot; Land; Disarm;
+  }
+
+  { rank=same; SUCCESS; FAILURE; }
+
+  START -> LandNow [color="#1b1813", label=" [IsBatteryCritical]"];
+  START -> Arm [color="#1b1813", label=" [not IsBatteryCritical]"];
+  LandNow -> SUCCESS;
+  LandNow -> Arm [style=dashed, color="#b93917", label=" fail"];
+  Arm -> TakeOff;
+  Arm -> FAILURE [style=dashed, color="#b93917"];
+  TakeOff -> FlyToWaypoint [label=" [IsBatteryOK]"];
+  TakeOff -> FlyHome [label=" [not IsBatteryOK]"];
+  TakeOff -> FAILURE [style=dashed, color="#b93917"];
+  FlyToWaypoint -> CaptureImage;
+  FlyToWaypoint -> FlyHome [style=dashed, color="#b93917", label=" fail"];
+  CaptureImage -> FlyHome [color="#1b1813"];  // either outcome: one "then" edge
+  FlyHome -> Land;
+  FlyHome -> FindLandingSpot [style=dashed, color="#b93917", label=" fail"];
+  FindLandingSpot -> FlyToLandingSpot;
+  FindLandingSpot -> FAILURE [style=dashed, color="#b93917"];
+  FlyToLandingSpot -> Land;
+  FlyToLandingSpot -> FAILURE [style=dashed, color="#b93917"];
+  Land -> Disarm;
+  Land -> FAILURE [style=dashed, color="#b93917"];
+  Disarm -> SUCCESS;
+  Disarm -> FAILURE [style=dashed, color="#b93917"];
+  Arm -> LandNow [ltail=cluster_mission, constraint=false, style=dotted, penwidth=2.5,
+                  color="#063e7d", label="  [IsBatteryCritical]"];
+}

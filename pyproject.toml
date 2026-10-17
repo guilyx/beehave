@@ -1,0 +1,161 @@
+[build-system]
+requires = ["uv_build>=0.11,<0.14"]
+build-backend = "uv_build"
+
+[project]
+# "beehave" is taken on PyPI; the import name and the CLI are still `beehave`.
+name = "beehave-bt"
+version = "0.1.0.dev0"
+description = "Reads BehaviorTree.CPP trees and shows only the actions your robot can take, in order, with the conditions that lead to each one."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+authors = [{ name = "Erwin Lejeune" }]
+requires-python = ">=3.10"
+dependencies = ["PyYAML>=6.0"]
+keywords = [
+  "behavior-tree",
+  "behaviortree-cpp",
+  "robotics",
+  "ros2",
+  "nav2",
+  "static-analysis",
+  "mermaid",
+  "graphviz",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Software Development :: Quality Assurance",
+  "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://guilyx.github.io/beehave/"
+Documentation = "https://guilyx.github.io/beehave/"
+Source = "https://github.com/guilyx/beehave"
+Issues = "https://github.com/guilyx/beehave/issues"
+Changelog = "https://github.com/guilyx/beehave/blob/main/CHANGELOG.md"
+
+[project.scripts]
+beehave = "beehave.cli:main"
+
+[dependency-groups]
+test = [
+  "pytest>=8.3",
+  "pytest-cov>=6.0",
+  "hypothesis>=6.120",
+  "syrupy>=4.8",
+]
+lint = [
+  "ruff>=0.15",
+  "mypy>=1.15",
+  "types-PyYAML>=6.0",
+  "prek>=0.5",
+]
+docs = [
+  "zensical>=0.0.70",
+  "mkdocstrings-python>=1.16",
+]
+dev = [
+  { include-group = "test" },
+  { include-group = "lint" },
+]
+
+[tool.uv.build-backend]
+module-name = "beehave"
+
+[tool.uv.dependency-groups]
+docs = { requires-python = ">=3.11" }
+
+# ---------------------------------------------------------------- pytest ---
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers", "--strict-config"]
+xfail_strict = true
+filterwarnings = ["error"]
+
+[tool.coverage.run]
+branch = true
+source = ["beehave"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 95
+exclude_also = [
+  "if TYPE_CHECKING:",
+  "raise NotImplementedError",
+  "@overload",
+  "^\\s*\\.\\.\\.$",
+]
+
+# ------------------------------------------------------------------ ruff ---
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+extend-select = [
+  "E", "W",   # pycodestyle
+  "F",        # pyflakes
+  "I",        # isort
+  "B",        # bugbear
+  "UP",       # pyupgrade
+  "SIM",      # simplify
+  "C4",       # comprehensions
+  "RUF",      # ruff-specific
+  "PT",       # pytest style
+  "PL",       # pylint subset
+  "N",        # naming
+  "S",        # bandit (security)
+  "D",        # docstrings (public API)
+  "TC",       # type-checking imports
+  "PTH",      # pathlib
+  "ERA",      # commented-out code
+]
+ignore = [
+  "D105",     # magic methods
+  "D107",     # __init__
+  "PLR0911",  # too many returns (dispatchers are clearer flat)
+  "PLR0912",  # too many branches
+  "PLR2004",  # magic values in comparisons
+]
+
+# "retry ×3": the multiplication sign is intentional in notes and stats.
+allowed-confusables = ["×"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "D", "PLR2004", "S603"]
+# Colour-science scripts keep the conventional names (L, C, h; l, m, s).
+".branding/tools/**" = ["N802", "N803", "N806", "E741", "T201"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+# ------------------------------------------------------------------ mypy ---
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+files = ["src", "tests"]
+warn_unreachable = true
+enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]

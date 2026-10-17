@@ -1,0 +1,33 @@
+START --> ReceiveTargetPose
+ReceiveTargetPose --[success]--> LoadConstraints
+ReceiveTargetPose --[failure]--> FAILURE
+LoadConstraints --[success]--> RunPlannerA
+LoadConstraints --[failure]--> FAILURE
+RunPlannerA --[success and OnAir]--> Fly
+RunPlannerA --[success and not OnAir and OnGround]--> Roll
+RunPlannerA --[success and not OnAir and not OnGround and OnWater]--> Swim
+RunPlannerA --[success and not OnAir and not OnGround and not OnWater]--> FAILURE
+RunPlannerA --[failure]--> RunPlannerB
+RunPlannerB --[success and OnAir]--> Fly
+RunPlannerB --[success and not OnAir and OnGround]--> Roll
+RunPlannerB --[success and not OnAir and not OnGround and OnWater]--> Swim
+RunPlannerB --[success and not OnAir and not OnGround and not OnWater]--> FAILURE
+RunPlannerB --[failure]--> FAILURE
+Fly --[success]--> SUCCESS
+Fly --[failure and OnGround]--> Roll
+Fly --[failure and not OnGround and OnWater]--> Swim
+Fly --[failure and not OnGround and not OnWater]--> FAILURE
+Roll --[success]--> SUCCESS
+Roll --[failure and OnWater]--> Swim
+Roll --[failure and not OnWater]--> FAILURE
+Swim --[success]--> SUCCESS
+Swim --[failure]--> FAILURE
+
+tree           BehaviorTree (btcpp-v3)
+nodes          18 (6 control, 3 condition, 7 action, 2 subtree)
+actions        7
+reduction      61% (18 nodes -> 7 actions)
+transitions    24
+longest guard  3 terms (not simplified)
+approximated   none
+

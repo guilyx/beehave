@@ -1,0 +1,56 @@
+---
+config:
+  theme: base
+  themeVariables:
+    edgeLabelBackground: "#f5f0e9"
+    lineColor: "#1b1813"
+---
+%% Beehave action graph: DroneMission (btcpp-v3)
+flowchart TD
+    start(("START"))
+    a1["LandNow"]
+    a2["Arm"]
+    a3["TakeOff"]
+    a4["FlyToWaypoint<br/><small>retry ×3</small>"]
+    a5["CaptureImage"]
+    a6["FlyHome"]
+    a7["FindLandingSpot"]
+    a8["FlyToLandingSpot"]
+    a9["Land"]
+    a10["Disarm"]
+    success(["SUCCESS"])
+    failure(["FAILURE"])
+    start -->|"IsBatteryCritical"| a1
+    start -->|"not IsBatteryCritical"| a2
+    a1 -->|"success"| success
+    a1 -.->|"failure"| a2
+    a2 -->|"success"| a3
+    a2 -.->|"failure"| failure
+    a3 -->|"success and IsBatteryOK"| a4
+    a3 -->|"success and not IsBatteryOK"| a6
+    a3 -.->|"failure"| failure
+    a4 -->|"success"| a5
+    a4 -.->|"failure"| a6
+    a5 -->|"success"| a6
+    a5 -.->|"failure"| a6
+    a6 -->|"success"| a9
+    a6 -.->|"failure"| a7
+    a7 -->|"success"| a8
+    a7 -.->|"failure"| failure
+    a8 -->|"success"| a9
+    a8 -.->|"failure"| failure
+    a9 -->|"success"| a10
+    a9 -.->|"failure"| failure
+    a10 -->|"success"| success
+    a10 -.->|"failure"| failure
+    classDef start fill:#1b1813,stroke:#1b1813,stroke-width:1.5px,color:#f5f0e9
+    classDef action fill:#fdfbf9,stroke:#1b1813,stroke-width:1.5px,color:#1b1813
+    classDef success fill:#107550,stroke:#fdfbf9,stroke-width:2px,color:#fdfbf9
+    classDef failure fill:#b93917,stroke:#fdfbf9,stroke-width:2px,color:#fdfbf9
+    class start start
+    class a1,a2,a3,a4,a5,a6,a7,a8,a9,a10 action
+    class success success
+    class failure failure
+    linkStyle 0,1 stroke:#1b1813,stroke-width:1.75px
+    linkStyle 2,4,6,7,9,11,13,15,17,19,21 stroke:#107550,stroke-width:1.75px
+    linkStyle 3,5,8,10,12,14,16,18,20,22 stroke:#b93917,stroke-width:1.75px,stroke-dasharray:7 4

@@ -1,0 +1,14 @@
+START --> SaySomething#1
+SaySomething#1 --[success]--> SaySomething#2
+SaySomething#1 --[failure]--> FAILURE
+SaySomething#2 --[success]--> SUCCESS
+SaySomething#2 --[failure]--> FAILURE
+
+tree           BehaviorTree (btcpp-v3)
+nodes          7 (1 control, 4 action, 2 subtree)
+actions        2
+reduction      71% (7 nodes -> 2 actions)
+transitions    5
+longest guard  0 terms (not simplified)
+approximated   none
+

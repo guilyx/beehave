@@ -1,0 +1,26 @@
+START --[IsBatteryCritical]--> LandNow
+START --[not IsBatteryCritical]--> Arm
+LandNow --[success]--> SUCCESS
+LandNow --[failure]--> Arm
+Arm --[success]--> TakeOff
+Arm --[failure]--> FAILURE
+TakeOff --[success and IsBatteryOK]--> FlyToWaypoint
+TakeOff --[success and not IsBatteryOK]--> FlyHome
+TakeOff --[failure]--> FAILURE
+FlyToWaypoint --[success]--> CaptureImage
+FlyToWaypoint --[failure]--> FlyHome
+CaptureImage --[success]--> FlyHome
+CaptureImage --[failure]--> FlyHome
+FlyHome --[success]--> Land
+FlyHome --[failure]--> FindLandingSpot
+FindLandingSpot --[success]--> FlyToLandingSpot
+FindLandingSpot --[failure]--> FAILURE
+FlyToLandingSpot --[success]--> Land
+FlyToLandingSpot --[failure]--> FAILURE
+Land --[success]--> Disarm
+Land --[failure]--> FAILURE
+Disarm --[success]--> SUCCESS
+Disarm --[failure]--> FAILURE
+
+notes:
+  FlyToWaypoint: retry ×3

@@ -1,0 +1,98 @@
+name: Bug report
+description: Beehave crashed, failed to install, printed a wrong error, or misbehaved in some other way.
+title: "bug: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug.
+
+        - If the problem is the **graph itself** (a missing edge, a wrong guard, a confusing layout), please use the **Wrong or confusing graph** form instead.
+        - **Security problems** must be reported privately, as described in [SECURITY.md](https://github.com/guilyx/beehave/blob/main/SECURITY.md).
+        - Questions are best asked in [Discussions](https://github.com/guilyx/beehave/discussions).
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce
+      description: The exact commands or Python code that trigger the bug.
+      render: shell
+      placeholder: beehave graph tree.xml -f mermaid -o tree.mmd
+    validations:
+      required: true
+
+  - type: textarea
+    id: tree
+    attributes:
+      label: Minimal tree
+      description: If a tree file is involved, the smallest one that triggers the bug.
+      render: xml
+
+  - type: textarea
+    id: output
+    attributes:
+      label: Output or traceback
+      description: Everything Beehave printed, including the full traceback if there is one.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+
+  - type: input
+    id: beehave-version
+    attributes:
+      label: Beehave version
+      description: The output of `beehave --version`.
+      placeholder: beehave 0.1.0
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      description: The output of `python --version`.
+      placeholder: Python 3.12.7
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Linux
+        - macOS
+        - Windows
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: install
+    attributes:
+      label: How did you install Beehave?
+      placeholder: pip, uv, pipx, from a git checkout...
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched the existing issues and this is not a duplicate.
+          required: true

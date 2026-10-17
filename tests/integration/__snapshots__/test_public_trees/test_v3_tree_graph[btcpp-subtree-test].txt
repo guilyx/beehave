@@ -1,0 +1,24 @@
+START --> CheckBattery
+CheckBattery --[success]--> CheckTemperature
+CheckBattery --[failure]--> FAILURE
+CheckTemperature --[success]--> OpenGripper
+CheckTemperature --[failure]--> FAILURE
+OpenGripper --[success]--> CloseGripper
+OpenGripper --[failure]--> FAILURE
+CloseGripper --[success]--> SaySomething
+CloseGripper --[failure]--> FAILURE
+SaySomething --[success]--> SayHello
+SaySomething --[failure]--> FAILURE
+SayHello --[success]--> SUCCESS
+SayHello --[failure]--> FAILURE
+
+tree           BehaviorTree (btcpp-v3)
+nodes          11 (3 control, 6 action, 2 subtree)
+actions        6
+reduction      45% (11 nodes -> 6 actions)
+transitions    13
+longest guard  0 terms (not simplified)
+approximated   none
+
+btcpp-v3/examples/test_files/subtree_test.xml:8: warning: <CheckStatus/> is read as <SubTree ID="CheckStatus"/>; BT.CPP 3.8 rejects this short form [compact-subtree-reference]
+btcpp-v3/examples/test_files/subtree_test.xml:11: warning: <SayStuff/> is read as <SubTree ID="SayStuff"/>; BT.CPP 3.8 rejects this short form [compact-subtree-reference]

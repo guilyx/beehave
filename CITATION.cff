@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use Beehave in your work, please cite it using these metadata."
+type: software
+title: "Beehave"
+abstract: >-
+  Beehave reads BehaviorTree.CPP behavior trees and shows only the actions a
+  robot can take, in order, with the conditions that lead to each one. It
+  turns BehaviorTree.CPP v3 XML into an action graph rendered as text,
+  Mermaid, Graphviz DOT or JSON.
+authors:
+  - given-names: Erwin
+    family-names: Lejeune
+repository-code: "https://github.com/guilyx/beehave"
+url: "https://guilyx.github.io/beehave/"
+license: Apache-2.0
+version: 0.1.0.dev0
+date-released: "2026-10-14"
+keywords:
+  - behavior trees
+  - BehaviorTree.CPP
+  - robotics
+  - ROS 2
+  - static analysis
+  - visualization

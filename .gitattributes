@@ -1,0 +1,20 @@
+# Store text with LF line endings and check it out with LF on every platform.
+# Snapshot tests compare exact output, so Windows checkouts must not get CRLF.
+* text=auto eol=lf
+
+# Binary files: never touch line endings, never diff as text.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.pdf binary
+
+# Third-party trees used as test fixtures: keep them out of language stats.
+tests/fixtures/public/** linguist-vendored
+
+# The lockfile is written by uv; collapse it in pull request diffs.
+uv.lock linguist-generated

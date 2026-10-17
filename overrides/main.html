@@ -1,0 +1,44 @@
+{#-
+  Every page: raster icons, theme colour and the social card.
+-#}
+{% extends "base.html" %}
+
+{% block extrahead %}
+  {{ super() }}
+  {%- set site = config.site_url | trim("/") -%}
+  {%- set card = site ~ "/assets/brand/social-preview.png" -%}
+  {%- set card_alt = "beehave: see what your robot will actually do. A large behavior tree reduced to a small action graph." -%}
+  {%- if page.meta and page.meta.description -%}
+    {%- set description = page.meta.description -%}
+  {%- else -%}
+    {%- set description = config.site_description -%}
+  {%- endif -%}
+  {%- if page.is_homepage or (page.meta and page.meta.title == config.site_name) -%}
+    {%- set title = config.site_name -%}
+  {%- elif page.meta and page.meta.title -%}
+    {%- set title = page.meta.title ~ " - " ~ config.site_name -%}
+  {%- else -%}
+    {%- set title = (page.title | striptags) ~ " - " ~ config.site_name -%}
+  {%- endif %}
+  <link rel="icon" href="{{ 'assets/brand/favicon-32.png' | url }}" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="{{ 'assets/brand/apple-touch-icon.png' | url }}">
+  <meta name="theme-color" content="#f5f0e9" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1b1813" media="(prefers-color-scheme: dark)">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="{{ config.site_name }}">
+  <meta property="og:title" content="{{ title }}">
+  <meta property="og:description" content="{{ description }}">
+  {%- if page.canonical_url %}
+  <meta property="og:url" content="{{ page.canonical_url }}">
+  {%- endif %}
+  <meta property="og:image" content="{{ card }}">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1280">
+  <meta property="og:image:height" content="640">
+  <meta property="og:image:alt" content="{{ card_alt }}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ title }}">
+  <meta name="twitter:description" content="{{ description }}">
+  <meta name="twitter:image" content="{{ card }}">
+  <meta name="twitter:image:alt" content="{{ card_alt }}">
+{% endblock %}
