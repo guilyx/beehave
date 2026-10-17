@@ -15,7 +15,8 @@ BehaviorTree.CPP v3 and v4 and for py_trees.
 
 ### Added
 
-- BehaviorTree.CPP v3 XML parser. It follows `<include>` tags, reads
+- BehaviorTree.CPP v3 XML parser. It follows `<include>` tags (including
+  `ros_pkg` ones, through the package's directory), reads
   `<TreeNodesModel>` to classify custom nodes, checks the structure BT.CPP
   itself checks (number of children, required IDs), keeps source locations
   for messages, and refuses DTDs.
@@ -58,6 +59,15 @@ BehaviorTree.CPP v3 and v4 and for py_trees.
 - py_trees XML is refused with a pointer to `--py-trees`.
 - Every example exists in BT.CPP v3, BT.CPP v4 and py_trees, and the tests
   check that all versions give the same graph.
+- `<include ros_pkg="…">` is followed like BT.CPP does: the package is found
+  from `packages:` in `beehave.yaml` or `--package NAME=DIR`, then from a
+  sourced ROS 2 (`AMENT_PREFIX_PATH`) or ROS 1 (`ROS_PACKAGE_PATH`)
+  workspace. A package that cannot be found is reported with how to fix it.
+- A folder can be passed wherever a file can: every `.xml` file directly in
+  it is read, for applications that register a folder of trees from code
+  (Nav2's `bt_search_directories`, the BehaviorTree.ROS2 samples).
+- When a subtree is missing, the error names the includes that were not
+  followed.
 - Renderers for plain text, Mermaid, Graphviz DOT and JSON.
 - The `beehave` command line: `beehave graph` (the action graph in any
   format), `beehave stats` (size, reduction, longest guard and approximated

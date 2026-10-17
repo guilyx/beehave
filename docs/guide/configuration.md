@@ -10,12 +10,15 @@ conditions:
   - IsEmergency
 actions:
   - Probe
+packages:
+  my_robot_bt: src/my_robot_bt
 ```
 
 | Key | Meaning |
 | --- | --- |
 | `conditions` | Custom node types to treat as conditions. They become guards on edges, not boxes. |
 | `actions` | Custom node types to treat as actions, even if the XML declares them as conditions. |
+| `packages` | Where `<include ros_pkg="…">` finds each ROS package, relative to this file. It wins over a sourced workspace. See [Subtrees and includes](subtrees.md). |
 
 For py_trees, a node type is a behaviour class, named by `__name__` (`IsAt`)
 or by `module.QualName` (`my_robot.checks.IsAt`). Naming a base class covers
