@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from importlib.metadata import PackageNotFoundError, version
 
-from beehave.api import Analysis, analyze
+from beehave.api import Analysis, analyze, analyze_py_trees
 from beehave.config import Config, load_config
 from beehave.errors import (
     BeehaveError,
@@ -28,6 +28,7 @@ from beehave.errors import (
 from beehave.flatten import FlatTree, flatten
 from beehave.graph import ActionGraph, Edge, Outcome, Vertex, VertexKind
 from beehave.parsers import parse_file, parse_string
+from beehave.parsers.pytrees import from_py_trees, load_py_trees
 from beehave.render import to_dot, to_json, to_mermaid, to_text
 from beehave.stats import Stats, compute_stats
 from beehave.walk import build_graph
@@ -55,10 +56,13 @@ __all__ = [
     "VertexKind",
     "__version__",
     "analyze",
+    "analyze_py_trees",
     "build_graph",
     "compute_stats",
     "flatten",
+    "from_py_trees",
     "load_config",
+    "load_py_trees",
     "parse_file",
     "parse_string",
     "to_dot",

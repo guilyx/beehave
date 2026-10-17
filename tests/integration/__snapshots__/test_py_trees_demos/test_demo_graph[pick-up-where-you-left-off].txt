@@ -1,0 +1,23 @@
+START --> High Priority
+High Priority --[success]--> SUCCESS
+High Priority --[failure and task_1_done == True and task_2_done == True]--> SUCCESS
+High Priority --[failure and task_1_done == True and not task_2_done == True]--> Task 2
+High Priority --[failure and not task_1_done == True]--> Task 1
+Task 1 --[success and task_2_done == True]--> SUCCESS
+Task 1 --[success and not task_2_done == True]--> Task 2
+Task 1 --[failure]--> FAILURE
+Task 2 --[success]--> SUCCESS
+Task 2 --[failure]--> FAILURE
+
+tree           Root (py_trees)
+nodes          16 (6 control, 1 decorator, 2 condition, 7 action)
+actions        3
+reduction      81% (16 nodes -> 3 actions)
+transitions    10
+longest guard  2 terms (not simplified)
+approximated   RunningIsFailure ×1, Selector(memory=False) ×3
+
+warning: Selector(memory=False) "Root": walked like a Fallback; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
+warning: RunningIsFailure "Running is Failure": a RUNNING child is halted and counts as FAILURE; those edges are not shown yet [approximated]
+warning: Selector(memory=False) "Do or Don't": walked like a Fallback; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
+warning: Selector(memory=False) "Do or Don't": walked like a Fallback; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]

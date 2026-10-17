@@ -79,12 +79,18 @@ dependencies = [
     { name = "pyyaml" },
 ]
 
+[package.optional-dependencies]
+py-trees = [
+    { name = "py-trees" },
+]
+
 [package.dev-dependencies]
 dev = [
     { name = "hypothesis", version = "6.168.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "hypothesis", version = "6.169.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "mypy" },
     { name = "prek" },
+    { name = "py-trees" },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "ruff" },
@@ -98,25 +104,32 @@ docs = [
 lint = [
     { name = "mypy" },
     { name = "prek" },
+    { name = "py-trees" },
     { name = "ruff" },
     { name = "types-pyyaml" },
 ]
 test = [
     { name = "hypothesis", version = "6.168.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "hypothesis", version = "6.169.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "py-trees" },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "syrupy" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "pyyaml", specifier = ">=6.0" }]
+requires-dist = [
+    { name = "py-trees", marker = "extra == 'py-trees'", specifier = ">=2.2" },
+    { name = "pyyaml", specifier = ">=6.0" },
+]
+provides-extras = ["py-trees"]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "hypothesis", specifier = ">=6.120" },
     { name = "mypy", specifier = ">=1.15" },
     { name = "prek", specifier = ">=0.5" },
+    { name = "py-trees", specifier = ">=2.2" },
     { name = "pytest", specifier = ">=8.3" },
     { name = "pytest-cov", specifier = ">=6.0" },
     { name = "ruff", specifier = ">=0.15" },
@@ -130,11 +143,13 @@ docs = [
 lint = [
     { name = "mypy", specifier = ">=1.15" },
     { name = "prek", specifier = ">=0.5" },
+    { name = "py-trees", specifier = ">=2.2" },
     { name = "ruff", specifier = ">=0.15" },
     { name = "types-pyyaml", specifier = ">=6.0" },
 ]
 test = [
     { name = "hypothesis", specifier = ">=6.120" },
+    { name = "py-trees", specifier = ">=2.2" },
     { name = "pytest", specifier = ">=8.3" },
     { name = "pytest-cov", specifier = ">=6.0" },
     { name = "syrupy", specifier = ">=4.8" },
@@ -1049,6 +1064,30 @@ wheels = [
 ]
 
 [[package]]
+name = "py-trees"
+version = "2.6.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pydot" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/4c/cd/592ecf58fce9b87743aab2d05dd94b57669e436d77facd4c9f1e8d4b6be7/py_trees-2.6.0.tar.gz", hash = "sha256:60a5d81e1e348b0aca2c1c65a94713a2a3d87c749058bf1edfa721c53b07bde5", size = 8520798, upload-time = "2026-09-10T21:24:16.343Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d2/10/3b618ece6a776e7b7fac3dcfd0f4e2e52006c0e49d0f63fc35c5bfef3566/py_trees-2.6.0-py2.py3-none-any.whl", hash = "sha256:78155ffaf02f49de0c4bfb458488a1f766ded5b35bf1254980d8f49e6fb89837", size = 148692, upload-time = "2026-09-10T21:24:10.788Z" },
+]
+
+[[package]]
+name = "pydot"
+version = "4.0.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pyparsing" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/50/35/b17cb89ff865484c6a20ef46bf9d95a5f07328292578de0b295f4a6beec2/pydot-4.0.1.tar.gz", hash = "sha256:c2148f681c4a33e08bf0e26a9e5f8e4099a82e0e2a068098f32ce86577364ad5", size = 162594, upload-time = "2025-06-17T20:09:56.454Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7e/32/a7125fb28c4261a627f999d5fb4afff25b523800faed2c30979949d6facd/pydot-4.0.1-py3-none-any.whl", hash = "sha256:869c0efadd2708c0be1f916eb669f3d664ca684bc57ffb7ecc08e70d5e93fee6", size = 37087, upload-time = "2025-06-17T20:09:55.25Z" },
+]
+
+[[package]]
 name = "pygments"
 version = "2.21.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1068,6 +1107,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/9a/0a/d8c8535346f63ff85c8743383438a74b5c0e3394d90e898b2cd1a2fac705/pymdown_extensions-12.2.tar.gz", hash = "sha256:02da896c362b548d85123e7a377a40024ea6ea938b4e45ca064e408afd994b64", size = 870226, upload-time = "2026-10-10T13:01:20.494Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/79/a5/30b1a3d82219cbe5e6661cd7053791dc3a3743547ebf31f3366429d84516/pymdown_extensions-12.2-py3-none-any.whl", hash = "sha256:caea66e916b4cfe987b5dabb0a78558e3506988f6353812b0b0288be8f976c16", size = 277518, upload-time = "2026-10-10T13:01:18.601Z" },
+]
+
+[[package]]
+name = "pyparsing"
+version = "3.3.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/e4/11/b213bebff182584360cb8d17c72c1677fec5c5c228de439e63bcf8ab1c8f/pyparsing-3.3.3.tar.gz", hash = "sha256:928ae7e20211f3b6f3915a72f06a0cfd29ab9d24279dd6346b6b1a7146397d36", size = 1050487, upload-time = "2026-09-20T20:59:05.609Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/38/bb/d215ee7c73b61497b28a5503f9f53523f294fcc936762b7caf90e0c1c2b5/pyparsing-3.3.3-py3-none-any.whl", hash = "sha256:ece8c00a69cf01b45d0b1dedabb469c90d8caf996d4fda40f147627a122849a4", size = 126420, upload-time = "2026-09-20T20:59:04.025Z" },
 ]
 
 [[package]]

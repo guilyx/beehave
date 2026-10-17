@@ -1,0 +1,15 @@
+START --> Writer
+Writer --[success and nested.foo == 'bar']--> ParamsAndState
+Writer --[success and not nested.foo == 'bar']--> FAILURE
+Writer --[failure]--> FAILURE
+ParamsAndState --[success]--> SUCCESS
+ParamsAndState --[failure]--> FAILURE
+
+tree           Blackboard Demo (py_trees)
+nodes          5 (1 control, 1 condition, 3 action)
+actions        2
+reduction      60% (5 nodes -> 2 actions)
+transitions    6
+longest guard  1 term (not simplified)
+approximated   none
+

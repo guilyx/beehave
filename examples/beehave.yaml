@@ -1,0 +1,8 @@
+# Beehave settings for the py_trees examples.
+#
+# py_trees has no condition type: a check is a behaviour like any other. The
+# examples derive every check from a `Check` class, and this tells Beehave
+# that those behaviours are conditions. The XML examples do not need this
+# file: they declare their conditions in <TreeNodesModel>.
+conditions:
+  - Check

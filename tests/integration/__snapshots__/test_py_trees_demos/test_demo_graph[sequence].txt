@@ -1,0 +1,16 @@
+START --> Action 1
+Action 1 --[success]--> Action 2
+Action 1 --[failure]--> FAILURE
+Action 2 --[success]--> Action 3
+Action 2 --[failure]--> FAILURE
+Action 3 --[success]--> SUCCESS
+Action 3 --[failure]--> FAILURE
+
+tree           Sequence (py_trees)
+nodes          4 (1 control, 3 action)
+actions        3
+reduction      25% (4 nodes -> 3 actions)
+transitions    7
+longest guard  0 terms (not simplified)
+approximated   none
+

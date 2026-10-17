@@ -309,8 +309,14 @@ from py_trees.composites import Parallel
 
 for sync in (False, True):
     print(f"SuccessOnAll(synchronise={sync}):")
-    run(Parallel("par", ParallelPolicy.SuccessOnAll(synchronise=sync),
-                 children=[Probe("A", S), Probe("B", R, S)]), 2)
+    run(
+        Parallel(
+            "par",
+            ParallelPolicy.SuccessOnAll(synchronise=sync),
+            children=[Probe("A", S), Probe("B", R, S)],
+        ),
+        2,
+    )
 
 print("SuccessOnOne, A succeeds while B runs:")
 run(Parallel("par", ParallelPolicy.SuccessOnOne(), children=[Probe("A", S), Probe("B", R)]), 1)
@@ -326,8 +332,12 @@ print("SuccessOnSelected([A]):")
 run(Parallel("par", ParallelPolicy.SuccessOnSelected([a]), children=[a, b]), 1)
 
 from py_trees.composites import Selector, Sequence
-for empty in (Sequence("seq", memory=True), Selector("sel", memory=False),
-              Parallel("par", ParallelPolicy.SuccessOnAll())):
+
+for empty in (
+    Sequence("seq", memory=True),
+    Selector("sel", memory=False),
+    Parallel("par", ParallelPolicy.SuccessOnAll()),
+):
     empty.tick_once()
     print(f"empty {type(empty).__name__} -> {empty.status.name}")
 ```
@@ -359,6 +369,7 @@ Sources: [decorators.py L660-L869](https://github.com/splintered-reality/py_tree
 ```python
 # v04_status_maps.py
 """One tick of each status-mapping decorator over a child that returns S, F or R."""
+
 import py_trees.decorators as d
 from probe import LOG, F, R, S, Probe
 from py_trees.common import Status
@@ -520,7 +531,9 @@ node = Timeout("timeout", Probe("A", R), duration=0.05)
 for i in (1, 2):
     LOG.clear()
     node.tick_once()
-    print(f"  tick {i}: {' '.join(LOG):<28} -> {node.status.name} ({node.feedback_message.split(' [')[0]})")
+    print(
+        f"  tick {i}: {' '.join(LOG):<28} -> {node.status.name} ({node.feedback_message.split(' [')[0]})"
+    )
     time.sleep(0.06)
 
 for policy in (OneShotPolicy.ON_SUCCESSFUL_COMPLETION, OneShotPolicy.ON_COMPLETION):
@@ -614,8 +627,12 @@ import operator
 
 import py_trees
 from py_trees.behaviours import (
-    CheckBlackboardVariableExists, CheckBlackboardVariableValue, CheckBlackboardVariableValues,
-    CompareBlackboardVariables, WaitForBlackboardVariable, WaitForBlackboardVariableValue,
+    CheckBlackboardVariableExists,
+    CheckBlackboardVariableValue,
+    CheckBlackboardVariableValues,
+    CompareBlackboardVariables,
+    WaitForBlackboardVariable,
+    WaitForBlackboardVariableValue,
 )
 from py_trees.common import Access, ComparisonExpression
 
@@ -641,31 +658,49 @@ for value in (None, 50, 15):
     wait.tick_once()
     print(f"battery_level={value}: Check -> {check.status.name}, WaitFor -> {wait.status.name}")
 
-print("WaitForBlackboardVariableValue is a CheckBlackboardVariableValue:",
-      isinstance(wait, CheckBlackboardVariableValue))
-print("WaitForBlackboardVariable is a CheckBlackboardVariableExists:",
-      isinstance(WaitForBlackboardVariable("w", "x"), CheckBlackboardVariableExists))
+print(
+    "WaitForBlackboardVariableValue is a CheckBlackboardVariableValue:",
+    isinstance(wait, CheckBlackboardVariableValue),
+)
+print(
+    "WaitForBlackboardVariable is a CheckBlackboardVariableExists:",
+    isinstance(WaitForBlackboardVariable("w", "x"), CheckBlackboardVariableExists),
+)
 
 values = CheckBlackboardVariableValues(
     name="XOR",
-    checks=[ComparisonExpression("joy1", "enabled", operator.eq),
-            ComparisonExpression("joy2", "enabled", operator.eq)],
+    checks=[
+        ComparisonExpression("joy1", "enabled", operator.eq),
+        ComparisonExpression("joy2", "enabled", operator.eq),
+    ],
     operator=operator.xor,
 )
-print("CheckBlackboardVariableValues:", values.operator.__name__,
-      [(c.variable, c.operator.__name__) for c in values.checks])
+print(
+    "CheckBlackboardVariableValues:",
+    values.operator.__name__,
+    [(c.variable, c.operator.__name__) for c in values.checks],
+)
 compare = CompareBlackboardVariables("cmp", "speed", "limit", operator.le)
 print("CompareBlackboardVariables:", compare.var1_key, compare.operator.__name__, compare.var2_key)
 
+
 def threshold() -> float:
     return 20.0
+
+
 dynamic = ComparisonExpression("battery_level", threshold, operator.lt)
 print("callable value:", dynamic.value_generator.__qualname__)
 
+
 def low(blackboard) -> bool:
     return blackboard.battery_low_warning
+
+
 guard = py_trees.decorators.EternalGuard(
-    "Battery Low?", py_trees.behaviours.Success(), condition=low, blackboard_keys={"battery_low_warning"}
+    "Battery Low?",
+    py_trees.behaviours.Success(),
+    condition=low,
+    blackboard_keys={"battery_low_warning"},
 )
 print("EternalGuard condition:", type(guard.condition).__name__, guard.condition.func.__qualname__)
 lam = py_trees.decorators.EternalGuard("g", py_trees.behaviours.Success(), condition=lambda: True)
@@ -790,13 +825,18 @@ class IsAt(py_trees.behaviour.Behaviour):
 for node in (
     IsAt("At kitchen?", "kitchen"),
     py_trees.behaviours.CheckBlackboardVariableValue(
-        "Battery Low?", ComparisonExpression("battery.level", 20, operator.lt)),
+        "Battery Low?", ComparisonExpression("battery.level", 20, operator.lt)
+    ),
     py_trees.behaviours.SetBlackboardVariable("Mark done", "task_done", True, overwrite=True),
 ):
     for client in node.blackboards:
-        print(f"{node.name!r}: read={sorted(client.read)} write={sorted(client.write)} "
-              f"exclusive={sorted(client.exclusive)} remappings={client.remappings}")
-print("user instance attributes:", {k: v for k, v in vars(IsAt('x', 'door')).items() if k == 'place'})
+        print(
+            f"{node.name!r}: read={sorted(client.read)} write={sorted(client.write)} "
+            f"exclusive={sorted(client.exclusive)} remappings={client.remappings}"
+        )
+print(
+    "user instance attributes:", {k: v for k, v in vars(IsAt("x", "door")).items() if k == "place"}
+)
 ```
 
 ```text
@@ -824,7 +864,10 @@ root.add_children([inv, behaviours.Success()])
 tree = py_trees.trees.BehaviourTree(root)
 print("BehaviourTree(root).root is root:", tree.root is root)
 print("decorator .children == [.decorated]:", inv.children == [inv.decorated])
-print("default leaf names:", [c.name for c in (behaviours.Success(), behaviours.Running(), behaviours.Dummy())])
+print(
+    "default leaf names:",
+    [c.name for c in (behaviours.Success(), behaviours.Running(), behaviours.Dummy())],
+)
 try:
     composites.Sequence(memory=True)
 except TypeError as exc:
@@ -840,30 +883,39 @@ except RuntimeError as exc:
     print("add_child twice:", exc)
 b = composites.Sequence("b", memory=True)
 b.insert_child(shared, 0)
-print("insert_child does not check: shared in a and b:", shared in a.children and shared in b.children)
+print(
+    "insert_child does not check: shared in a and b:", shared in a.children and shared in b.children
+)
+
 
 def owner(cls: type) -> type:
     """The nearest class in the MRO that defines the tick logic (tick or update)."""
     return next(k for k in cls.__mro__ if "tick" in vars(k) or "update" in vars(k))
 
+
 public = [
-    obj for module in (composites, decorators, behaviours)
+    obj
+    for module in (composites, decorators, behaviours)
     for _, obj in inspect.getmembers(module, inspect.isclass)
     if issubclass(obj, behaviour.Behaviour) and obj.__module__ == module.__name__
 ]
 mismatch = [c.__qualname__ for c in public if owner(c) is not c]
 print(f"{len(public)} built-in classes; owner(cls) is not cls for:", mismatch)
 
+
 class GoTo(behaviour.Behaviour):
     def update(self):
         return py_trees.common.Status.SUCCESS
+
 
 class MySequence(composites.Sequence):
     def __init__(self, name):
         super().__init__(name, memory=False)
 
+
 class LowBattery(behaviours.CheckBlackboardVariableValue):
     pass
+
 
 for cls in (GoTo, MySequence, LowBattery):
     print(f"owner({cls.__name__}) = {owner(cls).__module__}.{owner(cls).__qualname__}")
@@ -965,9 +1017,14 @@ root = parse_behaviour_tree_xml(str(xml))
 print(py_trees.display.ascii_tree(root), end="")
 for node in root.iterate():
     if isinstance(node, py_trees.ports.PortsMixin):
-        ports = {p: node._get_blackboard_key(p) for p in (*node.input_ports(), *node.output_ports())}
+        ports = {
+            p: node._get_blackboard_key(p) for p in (*node.input_ports(), *node.output_ports())
+        }
         print(f"{node.name}: {type(node).__name__} {ports}")
-print("memory of the parsed Sequences:", [n.memory for n in root.iterate() if isinstance(n, py_trees.composites.Sequence)])
+print(
+    "memory of the parsed Sequences:",
+    [n.memory for n in root.iterate() if isinstance(n, py_trees.composites.Sequence)],
+)
 ```
 
 ```text
@@ -1009,8 +1066,15 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:  # py_trees ships py.typed
     import py_trees
 
-def from_py_trees(tree: py_trees.behaviour.Behaviour | py_trees.trees.BehaviourTree, *, config: Config | None = None) -> Document:
-    py_trees = _require_py_trees()  # imports lazily; raises UnsupportedFormatError if missing or < 2.2
+
+def from_py_trees(
+    tree: py_trees.behaviour.Behaviour | py_trees.trees.BehaviourTree,
+    *,
+    config: Config | None = None,
+) -> Document:
+    py_trees = (
+        _require_py_trees()
+    )  # imports lazily; raises UnsupportedFormatError if missing or < 2.2
     ...
 ```
 
@@ -1021,8 +1085,8 @@ def from_py_trees(tree: py_trees.behaviour.Behaviour | py_trees.trees.BehaviourT
 ```python
 import beehave
 
-doc = beehave.from_py_trees(root)                # Behaviour or BehaviourTree -> Document(format="py_trees")
-result = beehave.analyze_py_trees(root)          # -> Analysis, like analyze() for XML files
+doc = beehave.from_py_trees(root)  # Behaviour or BehaviourTree -> Document(format="py_trees")
+result = beehave.analyze_py_trees(root)  # -> Analysis, like analyze() for XML files
 print(beehave.to_mermaid(result.graph))
 ```
 

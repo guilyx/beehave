@@ -6,6 +6,7 @@ Examples::
     beehave graph mission.xml -f mermaid -o mission.mmd
     beehave stats mission.xml                 # size, reduction, breakage
     beehave trees mission.xml                 # list the trees in the files
+    beehave graph --py-trees robot.trees:create_root   # a py_trees tree (runs that code)
 """
 
 from __future__ import annotations
@@ -17,16 +18,19 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from beehave import __version__
-from beehave.api import analyze
+from beehave.api import analyze, analyze_py_trees
 from beehave.config import Config, find_config, load_config
 from beehave.errors import BeehaveError
 from beehave.parsers import parse_file
+from beehave.parsers.pytrees import from_py_trees, load_py_trees
 from beehave.render import FORMATS
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from beehave.api import Analysis
     from beehave.diagnostics import Diagnostic
+    from beehave.model import Document
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -35,6 +39,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     Exit codes: 0 on success, 1 when the input cannot be analysed, 2 on a usage error.
     """
     args = _parser().parse_args(argv)
+    _check_inputs(args)
     try:
         return int(args.run(args))
     except BeehaveError as exc:
@@ -52,6 +57,7 @@ def _parser() -> argparse.ArgumentParser:
 
     graph = commands.add_parser("graph", help="build the action graph of a tree")
     _common(graph)
+    graph.set_defaults(parser=graph)
     graph.add_argument(
         "-f",
         "--format",
@@ -64,23 +70,57 @@ def _parser() -> argparse.ArgumentParser:
 
     stats = commands.add_parser("stats", help="print size, reduction and breakage metrics")
     _common(stats)
+    stats.set_defaults(parser=stats)
     stats.add_argument("--json", action="store_true", help="print the metrics as JSON")
     stats.set_defaults(run=_stats)
 
     trees = commands.add_parser("trees", help="list the trees defined in the files")
-    trees.add_argument("files", nargs="+", type=Path, metavar="FILE", help="BT.CPP XML files")
-    trees.add_argument("-c", "--config", type=Path, help="project config (default: ./beehave.yaml)")
-    trees.set_defaults(run=_trees)
+    _inputs(trees)
+    trees.set_defaults(run=_trees, parser=trees)
     return parser
 
 
-def _common(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("files", nargs="+", type=Path, metavar="FILE", help="BT.CPP XML files")
-    parser.add_argument("-t", "--tree", help="tree to analyse (default: the main tree)")
+def _inputs(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("files", nargs="*", type=Path, metavar="FILE", help="BT.CPP XML files")
+    parser.add_argument(
+        "--py-trees",
+        metavar="SPEC",
+        help="read a py_trees tree instead: module:function or file.py:function. "
+        "This imports the module and calls the function, so it runs that code",
+    )
+    parser.add_argument(
+        "--kwargs", metavar="JSON", help="arguments for the --py-trees function, as a JSON object"
+    )
     parser.add_argument(
         "-c", "--config", type=Path, help="project config (default: ./beehave.yaml)"
     )
+
+
+def _common(parser: argparse.ArgumentParser) -> None:
+    _inputs(parser)
+    parser.add_argument("-t", "--tree", help="tree to analyse (default: the main tree)")
     parser.add_argument("-q", "--quiet", action="store_true", help="do not print warnings")
+
+
+def _check_inputs(args: argparse.Namespace) -> None:
+    error = args.parser.error
+    if args.files and args.py_trees:
+        error("give tree files or --py-trees, not both")
+    if not args.files and not args.py_trees:
+        error("give tree files or --py-trees")
+    if args.py_trees and getattr(args, "tree", None):
+        error("--tree does not apply to --py-trees")
+    if args.kwargs is None:
+        return
+    if not args.py_trees:
+        error("--kwargs needs --py-trees")
+    try:
+        kwargs = json.loads(args.kwargs)
+    except json.JSONDecodeError:
+        kwargs = None
+    if not isinstance(kwargs, dict):
+        error("--kwargs must be a JSON object")
+    args.kwargs = kwargs
 
 
 def _config(args: argparse.Namespace) -> Config:
@@ -88,8 +128,22 @@ def _config(args: argparse.Namespace) -> Config:
     return load_config(path) if path else Config()
 
 
+def _analysis(args: argparse.Namespace) -> Analysis:
+    if args.py_trees:
+        tree = load_py_trees(args.py_trees, **(args.kwargs or {}))
+        return analyze_py_trees(tree, config=_config(args))
+    return analyze(*args.files, tree=args.tree, config=_config(args))
+
+
+def _document(args: argparse.Namespace) -> Document:
+    if args.py_trees:
+        tree = load_py_trees(args.py_trees, **(args.kwargs or {}))
+        return from_py_trees(tree, config=_config(args))
+    return parse_file(*args.files, config=_config(args))
+
+
 def _graph(args: argparse.Namespace) -> int:
-    result = analyze(*args.files, tree=args.tree, config=_config(args))
+    result = _analysis(args)
     _warn(result.graph.diagnostics, quiet=args.quiet)
     output = FORMATS[args.format](result.graph)
     if args.output:
@@ -100,7 +154,7 @@ def _graph(args: argparse.Namespace) -> int:
 
 
 def _stats(args: argparse.Namespace) -> int:
-    result = analyze(*args.files, tree=args.tree, config=_config(args))
+    result = _analysis(args)
     _warn(result.graph.diagnostics, quiet=args.quiet)
     if args.json:
         sys.stdout.write(json.dumps(result.stats.to_dict(), indent=2) + "\n")
@@ -110,7 +164,7 @@ def _stats(args: argparse.Namespace) -> int:
 
 
 def _trees(args: argparse.Namespace) -> int:
-    document = parse_file(*args.files, config=_config(args))
+    document = _document(args)
     for tree_id in document.trees:
         suffix = " (main)" if tree_id == document.main_tree else ""
         sys.stdout.write(f"{tree_id}{suffix}\n")

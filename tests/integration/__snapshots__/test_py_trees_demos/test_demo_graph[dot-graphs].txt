@@ -1,0 +1,11 @@
+START --> Worker#1
+
+tree           Demo Dot Graphs all (py_trees)
+nodes          13 (4 control, 9 action)
+actions        9
+reduction      31% (13 nodes -> 9 actions)
+transitions    1
+longest guard  0 terms (not simplified)
+approximated   Selector(memory=False) ×1
+
+warning: Selector(memory=False) "Demo Dot Graphs all": walked like a Fallback; its conditions are re-checked every tick, but preemption edges are not shown yet [approximated]
