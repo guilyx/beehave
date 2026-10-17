@@ -62,7 +62,7 @@ A versioned document meant for other tools, including a future operator view.
     {
       "code": "approximated",
       "severity": "warning",
-      "message": "ReactiveFallback: walked like a Fallback; …",
+      "message": "ReactiveFallback \"mission_with_failsafe\": walked like a Fallback; …",
       "node_type": "ReactiveFallback",
       "location": {"file": "examples/aerial/drone_mission.xml", "line": 11}
     }

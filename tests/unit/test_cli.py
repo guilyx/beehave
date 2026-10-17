@@ -49,7 +49,7 @@ def test_diagnostics_go_to_stderr(capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["graph", DRONE]) == 0
 
     err = capsys.readouterr().err
-    assert "warning: ReactiveFallback: walked like a Fallback" in err
+    assert 'warning: ReactiveFallback "mission_with_failsafe": walked like a Fallback' in err
     assert "[approximated]" in err
 
 

@@ -9,8 +9,9 @@ from __future__ import annotations
 import pytest
 
 from beehave.config import Config
-from beehave.flatten import flatten
+from beehave.flatten import FlatTree, flatten
 from beehave.graph import ActionGraph, Outcome, VertexKind
+from beehave.model import Node, NodeKind, Semantics
 from beehave.parsers import parse_string
 from beehave.walk import build_graph
 from tests.conftest import tree_xml
@@ -325,3 +326,182 @@ def test_diagnostics_are_listed_in_document_order() -> None:
     )
 
     assert [d.node_type for d in g.diagnostics] == ["ReactiveSequence", "RetryUntilSuccessful"]
+
+
+def test_named_diagnostics_say_which_node() -> None:
+    g = graph('<ReactiveSequence name="guarded"><C/><A/></ReactiveSequence>')
+
+    assert g.diagnostics[0].message.startswith('ReactiveSequence "guarded": walked like a Sequence')
+
+
+def test_conditions_of_one_type_with_different_names_are_different_conditions() -> None:
+    # A name is the only thing that tells two py_trees instances of one class
+    # apart, so merging them would drop real paths.
+    g = graph(
+        '<Fallback><Sequence><C name="at kitchen"/><A/></Sequence>'
+        '<Sequence><C name="at door"/><B/></Sequence></Fallback>'
+    )
+
+    assert edges(g)[:3] == [
+        "START -> A [at kitchen]",
+        "START -> B [not at kitchen and at door]",
+        "START -> FAILURE [not at kitchen and not at door]",
+    ]
+
+
+# ------------------------------------------- nodes other formats produce ---
+
+
+def model_graph(root: Node) -> ActionGraph:
+    return build_graph(FlatTree("Main", root, "test", ()))
+
+
+def act(name: str) -> Node:
+    return Node(NodeKind.ACTION, name)
+
+
+def seq(*children: Node) -> Node:
+    return Node(NodeKind.CONTROL, "Sequence", Semantics.SEQUENCE, children=children)
+
+
+def deco(semantics: Semantics, child: Node, **ports: str) -> Node:
+    return Node(
+        NodeKind.DECORATOR, semantics.name.title(), semantics, ports=ports, children=(child,)
+    )
+
+
+def test_blackboard_condition_shows_its_expression() -> None:
+    check = Node(
+        NodeKind.CONDITION,
+        "CheckBlackboardVariableValue",
+        Semantics.BLACKBOARD_CONDITION,
+        "Battery low?",
+        {"expression": "battery_level < 20"},
+    )
+
+    g = model_graph(seq(check, act("Dock")))
+
+    assert edges(g)[:2] == [
+        "START -> Dock [battery_level < 20]",
+        "START -> FAILURE [not battery_level < 20]",
+    ]
+    assert g.edges[0].guard[0].condition.key == "battery_level < 20"
+
+
+def test_two_checks_of_one_expression_are_one_condition() -> None:
+    def check(name: str) -> Node:
+        return Node(
+            NodeKind.CONDITION,
+            "CheckBlackboardVariableValue",
+            Semantics.BLACKBOARD_CONDITION,
+            name,
+            {"expression": "done == True"},
+        )
+
+    g = model_graph(
+        seq(
+            check("Done?"),
+            Node(
+                NodeKind.CONTROL,
+                "Fallback",
+                Semantics.FALLBACK,
+                children=(check("Done again?"), act("A")),
+            ),
+        )
+    )
+
+    assert edges(g)[:2] == [
+        "START -> SUCCESS [done == True]",
+        "START -> FAILURE [not done == True]",
+    ]
+
+
+def test_pass_through_is_transparent_and_exact() -> None:
+    g = model_graph(deco(Semantics.PASS_THROUGH, act("A")))
+
+    assert edges(g) == ["START -> A", "A -success-> SUCCESS", "A -failure-> FAILURE"]
+    assert g.diagnostics == ()
+
+
+def test_an_action_that_never_finishes_has_no_outgoing_edge() -> None:
+    idle = Node(NodeKind.ACTION, "Running", Semantics.ALWAYS_RUNNING, "Idle")
+    fallback = Node(NodeKind.CONTROL, "Fallback", Semantics.FALLBACK, children=(act("A"), idle))
+
+    g = model_graph(fallback)
+
+    assert edges(g) == ["START -> A", "A -success-> SUCCESS", "A -failure-> Idle"]
+    assert g.diagnostics == ()
+
+
+def test_a_wait_only_succeeds() -> None:
+    wait = Node(NodeKind.ACTION, "Timer", Semantics.WAIT, "Wait", {"duration": "2.0"})
+
+    g = model_graph(seq(wait, act("A")))
+
+    assert edges(g) == [
+        "START -> Wait",
+        "Wait -success-> A",
+        "A -success-> SUCCESS",
+        "A -failure-> FAILURE",
+    ]
+    assert g.diagnostics == ()
+
+
+@pytest.mark.parametrize(
+    ("ports", "expected", "message"),
+    [
+        (
+            {"on_success": "FAILURE", "on_failure": "SUCCESS", "on_running": "RUNNING"},
+            ["START -> A", "A -success-> FAILURE", "A -failure-> SUCCESS"],
+            None,
+        ),
+        (
+            {"on_success": "SUCCESS", "on_failure": "FAILURE", "on_running": "FAILURE"},
+            ["START -> A", "A -success-> SUCCESS", "A -failure-> FAILURE"],
+            "a RUNNING child is halted and counts as FAILURE; those edges are not shown yet",
+        ),
+        (
+            {"on_success": "RUNNING", "on_failure": "SUCCESS", "on_running": "RUNNING"},
+            ["START -> A", "A -success-> SUCCESS", "A -failure-> SUCCESS"],
+            "a successful child is ticked again; the loop is not shown yet",
+        ),
+        (
+            {"on_success": "RUNNING", "on_failure": "RUNNING", "on_running": "SUCCESS"},
+            ["START -> A", "A -success-> SUCCESS", "A -failure-> FAILURE"],
+            (
+                "a successful child is ticked again; a failed child is ticked again; "
+                "a RUNNING child is halted and counts as SUCCESS; the loop and those edges "
+                "are not shown yet"
+            ),
+        ),
+    ],
+    ids=["swap", "running-is-failure", "until-failure", "until-running"],
+)
+def test_status_map(ports: dict[str, str], expected: list[str], message: str | None) -> None:
+    g = model_graph(deco(Semantics.STATUS_MAP, act("A"), **ports))
+
+    assert edges(g) == expected
+    assert [d.message.split(": ", 1)[1] for d in g.diagnostics] == ([message] if message else [])
+
+
+def test_run_once_is_transparent_and_reported() -> None:
+    g = model_graph(deco(Semantics.RUN_ONCE, act("A"), policy="ON_COMPLETION"))
+
+    assert edges(g) == ["START -> A", "A -success-> SUCCESS", "A -failure-> FAILURE"]
+    assert [d.code for d in g.diagnostics] == ["approximated"]
+
+
+@pytest.mark.parametrize(
+    ("semantics", "ports", "note"),
+    [
+        (Semantics.RETRY, {"num_failures": "3"}, "retry ×3"),
+        (Semantics.RETRY, {}, "retry"),
+        (Semantics.REPEAT, {"num_success": "2"}, "repeat ×2"),
+    ],
+)
+def test_loop_notes_read_py_trees_counts(
+    semantics: Semantics, ports: dict[str, str], note: str
+) -> None:
+    g = model_graph(deco(semantics, act("A"), **ports))
+
+    assert g.actions[0].notes == (note,)

@@ -46,9 +46,9 @@ outcome and the guard holds, the action on the right runs next.
 On stderr, Beehave also lists the nodes it could only approximate:
 
 ```text
-beehave: examples/aerial/drone_mission.xml:11: warning: ReactiveFallback: walked like
-a Fallback; its conditions are re-checked every tick, but preemption edges are not
-shown yet [approximated]
+beehave: examples/aerial/drone_mission.xml:11: warning: ReactiveFallback
+"mission_with_failsafe": walked like a Fallback; its conditions are re-checked every
+tick, but preemption edges are not shown yet [approximated]
 ```
 
 ## A picture instead

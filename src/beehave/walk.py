@@ -11,6 +11,8 @@ node is ticked.
   edges, so conditions never become boxes.
 - A Sequence chains its children on success, a Fallback on failure.
 - An Inverter swaps the continuations; ForceSuccess and ForceFailure merge them.
+- An action that never fails has no failure edge; one that never finishes has
+  no outgoing edge at all.
 
 Nodes whose semantics Phase 1 cannot model exactly (reactive nodes, Parallel,
 loops, unknown custom nodes) are walked with a documented approximation and
@@ -77,6 +79,10 @@ _APPROXIMATIONS: dict[Semantics, str] = {
         "the loop is not shown yet"
     ),
     Semantics.TIMEOUT: "can also fail when time runs out; those failure edges are not shown yet",
+    Semantics.RUN_ONCE: (
+        "after its child completes once, later activations return that result "
+        "without running it; those edges are not shown yet"
+    ),
 }
 
 _SEQUENCES = frozenset(
@@ -92,14 +98,18 @@ _TRANSPARENT = frozenset(
     {
         Semantics.TIMEOUT,
         Semantics.DELAY,
+        Semantics.PASS_THROUGH,
+        Semantics.RUN_ONCE,
         Semantics.RETRY,
         Semantics.REPEAT,
         Semantics.KEEP_RUNNING_UNTIL_FAILURE,
     }
 )
+# The note word, then the count port of each format (BT.CPP first, then py_trees).
+_NEVER_FAIL = frozenset({Semantics.ALWAYS_RUNNING, Semantics.WAIT})
 _LOOP_NOTES = {
-    Semantics.RETRY: ("retry", "num_attempts"),
-    Semantics.REPEAT: ("repeat", "num_cycles"),
+    Semantics.RETRY: ("retry", ("num_attempts", "num_failures")),
+    Semantics.REPEAT: ("repeat", ("num_cycles", "num_success")),
 }
 
 
@@ -123,8 +133,8 @@ def build_graph(flat: FlatTree, *, max_paths: int = DEFAULT_MAX_PATHS) -> Action
 class _ActionInfo:
     node: Node
     subtrees: tuple[str, ...]
-    on_success: _Target
-    on_failure: _Target
+    on_success: _Target | None
+    on_failure: _Target | None
     notes: list[str] = field(default_factory=list)
 
 
@@ -177,6 +187,8 @@ class _Walker:
             return self._child(node, path, f, f, subtrees)
         if sem is Semantics.BLACKBOARD_CHECK:
             return self._blackboard_check(node, path, s, f, subtrees)
+        if sem is Semantics.STATUS_MAP:
+            return self._status_map(node, path, s, f, subtrees)
         if sem in _LOOP_NOTES:
             self._note_loop(node, path)
         if sem in _TRANSPARENT:
@@ -191,7 +203,10 @@ class _Walker:
             return s
         if node.semantics is Semantics.ALWAYS_FAILURE:
             return f
-        self.actions[path] = _ActionInfo(node, subtrees, s, f, self.pending_notes.pop(path, []))
+        on_success = None if node.semantics is Semantics.ALWAYS_RUNNING else s
+        on_failure = None if node.semantics in _NEVER_FAIL else f
+        notes = self.pending_notes.pop(path, [])
+        self.actions[path] = _ActionInfo(node, subtrees, on_success, on_failure, notes)
         return path
 
     def _child(
@@ -248,16 +263,45 @@ class _Walker:
         check = _equals(node.ports.get("value_A", "?"), node.ports.get("value_B", "?"))
         return _Branch(check, child, on_mismatch)
 
+    def _status_map(
+        self, node: Node, path: _Path, s: _Target, f: _Target, subtrees: tuple[str, ...]
+    ) -> _Target:
+        on_success = node.ports.get("on_success", "SUCCESS").strip().upper()
+        on_failure = node.ports.get("on_failure", "FAILURE").strip().upper()
+        on_running = node.ports.get("on_running", "RUNNING").strip().upper()
+        notes = []
+        if on_success == "RUNNING":
+            notes.append("a successful child is ticked again")
+        if on_failure == "RUNNING":
+            notes.append("a failed child is ticked again")
+        loops = bool(notes)
+        halts = on_running != "RUNNING"
+        if halts:
+            notes.append(f"a RUNNING child is halted and counts as {on_running}")
+        if notes:
+            hidden = (
+                "the loop and those edges are"
+                if loops and halts
+                else ("the loop is" if loops else "those edges are")
+            )
+            self._report(node, path, "approximated", f"{'; '.join(notes)}; {hidden} not shown yet")
+        # Phase 1 walks "tick it again" as if the child's own result went through.
+        targets = {"SUCCESS": s, "FAILURE": f}
+        return self._child(
+            node, path, targets.get(on_success, s), targets.get(on_failure, f), subtrees
+        )
+
     def _note_loop(self, node: Node, path: _Path) -> None:
         child = node.children[0]
         if child.kind is not NodeKind.ACTION or child.semantics is not Semantics.CUSTOM:
             return
-        word, port = _LOOP_NOTES[node.semantics]
-        count = node.ports.get(port)
+        word, ports = _LOOP_NOTES[node.semantics]
+        count = next((node.ports[p] for p in ports if p in node.ports), None)
         self.pending_notes.setdefault((*path, 0), []).append(f"{word} ×{count}" if count else word)
 
     def _report(self, node: Node, path: _Path, code: str, message: str) -> None:
-        message = f"{node.type}: {message}"
+        named = node.name and node.name != node.type
+        message = f'{node.type} "{node.name}": {message}' if named else f"{node.type}: {message}"
         diagnostic = Diagnostic(code, message, node_type=node.type, location=node.location)
         self.node_diagnostics.append((path, diagnostic))
 
@@ -271,7 +315,9 @@ class _Walker:
 
         edges: list[Edge] = []
 
-        def add(source: str, outcome: Outcome | None, target: _Target) -> None:
+        def add(source: str, outcome: Outcome | None, target: _Target | None) -> None:
+            if target is None:
+                return
             paths, truncated = _expand(target, max_paths)
             edges.extend(Edge(source, vertex_id(t), outcome, guard) for guard, t in paths)
             if truncated:
@@ -352,10 +398,15 @@ def _expand(target: _Target, limit: int) -> tuple[list[tuple[Guard, str | _Path]
 
 
 def _condition(node: Node) -> Condition:
+    if node.semantics is Semantics.BLACKBOARD_CONDITION:
+        expression = node.ports.get("expression", node.label)
+        return Condition(expression, expression)
     ports = ", ".join(f"{k}={v}" for k, v in node.ports.items())
     key = f"{node.type}({', '.join(f'{k}={v}' for k, v in sorted(node.ports.items()))})"
     if node.name:
-        return Condition(key, node.name)
+        # The name is part of the identity: in py_trees it is often the only
+        # thing that tells two instances of one class apart.
+        return Condition(f'{key} "{node.name}"', node.name)
     return Condition(key, f"{node.type}({ports})" if ports else node.type)
 
 

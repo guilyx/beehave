@@ -1,6 +1,6 @@
 """The format-agnostic tree model.
 
-Every parser (BT.CPP v3 today, v4 and py_trees later) turns its input into these
+Every parser (BT.CPP XML, and the py_trees adapter) turns its input into these
 types. The flatten, walk and render steps only ever see this model, so adding a
 format means adding a parser and nothing else.
 """
@@ -59,11 +59,24 @@ class Semantics(str, Enum):
     TIMEOUT = "timeout"
     DELAY = "delay"
     BLACKBOARD_CHECK = "blackboard_check"
+    PASS_THROUGH = "pass_through"  # noqa: S105 - not a password
+    """Returns its child's result unchanged (py_trees ``PassThrough``, ``Count``)."""
+    STATUS_MAP = "status_map"
+    """Maps each child result to another, as ports ``on_success``, ``on_failure``
+    and ``on_running`` say. ``RUNNING`` for a finished child means "tick it again"."""
+    RUN_ONCE = "run_once"
+    """Runs its child until it completes once, then returns that result."""
 
     # Built-in leaves.
     ALWAYS_SUCCESS = "always_success"
     ALWAYS_FAILURE = "always_failure"
+    ALWAYS_RUNNING = "always_running"
+    """Never finishes (py_trees ``Running``), so it has no outgoing edge."""
+    WAIT = "wait"
+    """Waits, then succeeds; it never fails (py_trees ``Timer`` and ``WaitFor…``)."""
     SET_BLACKBOARD = "set_blackboard"
+    BLACKBOARD_CONDITION = "blackboard_condition"
+    """A check written as an expression over blackboard entries, in port ``expression``."""
 
     # Subtree references.
     SUBTREE = "subtree"
