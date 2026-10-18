@@ -8,7 +8,8 @@ How Beehave works and why it works that way.
   support, the pilot metrics.
 - [Phase 1 results](phase-1-results.md): the metrics on public BT.CPP,
   Groot and Nav2 trees.
-- [Roadmap](roadmap.md): the four phases and the gates between them.
+- [Roadmap](roadmap.md): the phases, the formats and six more tracks, in
+  milestones, with the open decisions.
 - [Key concepts](concepts.md): guards, abstraction, temporal logic, in plain
   words.
 - [Architecture decision records](adr/README.md): every significant decision,

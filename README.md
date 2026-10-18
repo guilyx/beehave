@@ -267,16 +267,18 @@ conditions: [BatteryOK, IsEmergency]
 
 ## Status
 
-Beehave moves along two tracks ([roadmap](https://guilyx.github.io/beehave/design/roadmap/)).
+Beehave moves along eight tracks, in six milestones
+([roadmap](https://guilyx.github.io/beehave/design/roadmap/)).
 
 **Phases** — what the graph says:
 
 | Phase | What | Status |
 | --- | --- | --- |
 | 1. Action graph | Parse, flatten subtrees, walk, render | **done**, readability gate open |
-| 2. Guards and metrics | Simplified guards, exact Reactive/Retry/Parallel, gap report | planned |
-| 3. Operator view | Operator labels, phase view, JSON for ground-control UIs, live status | planned |
-| 4. LTL checks | Temporal-logic safety rules and model checking | optional |
+| 2. Guards and metrics | Simplified guards, exact Reactive/Retry/Parallel, gap report | planned (M3) |
+| 3. Operator view | Operator labels, phase view, JSON for ground-control UIs, live status | planned (M5) |
+| 4a. Graph safety rules | Safety rules checked on the graph, with witness paths | planned (M4) |
+| 4b. Model checking | Temporal-logic rules through BehaVerify | optional (M6) |
 
 **Formats** — what Beehave reads:
 
@@ -285,7 +287,20 @@ Beehave moves along two tracks ([roadmap](https://guilyx.github.io/beehave/desig
 | BehaviorTree.CPP v3 | **supported** |
 | BehaviorTree.CPP v4 | **supported**, including `SKIPPED` and pre-conditions |
 | py_trees (2.2 and newer) | **supported** |
-| Node presets (Nav2 first) | planned |
+| Nav2 presets, per ROS distro | planned (M1, M3) |
+| Groot2 projects, AutoAPMS, BehaviorTree.ROS2 | planned (M1, M3) |
+| State machines (YASMIN, SMACH…) | later (M6) |
+
+**Checks against the graph** — six more tracks:
+
+| Track | What it adds | Starts in |
+| --- | --- | --- |
+| Foundations | Runtime IDs that match BT.CPP's, a graph hash, a JSON Schema | M1 |
+| Integrations | SARIF, GitHub annotations and Action, pre-commit, MCP server, `ros2 beehave` | M1 |
+| Quality | `beehave lint`, a quality report, `beehave diff`, grading generated trees | M1 |
+| Safety | An evidence manifest, graph safety rules, FMEA and assurance-case exports | M1 |
+| Runs | Read BT.CPP logs and Nav2 bags: timelines, edge coverage, conformance | M2 |
+| Tests | Coverage criteria, `beehave plan`, mock files for BT.CPP and py_trees | M2 |
 
 Nodes Beehave cannot model exactly yet (reactive nodes, loops, Parallel,
 unknown custom nodes) are approximated **and always reported**, never
