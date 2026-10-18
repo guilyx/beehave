@@ -64,8 +64,9 @@ See [ADR 0002](adr/0002-one-model-many-parsers.md) and
 `beehave.parsers.detect` tells which BT.CPP version a set of files is
 written in, from `BTCPP_format` or from v4-only constructs, and hands them to
 `btcpp_v3` or `btcpp_v4`. Both are dialects of one loader
-(`beehave.parsers._btcpp`): it reads one or more files, follows `<include>`
-tags, and reads `<TreeNodesModel>`. A dialect only says what differs: the
+(`beehave.parsers._btcpp`): it reads one or more files or folders, follows
+`<include>` tags (finding `ros_pkg` packages with `beehave.parsers.ros`), and
+reads `<TreeNodesModel>`. A dialect only says what differs: the
 built-in nodes, the subtree syntax, which attributes are scripts, and which
 definition of a duplicate tree wins. The loader uses expat directly so every
 node keeps its line number, and it refuses any `DOCTYPE`, which rules out

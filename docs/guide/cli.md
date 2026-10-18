@@ -1,7 +1,7 @@
 # Command line
 
 ```text
-beehave graph FILE... [-t TREE] [-f FORMAT] [-o OUTPUT] [-c CONFIG] [-q]
+beehave graph FILE... [-t TREE] [-f FORMAT] [-o OUTPUT] [-c CONFIG] [--package NAME=DIR] [-q]
 beehave graph --py-trees SPEC [--kwargs JSON] [-f FORMAT] [-o OUTPUT] [-c CONFIG] [-q]
 beehave stats FILE... [-t TREE] [--json] [-c CONFIG] [-q]
 beehave stats --py-trees SPEC [--kwargs JSON] [--json] [-c CONFIG] [-q]
@@ -11,9 +11,10 @@ beehave --version
 ```
 
 `FILE` is BehaviorTree.CPP XML, v3 or v4: Beehave detects the version (see
-[Formats](formats.md)). You can pass several files. Trees from all of them,
-and from every file they `<include>`, are merged; they must all be in the
-same BT.CPP version.
+[Formats](formats.md)). You can pass several files, and folders: a folder
+stands for every `.xml` file directly in it. Trees from all of them, and from
+every file they `<include>`, are merged; they must all be in the same BT.CPP
+version. See [Subtrees and includes](subtrees.md).
 
 `--py-trees SPEC` reads a py_trees tree instead. **It imports a module and
 calls a function, so it runs that code**: only point it at code you would run
@@ -31,6 +32,7 @@ Builds the action graph of one tree.
 | `-f`, `--format FORMAT` | `text` (default), `mermaid`, `dot` or `json`. |
 | `-o`, `--output FILE` | Write to a file instead of stdout. |
 | `-c`, `--config FILE` | Project config. Defaults to `./beehave.yaml` or `./.beehave.yaml` if present. |
+| `--package NAME=DIR` | Where `<include ros_pkg="NAME">` finds the package. Repeat for several; wins over `beehave.yaml` and a sourced workspace. |
 | `-q`, `--quiet` | Do not print warnings. |
 
 ## `beehave stats`

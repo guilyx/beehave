@@ -65,3 +65,21 @@ def test_find_config(tmp_path: Path) -> None:
 
     (tmp_path / "beehave.yaml").write_text("")
     assert find_config(tmp_path) == tmp_path / "beehave.yaml"
+
+
+def test_packages_are_relative_to_the_config_file(tmp_path: Path) -> None:
+    path = tmp_path / "beehave.yaml"
+    path.write_text("packages:\n  my_robot_bt: src/bt\n  other: /opt/ros/share/other\n")
+
+    packages = load_config(path).packages
+
+    assert packages == {
+        "my_robot_bt": tmp_path / "src" / "bt",
+        "other": tmp_path / "/opt/ros/share/other",
+    }
+
+
+@pytest.mark.parametrize("value", [["a"], {"a": 1}, "a"])
+def test_packages_must_map_names_to_directories(value: object) -> None:
+    with pytest.raises(ConfigError, match="'packages' must map package names to directories"):
+        config_from_dict({"packages": value})

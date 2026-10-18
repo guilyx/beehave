@@ -278,7 +278,9 @@ def test_missing_include_is_an_error(tmp_path: Path) -> None:
         parse_file(tmp_path / "a.xml")
 
 
-def test_ros_package_includes_are_reported_not_followed() -> None:
+def test_ros_package_includes_are_reported_not_followed(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("AMENT_PREFIX_PATH", raising=False)
+    monkeypatch.delenv("ROS_PACKAGE_PATH", raising=False)
     xml = (
         '<root><include ros_pkg="my_pkg" path="t.xml"/>'
         '<BehaviorTree ID="A"><X/></BehaviorTree></root>'

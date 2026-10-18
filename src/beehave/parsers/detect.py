@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING
 
 from beehave.config import Config
 from beehave.errors import ParseError
-from beehave.parsers._btcpp import source_name, v4_evidence
+from beehave.parsers._btcpp import expand_paths, source_name, v4_evidence
 from beehave.parsers._xml import read_xml
 
 if TYPE_CHECKING:
@@ -27,7 +27,8 @@ def detect_version(*paths: str | Path, config: Config | None = None) -> str:
     """Return ``"3"`` or ``"4"``: the BT.CPP version the files are written in.
 
     Args:
-        *paths: The files that will be parsed together.
+        *paths: The files that will be parsed together. A folder stands for
+            the ``.xml`` files directly in it.
         config: Project settings; node types listed there are never taken as
             evidence of v4, like node types declared in ``TreeNodesModel``.
 
@@ -39,8 +40,8 @@ def detect_version(*paths: str | Path, config: Config | None = None) -> str:
     """
     config = config or Config()
     found: dict[str, str] = {}
-    for path in paths:
-        source = source_name(Path(path))
+    for path in expand_paths(paths):
+        source = source_name(path)
         try:
             data = Path(path).read_bytes()
         except OSError as exc:
