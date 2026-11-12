@@ -316,7 +316,7 @@ class _Walker:
             return self._precondition(node, path, s, f, k, subtrees)
         if sem is Semantics.SKIP_UNLESS_UPDATED:
             child = self._child(node, path, s, f, k, subtrees)
-            return _Branch(self._at(_updated(node, path), path), child, k)
+            return _Branch(self._at(_updated(node, self.refs[path].path), path), child, k)
         if sem is Semantics.LOOP_QUEUE:
             return self._loop_queue(node, path, s, f, k, subtrees)
         if sem is Semantics.UNTIL_SUCCESS:
@@ -343,7 +343,7 @@ class _Walker:
             if node.options.get("never_fails") == "true" or s == f:
                 return _Effect(s)
             succeeded = Condition(
-                f"{node.type}@{_dotted(path)}",
+                f"{node.type}@{self.refs[path].path}",
                 f"{node.label} succeeded",
                 f"{node.label} failed",
                 node=self.refs[path],
@@ -570,7 +570,7 @@ class _Walker:
         child = self._child(node, path, empty, f, empty, subtrees)
         queue = _display(node.ports.get("queue", "queue"))
         has_items = Condition(
-            f"{node.type}@{_dotted(path)}", f"{queue} has items", node=self.refs[path]
+            f"{node.type}@{self.refs[path].path}", f"{queue} has items", node=self.refs[path]
         )
         return _Branch(has_items, child, empty)
 
@@ -603,7 +603,7 @@ class _Walker:
         if node.semantics is Semantics.SCRIPT_CONDITION:
             condition = _script(node.ports.get("code", "true"))
         elif node.semantics is Semantics.ENTRY_UPDATED:
-            condition = _updated(node, path)
+            condition = _updated(node, self.refs[path].path)
         else:
             condition = _condition(node)
         return self._at(condition, path)
@@ -805,11 +805,11 @@ def _script(code: str) -> Condition:
     return Condition("".join(code.split()), label, negated)
 
 
-def _updated(node: Node, path: _Path) -> Condition:
+def _updated(node: Node, path: str) -> Condition:
     # Each node remembers the version of the entry it saw last, so the check
     # belongs to the node: two nodes watching one entry are two conditions.
     entry = _display(node.ports.get("entry", "entry"))
-    return Condition(f"{node.type}@{_dotted(path)}", f"{entry} updated")
+    return Condition(f"{node.type}@{path}", f"{entry} updated")
 
 
 def _equals(left: str, right: str) -> Condition:
@@ -822,10 +822,6 @@ def _display(value: str) -> str:
     if len(value) > 2 and value[0] == "{" and value[-1] == "}":
         return value[1:-1]
     return value
-
-
-def _dotted(path: _Path) -> str:
-    return ".".join(map(str, path))
 
 
 def _positive(value: str | None) -> bool:

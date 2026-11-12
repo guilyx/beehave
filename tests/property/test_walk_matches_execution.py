@@ -27,6 +27,7 @@ from beehave.config import Config, config_from_dict
 from beehave.flatten import flatten
 from beehave.graph import FAILURE, SKIPPED, START, SUCCESS, ActionGraph, Outcome
 from beehave.hashing import graph_hash
+from beehave.ids import node_refs
 from beehave.model import Node, NodeKind, Semantics
 from beehave.parsers import parse_string
 from beehave.parsers.btcpp_v4 import parse_string as parse_v4
@@ -607,11 +608,12 @@ def test_bookkeeping_is_collapsed_without_changing_what_runs(
     flat = flatten(parse_string(xml, config=BOOKKEEPING_CONFIG))
     graph = build_graph(flat)
 
-    # Every Log node gets its own result; its guard key is its type and tree path.
+    # Every Log node gets its own result; its guard key is its type and stable path.
+    refs = node_refs(flat)
     paths: dict[int, str] = {}
 
     def visit(node: Node, at: tuple[int, ...]) -> None:
-        paths[id(node)] = ".".join(map(str, at))
+        paths[id(node)] = refs[at].path
         for index, child in enumerate(node.children):
             visit(child, (*at, index))
 
