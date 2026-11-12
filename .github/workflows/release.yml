@@ -1,14 +1,20 @@
 name: Release
 
-# Releases are cut by pushing a tag such as v0.1.0 on main. See CONTRIBUTING.md.
+# Every push to main is released when its Conventional Commits ask for it:
+# feat bumps the minor version, fix and perf the patch version, and a breaking
+# change the major version (the minor version while we are at 0.x). The bot
+# commits the new version and changelog, tags it and publishes it. Pushing a
+# vX.Y.Z tag by hand still releases that tag. See CONTRIBUTING.md.
 on:
   push:
+    branches: [main]
     tags: ["v*.*.*"]
 
 permissions: {}
 
+# One release at a time, never cancelled half-way through a publish.
 concurrency:
-  group: publish-${{ github.ref }}
+  group: release
   cancel-in-progress: false
 
 env:
@@ -21,16 +27,85 @@ jobs:
     permissions:
       contents: read
 
-  build:
-    name: Build distributions
+  version:
+    name: Work out the version
     needs: ci
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
+      contents: write # push the release commit and its tag
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: ${{ github.ref_type == 'branch' }}
+        with:
+          fetch-depth: 0 # every commit and tag, to find the last release
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        if: ${{ github.ref_type == 'branch' }}
+        with:
+          python-version: "3.13"
+          enable-cache: false
+
+      - name: Work out the next version from the commits
+        id: next
+        if: ${{ github.ref_type == 'branch' }}
+        run: |
+          version="$(uv run --no-project python scripts/release.py next)"
+          if [ -n "$version" ]; then
+            echo "Next release: $version" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No feat, fix, perf or breaking change since the last release: nothing to release." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Commit, tag and push the release
+        id: release
+        if: ${{ steps.next.outputs.version != '' }}
+        env:
+          VERSION: ${{ steps.next.outputs.version }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # A newer push to main has its own run, queued behind this one; it releases instead.
+          remote_main="$(git ls-remote origin refs/heads/main | cut -f1)"
+          if [ "$remote_main" != "$GITHUB_SHA" ]; then
+            echo "::notice::main moved on to ${remote_main}; the run for that commit releases instead."
+            exit 0
+          fi
+          uv version "$VERSION" --no-sync
+          uv run --no-project python scripts/release.py changelog "$VERSION"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit --quiet --all --message "chore(release): $VERSION"
+          git tag --annotate "v$VERSION" --message "Beehave $VERSION"
+          gh auth setup-git
+          # Pushes made with this token start no workflow, so this does not loop.
+          git push --atomic origin HEAD:main "v$VERSION"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Pick the tag to release
+        id: tag
+        env:
+          PUSHED: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+          CREATED: ${{ steps.release.outputs.tag }}
+        run: echo "tag=${PUSHED:-$CREATED}" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build distributions
+    needs: [ci, version]
+    if: ${{ needs.version.outputs.tag != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
       contents: read
+    env:
+      TAG: ${{ needs.version.outputs.tag }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ needs.version.outputs.tag }}
           persist-credentials: false
 
       - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
@@ -42,14 +117,14 @@ jobs:
       - name: Check that the tag matches the project version
         run: |
           version="$(uv --color never version --short)"
-          if [ "v${version}" != "${GITHUB_REF_NAME}" ]; then
-            echo "::error::Tag ${GITHUB_REF_NAME} does not match version ${version} in pyproject.toml"
+          if [ "v${version}" != "${TAG}" ]; then
+            echo "::error::Tag ${TAG} does not match version ${version} in pyproject.toml"
             exit 1
           fi
 
       - name: Extract the release notes from CHANGELOG.md
         run: |
-          version="${GITHUB_REF_NAME#v}"
+          version="${TAG#v}"
           awk -v heading="## [${version}]" '
             index($0, heading) == 1 { found = 1; next }
             found && (/^## / || /^\[[^]]+\]: /) { exit }
@@ -110,7 +185,7 @@ jobs:
 
   github-release:
     name: Sign and create the GitHub Release
-    needs: publish-pypi
+    needs: [version, publish-pypi]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -138,14 +213,15 @@ jobs:
       - name: Create the release
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.version.outputs.tag }}
         run: |
           prerelease=()
-          if [[ "${GITHUB_REF_NAME}" =~ (a|b|rc|\.dev)[0-9]+$ ]]; then
+          if [[ "${TAG}" =~ (a|b|rc|\.dev)[0-9]+$ ]]; then
             prerelease=(--prerelease)
           fi
-          gh release create "${GITHUB_REF_NAME}" dist/* \
+          gh release create "${TAG}" dist/* \
             --repo "${GITHUB_REPOSITORY}" \
-            --title "Beehave ${GITHUB_REF_NAME}" \
+            --title "Beehave ${TAG}" \
             --notes-file release-notes.md \
             --verify-tag \
             "${prerelease[@]}"
