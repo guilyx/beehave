@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING, TypeAlias
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from beehave.config import Config
+from beehave.config import Config, config_from_dict
 from beehave.flatten import flatten
 from beehave.graph import FAILURE, SKIPPED, START, SUCCESS, ActionGraph, Outcome
 from beehave.hashing import graph_hash
@@ -420,3 +420,148 @@ def test_graph_hashes_agree_with_graph_equality(spec: Spec, other: Spec) -> None
 
     same_graph = (a.vertices, a.edges) == (b.vertices, b.edges)
     assert (graph_hash(a) == graph_hash(b)) == same_graph
+
+
+# ------------------------------------------- presets: custom nodes and loops ---
+
+# Custom nodes the config gives a preset. The loops never end when nothing
+# changes between iterations, and in these runs nothing does (every condition
+# and every action keeps its value), so a loop either ends in its first pass
+# or never: the interpreter reports that as "stuck", and the graph has no edge
+# to follow at that point.
+PRESET_CONFIG = config_from_dict(
+    {
+        "conditions": list(CONDITIONS),
+        "nodes": {
+            "MySequence": "sequence",
+            "MyFallback": "fallback",
+            "MyChoice": "if_then_else",
+            "MyInverter": "inverter",
+            "KeepTrying": "until_success",
+            "WaitFor": "poll_until_success",
+            "RepeatUntil": {"behaves_like": "loop_until_flag", "flag_port": "until"},
+            "RepeatOrFail": {"behaves_like": "loop_until_flag", "exit": "failure"},
+        },
+    }
+)
+FLAGS = ("F0", "F1")
+
+
+class Stuck(Exception):  # noqa: N818 - an outcome, not an error
+    """The tree ticks the same thing forever."""
+
+
+def _extend_presets(children: st.SearchStrategy[Spec]) -> st.SearchStrategy[Spec]:
+    return st.one_of(
+        _extend(children),
+        st.tuples(
+            st.sampled_from(["MySequence", "MyFallback"]),
+            st.lists(children, min_size=1, max_size=3),
+        ),
+        st.tuples(st.just("MyChoice"), st.lists(children, min_size=2, max_size=3)),
+        st.tuples(
+            st.sampled_from(
+                [
+                    "MyInverter",
+                    "KeepTrying",
+                    "WaitFor",
+                    *(f"RepeatUntil until={{{f}}}" for f in FLAGS),
+                    *(f"RepeatOrFail flag={{{f}}}" for f in FLAGS),
+                ]
+            ),
+            children.map(lambda c: [c]),
+        ),
+    )
+
+
+PRESET_TREES: st.SearchStrategy[Spec] = st.recursive(_LEAVES, _extend_presets, max_leaves=12)
+
+
+def to_xml_presets(spec: Spec) -> str:
+    if len(spec) == 1:
+        return f"<{spec[0]}/>"
+    head, children = spec[0], spec[1]
+    name, _, port = head.partition(" ")
+    attribute = f' {port.replace("=", "=" + chr(34))}"' if port else ""
+    return f"<{name}{attribute}>{''.join(to_xml_presets(c) for c in children)}</{name}>"
+
+
+@dataclass
+class RunPresets(Run):
+    """The reference interpreter, taught the presets."""
+
+    def tick(self, node: Node) -> bool:
+        if node.behaves_like is None or node.semantics in (
+            Semantics.SEQUENCE,
+            Semantics.FALLBACK,
+            Semantics.IF_THEN_ELSE,
+            Semantics.INVERTER,
+        ):
+            return super().tick(node)
+        child = node.children[0]
+        if node.semantics is Semantics.UNTIL_SUCCESS:
+            if self.tick(child):
+                return True
+            raise Stuck  # the same failure, again and again
+        assert node.semantics is Semantics.LOOP_UNTIL_FLAG
+        flag = self.conditions[node.ports[node.options["flag_port"]].strip("{}")]
+        exit_result = node.options["exit"] == "success"
+        if flag:
+            return exit_result
+        if not self.tick(child):
+            return False
+        raise Stuck  # the flag is still not set: the child runs again
+
+
+def follow_or_stuck(
+    graph: ActionGraph, values: dict[str, bool], outcomes: Sequence[bool]
+) -> tuple[list[int], bool | None]:
+    index = {v.id: i for i, v in enumerate(graph.actions)}
+    holds = {f"{c}()": values[c] for c in CONDITIONS} | {f: values[f] for f in FLAGS}
+    trace: list[int] = []
+    current = START
+    while True:
+        outcome = None
+        if current != START:
+            outcome = Outcome.SUCCESS if outcomes[index[current]] else Outcome.FAILURE
+        matching = [
+            e
+            for e in graph.outgoing(current)
+            if e.outcome == outcome
+            and all(holds[lit.condition.key] == lit.positive for lit in e.guard)
+        ]
+        assert len(matching) <= 1, f"{len(matching)} edges match out of {current}"
+        if not matching:
+            return trace, None
+        current = matching[0].target
+        if current in (SUCCESS, FAILURE):
+            return trace, current == SUCCESS
+        assert len(trace) <= len(graph.actions), "the graph loops"
+        trace.append(index[current])
+
+
+@settings(max_examples=400, deadline=None)
+@given(spec=PRESET_TREES, data=st.data())
+def test_presets_agree_with_execution(spec: Spec, data: st.DataObject) -> None:
+    xml = f'<root><BehaviorTree ID="T">{to_xml_presets(spec)}</BehaviorTree></root>'
+    flat = flatten(parse_string(xml, config=PRESET_CONFIG))
+    graph = build_graph(flat)
+
+    values = {name: data.draw(st.booleans(), label=name) for name in (*CONDITIONS, *FLAGS)}
+    outcomes = data.draw(
+        st.lists(st.booleans(), min_size=len(graph.actions), max_size=len(graph.actions))
+    )
+    actions = [
+        n for n in flat.root.walk() if n.kind is NodeKind.ACTION and n.semantics is Semantics.CUSTOM
+    ]
+    preorder = {id(n): i for i, n in enumerate(flat.root.walk())}
+    run = RunPresets(values, outcomes, {id(n): i for i, n in enumerate(actions)}, preorder=preorder)
+    try:
+        result: bool | None = run.tick(flat.root)
+    except Stuck:
+        result = None
+
+    assert follow_or_stuck(graph, values, outcomes) == (run.trace, result)
+    # Every diagnostic is about a loop whose edges back to its child are missing.
+    for diagnostic in graph.diagnostics:
+        assert "the edges back to the child are not shown yet" in diagnostic.message

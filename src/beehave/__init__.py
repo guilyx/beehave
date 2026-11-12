@@ -31,6 +31,7 @@ from beehave.hashing import canonical_xml, graph_hash, tree_hash
 from beehave.ids import IdScheme, NodeRef, RuntimeNode, node_refs, runtime_ids
 from beehave.parsers import parse_file, parse_string
 from beehave.parsers.pytrees import from_py_trees, load_py_trees
+from beehave.presets import PRESETS, NodePreset
 from beehave.render import to_dot, to_json, to_mermaid, to_text
 from beehave.stats import Stats, compute_stats
 from beehave.walk import build_graph
@@ -41,6 +42,7 @@ except PackageNotFoundError:  # pragma: no cover - running from a source tree
     __version__ = "0.0.0+unknown"
 
 __all__ = [
+    "PRESETS",
     "ActionGraph",
     "Analysis",
     "BeehaveError",
@@ -52,6 +54,7 @@ __all__ = [
     "FlattenError",
     "IdScheme",
     "Literal",
+    "NodePreset",
     "NodeRef",
     "Outcome",
     "ParseError",
