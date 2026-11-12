@@ -20,6 +20,12 @@
       "location": {
         "file": "drone_mission.xml",
         "line": 14
+      },
+      "tree_node": {
+        "path": "mission_with_failsafe/failsafe/LandNow",
+        "uid": 4,
+        "index": 3,
+        "runtime_path": "LandNow::4"
       }
     },
     {
@@ -33,6 +39,12 @@
       "location": {
         "file": "drone_mission.xml",
         "line": 17
+      },
+      "tree_node": {
+        "path": "mission_with_failsafe/mission/Arm",
+        "uid": 6,
+        "index": 5,
+        "runtime_path": "Arm::6"
       }
     },
     {
@@ -48,6 +60,12 @@
       "location": {
         "file": "drone_mission.xml",
         "line": 18
+      },
+      "tree_node": {
+        "path": "mission_with_failsafe/mission/TakeOff",
+        "uid": 7,
+        "index": 6,
+        "runtime_path": "TakeOff::7"
       }
     },
     {
@@ -65,6 +83,12 @@
       "location": {
         "file": "drone_mission.xml",
         "line": 23
+      },
+      "tree_node": {
+        "path": "mission_with_failsafe/mission/ForceSuccess/survey/RetryUntilSuccessful/FlyToWaypoint",
+        "uid": 12,
+        "index": 11,
+        "runtime_path": "FlyToWaypoint::12"
       }
     },
     {
@@ -78,6 +102,12 @@
       "location": {
         "file": "drone_mission.xml",
         "line": 25
+      },
+      "tree_node": {
+        "path": "mission_with_failsafe/mission/ForceSuccess/survey/CaptureImage",
+        "uid": 13,
+        "index": 12,
+        "runtime_path": "CaptureImage::13"
       }
     },
     {
@@ -95,6 +125,12 @@
       "location": {
         "file": "drone_mission.xml",
         "line": 36
+      },
+      "tree_node": {
+        "path": "mission_with_failsafe/mission/ReturnToLaunch/Sequence/get_home/FlyHome",
+        "uid": 17,
+        "index": 16,
+        "runtime_path": "ReturnToLaunch::14/FlyHome::17"
       }
     },
     {
@@ -112,6 +148,12 @@
       "location": {
         "file": "drone_mission.xml",
         "line": 38
+      },
+      "tree_node": {
+        "path": "mission_with_failsafe/mission/ReturnToLaunch/Sequence/get_home/divert/FindLandingSpot",
+        "uid": 19,
+        "index": 18,
+        "runtime_path": "ReturnToLaunch::14/FindLandingSpot::19"
       }
     },
     {
@@ -129,6 +171,12 @@
       "location": {
         "file": "drone_mission.xml",
         "line": 39
+      },
+      "tree_node": {
+        "path": "mission_with_failsafe/mission/ReturnToLaunch/Sequence/get_home/divert/FlyToLandingSpot",
+        "uid": 20,
+        "index": 19,
+        "runtime_path": "ReturnToLaunch::14/FlyToLandingSpot::20"
       }
     },
     {
@@ -144,6 +192,12 @@
       "location": {
         "file": "drone_mission.xml",
         "line": 42
+      },
+      "tree_node": {
+        "path": "mission_with_failsafe/mission/ReturnToLaunch/Sequence/Land",
+        "uid": 21,
+        "index": 20,
+        "runtime_path": "ReturnToLaunch::14/Land::21"
       }
     },
     {
@@ -159,6 +213,12 @@
       "location": {
         "file": "drone_mission.xml",
         "line": 43
+      },
+      "tree_node": {
+        "path": "mission_with_failsafe/mission/ReturnToLaunch/Sequence/Disarm",
+        "uid": 22,
+        "index": 21,
+        "runtime_path": "ReturnToLaunch::14/Disarm::22"
       }
     },
     {
@@ -181,7 +241,13 @@
         {
           "condition": "IsBatteryCritical",
           "key": "IsBatteryCritical()",
-          "holds": true
+          "holds": true,
+          "tree_node": {
+            "path": "mission_with_failsafe/failsafe/IsBatteryCritical",
+            "uid": 3,
+            "index": 2,
+            "runtime_path": "IsBatteryCritical::3"
+          }
         }
       ]
     },
@@ -193,7 +259,13 @@
         {
           "condition": "IsBatteryCritical",
           "key": "IsBatteryCritical()",
-          "holds": false
+          "holds": false,
+          "tree_node": {
+            "path": "mission_with_failsafe/failsafe/IsBatteryCritical",
+            "uid": 3,
+            "index": 2,
+            "runtime_path": "IsBatteryCritical::3"
+          }
         }
       ]
     },
@@ -229,7 +301,13 @@
         {
           "condition": "IsBatteryOK",
           "key": "IsBatteryOK()",
-          "holds": true
+          "holds": true,
+          "tree_node": {
+            "path": "mission_with_failsafe/mission/ForceSuccess/survey/IsBatteryOK",
+            "uid": 10,
+            "index": 9,
+            "runtime_path": "IsBatteryOK::10"
+          }
         }
       ]
     },
@@ -241,7 +319,13 @@
         {
           "condition": "IsBatteryOK",
           "key": "IsBatteryOK()",
-          "holds": false
+          "holds": false,
+          "tree_node": {
+            "path": "mission_with_failsafe/mission/ForceSuccess/survey/IsBatteryOK",
+            "uid": 10,
+            "index": 9,
+            "runtime_path": "IsBatteryOK::10"
+          }
         }
       ]
     },

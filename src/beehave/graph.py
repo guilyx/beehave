@@ -13,10 +13,13 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING
 
+from beehave.ids import IdScheme
+
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
     from beehave.diagnostics import Diagnostic
+    from beehave.ids import NodeRef
     from beehave.model import SourceLocation
 
 
@@ -51,11 +54,15 @@ class Condition:
         key: Identity. Two checks with the same key always agree within a tick.
         label: How to show the condition when it holds.
         negated_label: How to show it when it does not hold, if not ``"not <label>"``.
+        node: The node that makes this check: a condition, or the control,
+            decorator or script that holds it. When one guard checks the same
+            condition twice, it keeps the first node.
     """
 
     key: str
     label: str = field(compare=False)
     negated_label: str | None = field(default=None, compare=False)
+    node: NodeRef | None = field(default=None, compare=False)
 
 
 @dataclass(frozen=True)
@@ -93,6 +100,7 @@ class Vertex:
         notes: Short annotations such as ``"retry ×3"``.
         subtrees: For actions, the subtrees they were inlined from, outermost first.
         location: For actions, where the node was read from.
+        node: For actions, the node's stable path and runtime ids.
     """
 
     id: str
@@ -103,6 +111,7 @@ class Vertex:
     notes: tuple[str, ...] = ()
     subtrees: tuple[str, ...] = ()
     location: SourceLocation | None = field(default=None, compare=False)
+    node: NodeRef | None = field(default=None, compare=False)
 
 
 @dataclass(frozen=True)
@@ -161,3 +170,18 @@ class ActionGraph:
     def outgoing(self, vertex_id: str) -> tuple[Edge, ...]:
         """Return the edges leaving a vertex."""
         return tuple(e for e in self.edges if e.source == vertex_id)
+
+    def vertex_at(self, path: str) -> Vertex | None:
+        """Return the action whose node has this stable path, if it is one."""
+        return next((v for v in self.vertices if v.node and v.node.path == path), None)
+
+    def vertex_for(self, runtime_id: int, scheme: IdScheme = IdScheme.BTCPP_V4) -> Vertex | None:
+        """Return the action whose node has this runtime id, if it is one.
+
+        Ids of controls, decorators and conditions give ``None``; use
+        :func:`beehave.runtime_ids` to find those nodes.
+        """
+        return next(
+            (v for v in self.vertices if v.node and v.node.runtime_id(scheme) == runtime_id),
+            None,
+        )

@@ -6,6 +6,7 @@ Examples::
     beehave graph mission.xml -f mermaid -o mission.mmd
     beehave stats mission.xml                 # size, reduction, breakage
     beehave trees mission.xml                 # list the trees in the files
+    beehave ids mission.xml                   # runtime ids and paths of every node
     beehave graph --py-trees robot.trees:create_root   # a py_trees tree (runs that code)
     beehave graph behavior_trees/ -t NavigateToPose     # every tree in a folder
 """
@@ -23,9 +24,11 @@ from beehave import __version__
 from beehave.api import analyze, analyze_py_trees
 from beehave.config import Config, find_config, load_config
 from beehave.errors import BeehaveError
+from beehave.ids import IdScheme, runtime_ids
 from beehave.parsers import parse_file
 from beehave.parsers.pytrees import from_py_trees, load_py_trees
 from beehave.render import FORMATS
+from beehave.render.json import node_ref
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -75,6 +78,20 @@ def _parser() -> argparse.ArgumentParser:
     stats.set_defaults(parser=stats)
     stats.add_argument("--json", action="store_true", help="print the metrics as JSON")
     stats.set_defaults(run=_stats)
+
+    ids = commands.add_parser(
+        "ids", help="list every node with its runtime id, path and action vertex"
+    )
+    _common(ids)
+    ids.set_defaults(parser=ids)
+    ids.add_argument(
+        "--scheme",
+        choices=[scheme.value for scheme in IdScheme],
+        default=IdScheme.BTCPP_V4.value,
+        help="btcpp-v4: from 1, like BT.CPP v4 UIDs (default); preorder: from 0",
+    )
+    ids.add_argument("--json", action="store_true", help="print the nodes as JSON")
+    ids.set_defaults(run=_ids)
 
     trees = commands.add_parser("trees", help="list the trees defined in the files")
     _inputs(trees)
@@ -186,6 +203,56 @@ def _stats(args: argparse.Namespace) -> int:
         sys.stdout.write(json.dumps(result.stats.to_dict(), indent=2) + "\n")
     else:
         sys.stdout.write(result.stats.to_text())
+    return 0
+
+
+def _ids(args: argparse.Namespace) -> int:
+    result = _analysis(args)
+    _warn(result.graph.diagnostics, quiet=args.quiet)
+    scheme = IdScheme(args.scheme)
+    nodes = runtime_ids(result.tree, scheme)
+    vertices = {v.node.path: v.id for v in result.graph.actions if v.node}
+    if args.json:
+        data = {
+            "schema": "beehave.runtime-ids",
+            "version": 1,
+            "tree": result.tree.id,
+            "source_format": result.tree.format,
+            "scheme": scheme.value,
+            "nodes": [
+                {
+                    "id": node.id,
+                    "parent": node.parent,
+                    "kind": node.kind.value,
+                    "type": node.type,
+                    "name": node.name,
+                    "subtree": node.subtree,
+                    "vertex": vertices.get(node.ref.path),
+                    **(node_ref(node.ref) or {}),
+                    "location": None
+                    if node.location is None
+                    else {"file": node.location.file, "line": node.location.line},
+                }
+                for node in nodes.values()
+            ],
+        }
+        sys.stdout.write(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
+        return 0
+    rows = [("ID", "KIND", "VERTEX", "RUNTIME PATH", "PATH")]
+    rows += [
+        (
+            str(node.id),
+            node.kind.value,
+            vertices.get(node.ref.path, "-"),
+            node.ref.runtime_path or "-",
+            node.ref.path,
+        )
+        for node in nodes.values()
+    ]
+    widths = [max(len(row[i]) for row in rows) for i in range(4)]
+    for row in rows:
+        cells = [cell.ljust(width) for cell, width in zip(row, widths, strict=False)]
+        sys.stdout.write("  ".join([*cells, row[4]]) + "\n")
     return 0
 
 

@@ -5,6 +5,8 @@ beehave graph FILE... [-t TREE] [-f FORMAT] [-o OUTPUT] [-c CONFIG] [--package N
 beehave graph --py-trees SPEC [--kwargs JSON] [-f FORMAT] [-o OUTPUT] [-c CONFIG] [-q]
 beehave stats FILE... [-t TREE] [--json] [-c CONFIG] [-q]
 beehave stats --py-trees SPEC [--kwargs JSON] [--json] [-c CONFIG] [-q]
+beehave ids FILE... [-t TREE] [--scheme SCHEME] [--json] [-c CONFIG] [-q]
+beehave ids --py-trees SPEC [--kwargs JSON] [--scheme SCHEME] [--json] [-c CONFIG] [-q]
 beehave trees FILE... [-c CONFIG]
 beehave trees --py-trees SPEC [--kwargs JSON] [-c CONFIG]
 beehave --version
@@ -40,6 +42,22 @@ Builds the action graph of one tree.
 Prints the Phase 1 metrics for one tree: node counts, actions, reduction,
 transitions, longest guard and the approximated node types. `--json` prints
 the same numbers as JSON.
+
+## `beehave ids`
+
+Lists every node of the instantiated tree (the tree with its subtrees inlined)
+with its runtime id, its BT.CPP v4 runtime path, its stable path and, for
+actions, its vertex in the graph. Controls, decorators and conditions are
+listed too, so an id read from a log can always be found.
+See [Node ids and paths](node-ids.md).
+
+| Option | Meaning |
+| --- | --- |
+| `--scheme SCHEME` | `btcpp-v4` (default): from 1, like BT.CPP v4 UIDs. `preorder`: from 0. |
+| `--json` | Print the nodes as JSON (schema `beehave.runtime-ids`, version 1). |
+
+It also takes `-t`, `--py-trees`, `--kwargs`, `-c`, `--package` and `-q`,
+like `beehave graph`.
 
 ## `beehave trees`
 

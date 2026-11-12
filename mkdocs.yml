@@ -19,6 +19,7 @@ nav:
       - Examples: guide/examples.md
       - Formats: guide/formats.md
       - Subtrees and includes: guide/subtrees.md
+      - Node ids and paths: guide/node-ids.md
       - Command line: guide/cli.md
       - Configuration: guide/configuration.md
       - Output formats: guide/output-formats.md
@@ -42,6 +43,7 @@ nav:
           - 0008 Formats track: design/adr/0008-formats-track.md
           - 0009 BT.CPP v4 and SKIPPED: design/adr/0009-bt-cpp-v4-skipped.md
           - 0010 py_trees live trees: design/adr/0010-py-trees-live-trees.md
+          - 0011 Node paths and runtime ids: design/adr/0011-node-paths-and-runtime-ids.md
           - Template: design/adr/template.md
   - Research:
       - research/index.md

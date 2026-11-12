@@ -26,7 +26,8 @@ from beehave.errors import (
     UnsupportedFormatError,
 )
 from beehave.flatten import FlatTree, flatten
-from beehave.graph import ActionGraph, Edge, Outcome, Vertex, VertexKind
+from beehave.graph import ActionGraph, Condition, Edge, Literal, Outcome, Vertex, VertexKind
+from beehave.ids import IdScheme, NodeRef, RuntimeNode, node_refs, runtime_ids
 from beehave.parsers import parse_file, parse_string
 from beehave.parsers.pytrees import from_py_trees, load_py_trees
 from beehave.render import to_dot, to_json, to_mermaid, to_text
@@ -42,13 +43,18 @@ __all__ = [
     "ActionGraph",
     "Analysis",
     "BeehaveError",
+    "Condition",
     "Config",
     "ConfigError",
     "Edge",
     "FlatTree",
     "FlattenError",
+    "IdScheme",
+    "Literal",
+    "NodeRef",
     "Outcome",
     "ParseError",
+    "RuntimeNode",
     "Stats",
     "TreeSelectionError",
     "UnsupportedFormatError",
@@ -63,8 +69,10 @@ __all__ = [
     "from_py_trees",
     "load_config",
     "load_py_trees",
+    "node_refs",
     "parse_file",
     "parse_string",
+    "runtime_ids",
     "to_dot",
     "to_json",
     "to_mermaid",

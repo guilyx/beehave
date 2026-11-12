@@ -78,6 +78,14 @@ BehaviorTree.CPP v3 and v4 and for py_trees.
 - Property-based tests (Hypothesis) that check the action graph against a
   reference interpreter on random trees and outcomes, plus snapshot tests of
   every output format.
+- Node ids: every action and every guard condition records the node it comes
+  from (`Vertex.node`, `Condition.node`, a `NodeRef`): a stable path that
+  survives edits elsewhere in the tree, its BT.CPP v4 UID and `fullPath()`,
+  and its pre-order index from 0. `beehave.runtime_ids(tree, scheme)` maps
+  every id of the instantiated tree to its node, controls and conditions
+  included, with `IdScheme.BTCPP_V4` (from 1) or `IdScheme.PREORDER` (from 0);
+  `ActionGraph.vertex_for()` and `vertex_at()` find an action by id or path.
+  The JSON output carries them as `tree_node`, and `beehave ids` lists them.
 - Integration tests on public BT.CPP, Groot and Nav2 trees, with the Phase 1
   metrics recorded in the docs; on 39 public v4 trees, with v3/v4 pairs that
   must give the same graph; and on the py_trees demos.

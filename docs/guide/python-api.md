@@ -52,6 +52,20 @@ command line; **it runs that code**. py_trees itself is an optional
 dependency: `pip install 'beehave-bt[py-trees]'`, or use the py_trees of your
 ROS 2 distribution.
 
+## Node ids
+
+Every action and every condition in a guard records the node it comes from:
+its stable path and its runtime ids ([Node ids and paths](node-ids.md)).
+
+```python
+import beehave
+
+result = beehave.analyze("examples/aerial/drone_mission.xml")
+nodes = beehave.runtime_ids(result.tree, beehave.IdScheme.PREORDER)  # every node, by id
+arm = result.graph.vertex_for(6)  # the action with BT.CPP v4 UID 6
+same = result.graph.vertex_at("mission_with_failsafe/mission/Arm")  # by stable path
+```
+
 ## Main types
 
 | Type | What it is |
@@ -59,8 +73,12 @@ ROS 2 distribution.
 | `Document` | Every tree loaded from the files, plus load diagnostics. |
 | `FlatTree` | One tree with every subtree inlined. |
 | `ActionGraph` | Vertices (`START`, actions, `SUCCESS`, `FAILURE`, and `SKIPPED` for v4 trees that can skip), edges and diagnostics. |
-| `Vertex` | A box: `id`, `kind`, `label`, `type`, `ports`, `notes`, `subtrees`, `location`. |
-| `Edge` | `source`, `target`, `outcome` (`None` from `START`) and `guard`. |
+| `Vertex` | A box: `id`, `kind`, `label`, `type`, `ports`, `notes`, `subtrees`, `location`, and `node` for actions. |
+| `Edge` | `source`, `target`, `outcome` (`None` from `START`) and `guard`, a tuple of `Literal`s. |
+| `Literal`, `Condition` | One term of a guard: a `Condition` (`key`, `label`, `node`) that must hold or not. |
+| `NodeRef` | Where a vertex or a condition comes from: `path`, `uid`, `index`, `runtime_path`, `runtime_id(scheme)`. |
+| `IdScheme` | `BTCPP_V4` (from 1) or `PREORDER` (from 0). |
+| `RuntimeNode` | One node as `runtime_ids()` lists it: `id`, `ref`, `parent`, `kind`, `type`, `name`, `subtree`, `location`. |
 | `Stats` | The Phase 1 metrics; `to_text()` and `to_dict()`. |
 
 ## Errors

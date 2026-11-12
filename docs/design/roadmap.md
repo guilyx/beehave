@@ -264,12 +264,14 @@ graph. BT.CPP v4 numbers nodes per tree, depth first, from 1, with each
 SubTree node numbered before its contents
 ([source](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/03ec870a07b384f0766bbfe81f77c64a9f994a2b/src/bt_factory.cpp#L756)),
 so Beehave can compute the same IDs from the XML. v3 numbers nodes per
-process, so v3 logs must be read with the tree they embed.
+process, so v3 logs must be read with the tree they embed. FD1 and FD2 are
+done: see [Node ids and paths](../guide/node-ids.md) and
+[ADR 0011](adr/0011-node-paths-and-runtime-ids.md).
 
 | | Item | Effort | Needs | Milestone |
 | --- | --- | --- | --- | --- |
-| **FD1** | **Runtime IDs.** Every vertex and every guard condition records its BT.CPP v4 UID and path, or its py_trees path; `beehave ids tree.xml` prints them. A second scheme numbers nodes depth first from 0, each `SubTree` node before its contents, for runtimes that publish their own indices that way, so a tool holding such an index can find the vertex it belongs to. Tested on BT.CPP's own [UID example](https://github.com/BehaviorTree/btcpp_website/blob/9cc7aadf176194aa19150d224f62368c9c7f81b0/docs/tutorial-basics/tutorial_10_observer.md). | S | | M1 |
-| **FD2** | **Stable identity.** A key that survives edits, kept apart from the display IDs `a1`, `a2`…, so diffs, plans and hovers keep pointing at the same action. | S–M | FD1 | M1 |
+| **FD1** | **Runtime IDs** (done). Every vertex and every guard condition records its BT.CPP v4 UID and path, or its py_trees path; `beehave ids tree.xml` prints them. A second scheme numbers nodes depth first from 0, each `SubTree` node before its contents, for runtimes that publish their own indices that way, so a tool holding such an index can find the vertex it belongs to. Tested on BT.CPP's own [UID example](https://github.com/BehaviorTree/btcpp_website/blob/9cc7aadf176194aa19150d224f62368c9c7f81b0/docs/tutorial-basics/tutorial_10_observer.md). | S | | M1 |
+| **FD2** | **Stable identity** (done). A key that survives edits, kept apart from the display IDs `a1`, `a2`…, so diffs, plans and hovers keep pointing at the same action. | S–M | FD1 | M1 |
 | **FD3** | **Graph hash.** A hash of the action graph and of the inlined XML, in the JSON and with `--print-hash`, so a robot, a review and a log can name the tree they mean. | S | | M1 |
 | **FD4** | **JSON Schema.** Published and versioned, with the source format, provenance per vertex, the guard language and approximation flags: an exchange format for analysis tools. | S–M | FD2, FD3 | M2 |
 | **FD5** | **Cycles and named outcomes.** Edges with outcomes other than success and failure, loops that every algorithm and metric handles, parallel regions. | M | Phase 2 | M3 |
