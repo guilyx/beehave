@@ -39,6 +39,8 @@ A versioned document meant for other tools, including a future operator view.
   "version": 1,
   "tree": "DroneMission",
   "source_format": "btcpp-v3",
+  "graph_hash": "sha256:e3527ef932c22b8e4269b525f0b715993d09c8041ec7599ac4ec96936b9d192e",
+  "tree_hash": "sha256:a2a6aac5293fb84efadc5217879b2995bf29c8a1b2b9e33b0694a319d197d6dd",
   "nodes": [
     {"id": "start", "kind": "start", "label": "START"},
     {
@@ -94,6 +96,7 @@ A versioned document meant for other tools, including a future operator view.
 
 | Field | Meaning |
 | --- | --- |
+| `graph_hash`, `tree_hash` | Content hashes of the graph and of the inlined tree ([Hashes](#hashes)). |
 | `nodes[].id` | `start`, `success`, `failure`, or `a1`, `a2`… for actions in document order. |
 | `nodes[].kind` | `start`, `action`, `success` or `failure`. |
 | `nodes[].ports` | Port values after subtree remapping. `{key}` is a blackboard entry. |
@@ -106,3 +109,29 @@ A versioned document meant for other tools, including a future operator view.
 
 The `version` field changes only when a change would break a consumer.
 Adding fields does not bump it.
+
+## Hashes
+
+Two content hashes name what a result is about, so a robot, a review and a
+log can say which tree they mean. Both are computed from the tree and the
+config alone.
+
+| Hash | Over | Changes when |
+| --- | --- | --- |
+| Tree hash | The selected tree with every subtree inlined, as canonical XML: no whitespace or comments, attributes sorted, port values after remapping. | A node, a port, a name or the nesting changes. Not when the file is reformatted, its attributes reordered, or the tree moved to another file. |
+| Graph hash | The action graph: actions with their ports and notes, edges with their outcome and guard. | The graph changes. Not when only the XML does: the v3 and v4 versions of a tree, or a renamed `Sequence`, share it. |
+
+```console
+$ beehave graph examples/aerial/drone_mission.xml --print-hash -q
+graph sha256:e3527ef932c22b8e4269b525f0b715993d09c8041ec7599ac4ec96936b9d192e
+tree  sha256:a2a6aac5293fb84efadc5217879b2995bf29c8a1b2b9e33b0694a319d197d6dd
+$ beehave graph examples/aerial/drone_mission_v4.xml --print-hash -q
+graph sha256:e3527ef932c22b8e4269b525f0b715993d09c8041ec7599ac4ec96936b9d192e
+tree  sha256:5756624c76d745dc717e65369f1ea1aa40b1116e8de46354bddf93b6a9e241cd
+```
+
+The graph depends on Beehave's walk rules and on `beehave.yaml` (which nodes
+are conditions), so compare graph hashes made with the same Beehave version
+and config. In Python: `beehave.graph_hash(graph)`, `beehave.tree_hash(tree)`
+and `beehave.canonical_xml(tree)`, the text the tree hash is computed over
+([ADR 0012](../design/adr/0012-graph-and-tree-hashes.md)).

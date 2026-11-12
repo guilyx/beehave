@@ -46,6 +46,7 @@ from beehave.graph import (
     Vertex,
     VertexKind,
 )
+from beehave.hashing import tree_hash
 from beehave.ids import node_refs
 from beehave.model import Node, NodeKind, Semantics
 
@@ -643,6 +644,7 @@ class _Walker:
             edges=tuple(edges),
             diagnostics=(flat.diagnostics + tuple(d for _, d in by_path) + tuple(self.diagnostics)),
             node_count=sum(1 for _ in flat.root.walk()),
+            tree_hash=tree_hash(flat),
         )
 
 

@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING, Any
 
+from beehave.hashing import graph_hash
+
 if TYPE_CHECKING:
     from beehave.diagnostics import Diagnostic
     from beehave.graph import ActionGraph, Edge, Vertex
@@ -27,6 +29,8 @@ def to_dict(graph: ActionGraph) -> dict[str, Any]:
         "version": VERSION,
         "tree": graph.tree,
         "source_format": graph.format,
+        "graph_hash": graph_hash(graph),
+        "tree_hash": graph.tree_hash,
         "nodes": [_vertex(v) for v in graph.vertices],
         "edges": [_edge(e) for e in graph.edges],
         "diagnostics": [_diagnostic(d) for d in graph.diagnostics],

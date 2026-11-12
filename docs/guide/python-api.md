@@ -66,6 +66,15 @@ arm = result.graph.vertex_for(6)  # the action with BT.CPP v4 UID 6
 same = result.graph.vertex_at("mission_with_failsafe/mission/Arm")  # by stable path
 ```
 
+## Hashes
+
+```python
+beehave.graph_hash(result.graph)  # "sha256:…", the same for every equal graph
+beehave.tree_hash(result.tree)  # over beehave.canonical_xml(result.tree)
+```
+
+See [Hashes](output-formats.md#hashes).
+
 ## Main types
 
 | Type | What it is |

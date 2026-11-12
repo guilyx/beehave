@@ -26,6 +26,7 @@ from hypothesis import strategies as st
 from beehave.config import Config
 from beehave.flatten import flatten
 from beehave.graph import FAILURE, SKIPPED, START, SUCCESS, ActionGraph, Outcome
+from beehave.hashing import graph_hash
 from beehave.model import Node, NodeKind, Semantics
 from beehave.parsers import parse_string
 from beehave.parsers.btcpp_v4 import parse_string as parse_v4
@@ -405,3 +406,17 @@ def test_a_v3_tree_written_as_v4_gives_the_same_graph(spec: Spec) -> None:
     graph_v4 = build_graph(flatten(parse_v4(v4, config=CONFIG)))
 
     assert (graph_v4.vertices, graph_v4.edges) == (graph_v3.vertices, graph_v3.edges)
+    assert graph_hash(graph_v4) == graph_hash(graph_v3)
+
+
+@settings(max_examples=200, deadline=None)
+@given(spec=TREES, other=TREES)
+def test_graph_hashes_agree_with_graph_equality(spec: Spec, other: Spec) -> None:
+    def graph(body: Spec) -> ActionGraph:
+        xml = f'<root><BehaviorTree ID="T">{to_xml(body)}</BehaviorTree></root>'
+        return build_graph(flatten(parse_string(xml, config=CONFIG)))
+
+    a, b = graph(spec), graph(other)
+
+    same_graph = (a.vertices, a.edges) == (b.vertices, b.edges)
+    assert (graph_hash(a) == graph_hash(b)) == same_graph

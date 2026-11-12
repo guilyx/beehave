@@ -142,6 +142,8 @@ class ActionGraph:
         edges: Transitions, grouped by source vertex, success before failure.
         diagnostics: What the walk could not model exactly.
         node_count: How many nodes the flattened tree had (for the reduction metric).
+        tree_hash: The content hash of the flattened tree the graph was built
+            from (:func:`beehave.tree_hash`), if known.
     """
 
     tree: str
@@ -150,6 +152,7 @@ class ActionGraph:
     edges: tuple[Edge, ...]
     diagnostics: tuple[Diagnostic, ...] = ()
     node_count: int = 0
+    tree_hash: str | None = field(default=None, compare=False)
 
     def vertex(self, vertex_id: str) -> Vertex:
         """Return the vertex with this ID.

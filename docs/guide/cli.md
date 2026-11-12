@@ -1,7 +1,7 @@
 # Command line
 
 ```text
-beehave graph FILE... [-t TREE] [-f FORMAT] [-o OUTPUT] [-c CONFIG] [--package NAME=DIR] [-q]
+beehave graph FILE... [-t TREE] [-f FORMAT] [-o OUTPUT] [--print-hash] [-c CONFIG] [--package NAME=DIR] [-q]
 beehave graph --py-trees SPEC [--kwargs JSON] [-f FORMAT] [-o OUTPUT] [-c CONFIG] [-q]
 beehave stats FILE... [-t TREE] [--json] [-c CONFIG] [-q]
 beehave stats --py-trees SPEC [--kwargs JSON] [--json] [-c CONFIG] [-q]
@@ -33,6 +33,7 @@ Builds the action graph of one tree.
 | `--kwargs JSON` | Arguments for the `--py-trees` function, as a JSON object, e.g. `'{"level": "all"}'`. |
 | `-f`, `--format FORMAT` | `text` (default), `mermaid`, `dot` or `json`. |
 | `-o`, `--output FILE` | Write to a file instead of stdout. |
+| `--print-hash` | Print the graph hash and the tree hash instead of the graph ([Hashes](output-formats.md#hashes)). |
 | `-c`, `--config FILE` | Project config. Defaults to `./beehave.yaml` or `./.beehave.yaml` if present. |
 | `--package NAME=DIR` | Where `<include ros_pkg="NAME">` finds the package. Repeat for several; wins over `beehave.yaml` and a sourced workspace. |
 | `-q`, `--quiet` | Do not print warnings. |

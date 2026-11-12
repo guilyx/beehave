@@ -44,6 +44,7 @@ nav:
           - 0009 BT.CPP v4 and SKIPPED: design/adr/0009-bt-cpp-v4-skipped.md
           - 0010 py_trees live trees: design/adr/0010-py-trees-live-trees.md
           - 0011 Node paths and runtime ids: design/adr/0011-node-paths-and-runtime-ids.md
+          - 0012 Graph and tree hashes: design/adr/0012-graph-and-tree-hashes.md
           - Template: design/adr/template.md
   - Research:
       - research/index.md

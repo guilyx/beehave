@@ -27,6 +27,7 @@ from beehave.errors import (
 )
 from beehave.flatten import FlatTree, flatten
 from beehave.graph import ActionGraph, Condition, Edge, Literal, Outcome, Vertex, VertexKind
+from beehave.hashing import canonical_xml, graph_hash, tree_hash
 from beehave.ids import IdScheme, NodeRef, RuntimeNode, node_refs, runtime_ids
 from beehave.parsers import parse_file, parse_string
 from beehave.parsers.pytrees import from_py_trees, load_py_trees
@@ -64,9 +65,11 @@ __all__ = [
     "analyze",
     "analyze_py_trees",
     "build_graph",
+    "canonical_xml",
     "compute_stats",
     "flatten",
     "from_py_trees",
+    "graph_hash",
     "load_config",
     "load_py_trees",
     "node_refs",
@@ -77,4 +80,5 @@ __all__ = [
     "to_json",
     "to_mermaid",
     "to_text",
+    "tree_hash",
 ]
