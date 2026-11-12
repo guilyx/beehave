@@ -44,6 +44,14 @@ listed here under **Changed** or **Removed**.
   graph and the edges through them are joined up, so the next action named on
   an edge is a real one. When one may fail, its result is a guard on those
   edges (`LogMessage succeeded`); `never_fails: true` drops the guard.
+- Graph diff: `beehave diff OLD NEW` and `beehave.diff_graphs(old, new)`
+  compare two action graphs, matching actions by stable path: actions added,
+  removed, moved or changed, transitions added and removed, changed guards,
+  actions and ends that became reachable or unreachable, and a transition
+  score (precision, recall, F1). Text, Markdown and JSON, and `--exit-code`
+  for CI. Checks that belong to one node (`WasEntryUpdated`, a bookkeeping
+  action's result) are keyed by its stable path, so they match across
+  versions too.
 
 ## [0.1.0] - 2026-11-12
 
