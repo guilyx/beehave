@@ -9,6 +9,10 @@ the guards are both complete and mutually exclusive.
 
 The same holds for BT.CPP v4 trees where any node may be skipped, and a v3
 tree written as v4 must give the same graph.
+
+Every step also names the node it stands for: the runtime id of each action the
+graph visits, and of each condition in the guards it follows, is the id of a
+node the interpreter ticked at that point.
 """
 
 from __future__ import annotations
@@ -82,10 +86,14 @@ class Run:
     outcomes: Sequence[bool]
     action_index: dict[int, int]
     trace: list[int] = field(default_factory=list)
+    preorder: dict[int, int] = field(default_factory=dict)
+    ticks: list[tuple[str, int]] = field(default_factory=list)
+    """``("condition" | "action", pre-order index)`` for every leaf ticked."""
 
     def tick(self, node: Node) -> bool:
         sem = node.semantics
         if node.kind is NodeKind.CONDITION:
+            self.ticks.append(("condition", self.preorder[id(node)]))
             return self.conditions[node.type]
         if node.kind is NodeKind.ACTION:
             if sem is Semantics.ALWAYS_SUCCESS:
@@ -94,6 +102,7 @@ class Run:
                 return False
             index = self.action_index[id(node)]
             self.trace.append(index)
+            self.ticks.append(("action", self.preorder[id(node)]))
             return self.outcomes[index]
         if node.kind is NodeKind.SUBTREE:
             return self.tick(node.children[0])
@@ -122,7 +131,8 @@ def run_tree(
     actions = [
         n for n in root.walk() if n.kind is NodeKind.ACTION and n.semantics is Semantics.CUSTOM
     ]
-    run = Run(conditions, outcomes, {id(n): i for i, n in enumerate(actions)})
+    preorder = {id(n): i for i, n in enumerate(root.walk())}
+    run = Run(conditions, outcomes, {id(n): i for i, n in enumerate(actions)}, preorder=preorder)
     result = run.tick(root)
     return run.trace, result
 
@@ -171,6 +181,67 @@ def test_graph_agrees_with_execution(spec: Spec, data: st.DataObject) -> None:
     )
 
     assert follow(graph, conditions, outcomes) == run_tree(flat.root, conditions, outcomes)
+
+
+def follow_ids(
+    graph: ActionGraph, conditions: dict[str, bool], outcomes: Sequence[bool]
+) -> list[tuple[set[int], int | None]]:
+    """For each step: the runtime ids of the guard's conditions, then of the action."""
+    index = {v.id: i for i, v in enumerate(graph.actions)}
+    holds = {f"{name}()": value for name, value in conditions.items()}
+    steps: list[tuple[set[int], int | None]] = []
+    current = START
+    while current not in (SUCCESS, FAILURE):
+        outcome = None
+        if current != START:
+            outcome = Outcome.SUCCESS if outcomes[index[current]] else Outcome.FAILURE
+        edge = next(
+            e
+            for e in graph.outgoing(current)
+            if e.outcome == outcome
+            and all(holds[lit.condition.key] == lit.positive for lit in e.guard)
+        )
+        checked = {lit.condition.node.index for lit in edge.guard if lit.condition.node}
+        assert len(checked) == len(edge.guard), "a guard condition has no node"
+        current = edge.target
+        node = graph.vertex(current).node
+        steps.append((checked, node.index if node else None))
+    return steps
+
+
+@settings(max_examples=300, deadline=None)
+@given(spec=TREES, data=st.data())
+def test_graph_steps_name_the_nodes_the_interpreter_ticks(spec: Spec, data: st.DataObject) -> None:
+    xml = f'<root><BehaviorTree ID="T">{to_xml(spec)}</BehaviorTree></root>'
+    flat = flatten(parse_string(xml, config=CONFIG))
+    graph = build_graph(flat)
+    conditions = {c: data.draw(st.booleans(), label=c) for c in CONDITIONS}
+    outcomes = data.draw(
+        st.lists(st.booleans(), min_size=len(graph.actions), max_size=len(graph.actions))
+    )
+    actions = [
+        n for n in flat.root.walk() if n.kind is NodeKind.ACTION and n.semantics is Semantics.CUSTOM
+    ]
+    preorder = {id(n): i for i, n in enumerate(flat.root.walk())}
+    run = Run(conditions, outcomes, {id(n): i for i, n in enumerate(actions)}, preorder=preorder)
+    run.tick(flat.root)
+
+    # Split the interpreter's ticks at each action: the conditions checked
+    # before it, then the action itself; the last group ends the run.
+    expected: list[tuple[set[int], int | None]] = []
+    checked: set[int] = set()
+    for kind, node_id in run.ticks:
+        if kind == "condition":
+            checked.add(node_id)
+        else:
+            expected.append((checked, node_id))
+            checked = set()
+    expected.append((checked, None))
+
+    steps = follow_ids(graph, conditions, outcomes)
+    assert [action for _, action in steps] == [action for _, action in expected]
+    for (guard, _), (ticked, _) in zip(steps, expected, strict=True):
+        assert guard <= ticked, "a guard names a condition the interpreter did not tick"
 
 
 @settings(max_examples=200, deadline=None)

@@ -49,7 +49,13 @@ A versioned document meant for other tools, including a future operator view.
       "ports": {"waypoint": "{survey_point}"},
       "notes": ["retry ×3"],
       "subtrees": [],
-      "location": {"file": "examples/aerial/drone_mission.xml", "line": 23}
+      "location": {"file": "examples/aerial/drone_mission.xml", "line": 23},
+      "tree_node": {
+        "path": "mission_with_failsafe/mission/ForceSuccess/survey/RetryUntilSuccessful/FlyToWaypoint",
+        "uid": 12,
+        "index": 11,
+        "runtime_path": "FlyToWaypoint::12"
+      }
     },
     {"id": "success", "kind": "success", "label": "SUCCESS"},
     {"id": "failure", "kind": "failure", "label": "FAILURE"}
@@ -59,7 +65,19 @@ A versioned document meant for other tools, including a future operator view.
       "from": "a3",
       "to": "a4",
       "outcome": "success",
-      "guard": [{"condition": "IsBatteryOK", "key": "IsBatteryOK()", "holds": true}]
+      "guard": [
+        {
+          "condition": "IsBatteryOK",
+          "key": "IsBatteryOK()",
+          "holds": true,
+          "tree_node": {
+            "path": "mission_with_failsafe/mission/ForceSuccess/survey/IsBatteryOK",
+            "uid": 10,
+            "index": 9,
+            "runtime_path": "IsBatteryOK::10"
+          }
+        }
+      ]
     }
   ],
   "diagnostics": [
@@ -83,6 +101,7 @@ A versioned document meant for other tools, including a future operator view.
 | `edges[].outcome` | `success`, `failure`, or `null` for edges leaving `start`. |
 | `edges[].guard` | A conjunction. Each term names a condition and whether it must hold. |
 | `edges[].guard[].key` | The condition's identity: its type and port values. |
+| `nodes[].tree_node`, `edges[].guard[].tree_node` | The node the action or the check comes from: its stable `path`, its BT.CPP v4 `uid` (from 1), its `index` (from 0) and its BT.CPP v4 `runtime_path` (`null` for py_trees). See [Node ids and paths](node-ids.md). |
 | `diagnostics` | What could not be modelled exactly, and where. |
 
 The `version` field changes only when a change would break a consumer.

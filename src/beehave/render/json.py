@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from beehave.diagnostics import Diagnostic
     from beehave.graph import ActionGraph, Edge, Vertex
+    from beehave.ids import NodeRef
     from beehave.model import SourceLocation
 
 SCHEMA = "beehave.action-graph"
@@ -41,6 +42,7 @@ def _vertex(vertex: Vertex) -> dict[str, Any]:
             "notes": list(vertex.notes),
             "subtrees": list(vertex.subtrees),
             "location": _location(vertex.location),
+            "tree_node": node_ref(vertex.node),
         }
     return data
 
@@ -51,9 +53,26 @@ def _edge(edge: Edge) -> dict[str, Any]:
         "to": edge.target,
         "outcome": edge.outcome.value if edge.outcome else None,
         "guard": [
-            {"condition": lit.condition.label, "key": lit.condition.key, "holds": lit.positive}
+            {
+                "condition": lit.condition.label,
+                "key": lit.condition.key,
+                "holds": lit.positive,
+                "tree_node": node_ref(lit.condition.node),
+            }
             for lit in edge.guard
         ],
+    }
+
+
+def node_ref(ref: NodeRef | None) -> dict[str, Any] | None:
+    """Return a node's identifiers as JSON data: path, uid, index and runtime path."""
+    if ref is None:
+        return None
+    return {
+        "path": ref.path,
+        "uid": ref.uid,
+        "index": ref.index,
+        "runtime_path": ref.runtime_path,
     }
 
 

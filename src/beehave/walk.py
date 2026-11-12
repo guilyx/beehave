@@ -28,7 +28,7 @@ reported as diagnostics, so the output never silently pretends to be exact.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING
 
 from beehave.diagnostics import Diagnostic, Severity
@@ -46,12 +46,14 @@ from beehave.graph import (
     Vertex,
     VertexKind,
 )
+from beehave.ids import node_refs
 from beehave.model import Node, NodeKind, Semantics
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from beehave.flatten import FlatTree
+    from beehave.ids import NodeRef
 
 DEFAULT_MAX_PATHS = 1024
 
@@ -152,7 +154,7 @@ def build_graph(flat: FlatTree, *, max_paths: int = DEFAULT_MAX_PATHS) -> Action
     Returns:
         The action graph.
     """
-    walker = _Walker()
+    walker = _Walker(node_refs(flat))
     entry = walker.compile(flat.root, (), SUCCESS, FAILURE, SKIPPED, ())
     return walker.finish(flat, entry, max_paths)
 
@@ -168,6 +170,7 @@ class _ActionInfo:
 
 @dataclass
 class _Walker:
+    refs: dict[_Path, NodeRef]
     actions: dict[_Path, _ActionInfo] = field(default_factory=dict)
     pending_notes: dict[_Path, list[str]] = field(default_factory=dict)
     node_diagnostics: dict[tuple[_Path, str, str], Diagnostic] = field(default_factory=dict)
@@ -208,7 +211,7 @@ class _Walker:
         outcomes = {"_while": k, "_skipIf": k, "_successIf": s, "_failureIf": f}
         for attribute in _PRE_CONDITIONS:
             if attribute in scripts:
-                check = _script(scripts[attribute])
+                check = self._at(_script(scripts[attribute]), path)
                 if attribute == "_while":  # holds: run the node; does not hold: skip it
                     entry = _Branch(check, entry, k)
                 else:
@@ -276,7 +279,7 @@ class _Walker:
             return self._precondition(node, path, s, f, k, subtrees)
         if sem is Semantics.SKIP_UNLESS_UPDATED:
             child = self._child(node, path, s, f, k, subtrees)
-            return _Branch(_updated(node, path), child, k)
+            return _Branch(self._at(_updated(node, path), path), child, k)
         if sem is Semantics.LOOP_QUEUE:
             return self._loop_queue(node, path, s, f, k, subtrees)
         if sem in _TRANSPARENT:
@@ -406,7 +409,7 @@ class _Walker:
         for index in reversed(range(last)):
             case = node.ports.get(f"case_{index + 1}", "?")
             branch = self.compile(node.children[index], (*path, index), s, f, k, subtrees)
-            entry = _Branch(_equals(variable or "", case), branch, entry)
+            entry = _Branch(self._at(_equals(variable or "", case), path), branch, entry)
         # Without a variable, BT.CPP always runs the default child.
         return entry if variable is not None else default
 
@@ -440,7 +443,7 @@ class _Walker:
         on_mismatch = s if mismatch == "SUCCESS" else f
         child = self._child(node, path, s, f, k, subtrees)
         check = _equals(node.ports.get("value_A", "?"), node.ports.get("value_B", "?"))
-        return _Branch(check, child, on_mismatch)
+        return _Branch(self._at(check, path), child, on_mismatch)
 
     def _status_map(
         self,
@@ -495,7 +498,7 @@ class _Walker:
             self._error(node, path, f'else="{otherwise}" makes BT.CPP throw; no edge is drawn')
             fallback = None
         child = self._child(node, path, s, f, k, subtrees)
-        return _Branch(_script(node.ports.get("if", "true")), child, fallback)
+        return _Branch(self._at(_script(node.ports.get("if", "true")), path), child, fallback)
 
     def _loop_queue(
         self,
@@ -511,15 +514,23 @@ class _Walker:
         empty = {"SUCCESS": s, "FAILURE": f, "SKIPPED": k}.get(otherwise, s)
         child = self._child(node, path, empty, f, empty, subtrees)
         queue = _display(node.ports.get("queue", "queue"))
-        has_items = Condition(f"{node.type}@{_dotted(path)}", f"{queue} has items")
+        has_items = Condition(
+            f"{node.type}@{_dotted(path)}", f"{queue} has items", node=self.refs[path]
+        )
         return _Branch(has_items, child, empty)
 
     def _condition(self, node: Node, path: _Path) -> Condition:
         if node.semantics is Semantics.SCRIPT_CONDITION:
-            return _script(node.ports.get("code", "true"))
-        if node.semantics is Semantics.ENTRY_UPDATED:
-            return _updated(node, path)
-        return _condition(node)
+            condition = _script(node.ports.get("code", "true"))
+        elif node.semantics is Semantics.ENTRY_UPDATED:
+            condition = _updated(node, path)
+        else:
+            condition = _condition(node)
+        return self._at(condition, path)
+
+    def _at(self, condition: Condition, path: _Path) -> Condition:
+        """Record which node makes this check."""
+        return replace(condition, node=self.refs[path])
 
     def _may_skip(self, node: Node) -> bool:
         known = self.skippable.get(id(node))
@@ -613,6 +624,7 @@ class _Walker:
                     tuple(info.notes),
                     info.subtrees,
                     node.location,
+                    self.refs[path],
                 )
             )
             add(ids[path], Outcome.SUCCESS, info.on_success)

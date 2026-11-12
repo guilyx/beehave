@@ -154,12 +154,20 @@ def test_json_document_shape() -> None:
         "notes": [],
         "subtrees": [],
         "location": {"file": "t.xml", "line": 1},
+        "tree_node": {"path": "Sequence/Fly", "uid": 3, "index": 2, "runtime_path": "Fly::3"},
     }
     assert data["edges"][0] == {
         "from": "start",
         "to": "a1",
         "outcome": None,
-        "guard": [{"condition": "C", "key": "C()", "holds": True}],
+        "guard": [
+            {
+                "condition": "C",
+                "key": "C()",
+                "holds": True,
+                "tree_node": {"path": "Sequence/C", "uid": 2, "index": 1, "runtime_path": "C::2"},
+            }
+        ],
     }
 
 
