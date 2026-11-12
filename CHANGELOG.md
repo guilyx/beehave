@@ -10,6 +10,8 @@ listed here under **Changed** or **Removed**.
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-12
+
 The first release: Phase 1 of the roadmap, the action graph, for
 BehaviorTree.CPP v3 and v4 and for py_trees.
 
@@ -90,4 +92,5 @@ BehaviorTree.CPP v3 and v4 and for py_trees.
   metrics recorded in the docs; on 39 public v4 trees, with v3/v4 pairs that
   must give the same graph; and on the py_trees demos.
 
-[Unreleased]: https://github.com/guilyx/beehave/commits/main/
+[Unreleased]: https://github.com/guilyx/beehave/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/guilyx/beehave/releases/tag/v0.1.0
