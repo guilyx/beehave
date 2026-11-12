@@ -10,6 +10,14 @@ listed here under **Changed** or **Removed**.
 
 ## [Unreleased]
 
+### Added
+
+- Content hashes: `beehave.graph_hash(graph)` hashes the action graph and
+  `beehave.tree_hash(tree)` the inlined tree in canonical XML
+  (`beehave.canonical_xml(tree)`). Layout, attribute order, comments and file
+  names do not change them. The JSON output carries both as `graph_hash` and
+  `tree_hash`, and `beehave graph --print-hash` prints them.
+
 ## [0.1.0] - 2026-11-12
 
 The first release: Phase 1 of the roadmap, the action graph, for
@@ -88,11 +96,6 @@ BehaviorTree.CPP v3 and v4 and for py_trees.
   included, with `IdScheme.BTCPP_V4` (from 1) or `IdScheme.PREORDER` (from 0);
   `ActionGraph.vertex_for()` and `vertex_at()` find an action by id or path.
   The JSON output carries them as `tree_node`, and `beehave ids` lists them.
-- Content hashes: `beehave.graph_hash(graph)` hashes the action graph and
-  `beehave.tree_hash(tree)` the inlined tree in canonical XML
-  (`beehave.canonical_xml(tree)`). Layout, attribute order, comments and file
-  names do not change them. The JSON output carries both as `graph_hash` and
-  `tree_hash`, and `beehave graph --print-hash` prints them.
 - Integration tests on public BT.CPP, Groot and Nav2 trees, with the Phase 1
   metrics recorded in the docs; on 39 public v4 trees, with v3/v4 pairs that
   must give the same graph; and on the py_trees demos.
