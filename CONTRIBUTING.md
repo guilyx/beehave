@@ -112,6 +112,7 @@ src/beehave/
 ├── graph.py          # ActionGraph, Vertex, Edge, guards
 ├── ids.py            # node paths and runtime ids (BT.CPP v4 UIDs, pre-order)
 ├── hashing.py        # content hashes of the graph and of the inlined tree
+├── diff.py           # what changed between two action graphs
 ├── render/           # 4. Render: text, Mermaid, DOT, JSON
 ├── stats.py          # Phase 1 metrics: size, reduction, longest guard, breakage
 ├── diagnostics.py    # warnings about approximations, with source locations

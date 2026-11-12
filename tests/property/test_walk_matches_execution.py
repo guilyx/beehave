@@ -24,6 +24,7 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from beehave.config import Config, config_from_dict
+from beehave.diff import diff_graphs
 from beehave.flatten import flatten
 from beehave.graph import FAILURE, SKIPPED, START, SUCCESS, ActionGraph, Outcome
 from beehave.hashing import graph_hash
@@ -655,3 +656,33 @@ def test_bookkeeping_is_collapsed_without_changing_what_runs(
             trace.append(index[current])
 
     assert (trace, current == SUCCESS) == (run.trace, result)
+
+
+# ------------------------------------------------------------------- diff ---
+
+
+@settings(max_examples=200, deadline=None)
+@given(spec=TREES, other=TREES)
+def test_diffs_are_empty_on_equal_graphs_and_read_both_ways(spec: Spec, other: Spec) -> None:
+    def graph(body: Spec) -> ActionGraph:
+        xml = f'<root><BehaviorTree ID="T">{to_xml(body)}</BehaviorTree></root>'
+        return build_graph(flatten(parse_string(xml, config=CONFIG)))
+
+    a, b = graph(spec), graph(other)
+    forward, backward = diff_graphs(a, b), diff_graphs(b, a)
+
+    assert not diff_graphs(a, a).changed
+    if graph_hash(a) != graph_hash(b) and not forward.moved_actions:
+        assert forward.changed
+    # Moved actions go by their new path, so compare the two directions by size.
+    assert forward.moved_actions == tuple(sorted((n, o) for o, n in backward.moved_actions))
+    assert (len(forward.added_actions), len(forward.added_transitions)) == (
+        len(backward.removed_actions),
+        len(backward.removed_transitions),
+    )
+    assert len(forward.changed_guards) == len(backward.changed_guards)
+    assert len(forward.became_reachable) == len(backward.became_unreachable)
+    assert (forward.score.precision, forward.score.recall) == (
+        backward.score.recall,
+        backward.score.precision,
+    )

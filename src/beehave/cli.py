@@ -7,6 +7,7 @@ Examples::
     beehave stats mission.xml                 # size, reduction, breakage
     beehave trees mission.xml                 # list the trees in the files
     beehave ids mission.xml                   # runtime ids and paths of every node
+    beehave diff old/mission.xml mission.xml  # what changed in the action graph
     beehave graph --py-trees robot.trees:create_root   # a py_trees tree (runs that code)
     beehave graph behavior_trees/ -t NavigateToPose     # every tree in a folder
 """
@@ -23,6 +24,7 @@ from typing import TYPE_CHECKING
 from beehave import __version__
 from beehave.api import analyze, analyze_py_trees
 from beehave.config import Config, find_config, load_config
+from beehave.diff import diff_graphs
 from beehave.errors import BeehaveError
 from beehave.hashing import graph_hash, tree_hash
 from beehave.ids import IdScheme, runtime_ids
@@ -42,10 +44,11 @@ if TYPE_CHECKING:
 def main(argv: Sequence[str] | None = None) -> int:
     """Run the command line and return the exit code.
 
-    Exit codes: 0 on success, 1 when the input cannot be analysed, 2 on a usage error.
+    Exit codes: 0 on success, 1 when the input cannot be analysed, 2 on a usage error,
+    3 when ``beehave diff --exit-code`` finds a change.
     """
     args = _parser().parse_args(argv)
-    _check_inputs(args)
+    args.check(args)
     try:
         return int(args.run(args))
     except BeehaveError as exc:
@@ -99,9 +102,33 @@ def _parser() -> argparse.ArgumentParser:
     ids.add_argument("--json", action="store_true", help="print the nodes as JSON")
     ids.set_defaults(run=_ids)
 
+    diff = commands.add_parser("diff", help="compare the action graphs of two trees")
+    diff.add_argument("old", type=Path, help="the old tree: a file or a folder")
+    diff.add_argument("new", type=Path, help="the new tree: a file or a folder")
+    diff.add_argument("-t", "--tree", help="tree to compare in both (default: the main tree)")
+    diff.add_argument(
+        "-f",
+        "--format",
+        choices=["text", "markdown", "json"],
+        default="text",
+        help="output format (default: text)",
+    )
+    diff.add_argument("-o", "--output", type=Path, help="write to a file instead of stdout")
+    diff.add_argument("--exit-code", action="store_true", help="exit with 3 when the graphs differ")
+    diff.add_argument("-c", "--config", type=Path, help="project config (default: ./beehave.yaml)")
+    diff.add_argument(
+        "--package",
+        action="append",
+        default=[],
+        metavar="NAME=DIR",
+        help='where <include ros_pkg="NAME"> finds the package; repeat for several',
+    )
+    diff.add_argument("-q", "--quiet", action="store_true", help="do not print warnings")
+    diff.set_defaults(run=_diff, parser=diff, check=_check_packages)
+
     trees = commands.add_parser("trees", help="list the trees defined in the files")
     _inputs(trees)
-    trees.set_defaults(run=_trees, parser=trees)
+    trees.set_defaults(run=_trees, parser=trees, check=_check_inputs)
     return parser
 
 
@@ -136,16 +163,23 @@ def _inputs(parser: argparse.ArgumentParser) -> None:
 
 def _common(parser: argparse.ArgumentParser) -> None:
     _inputs(parser)
+    parser.set_defaults(check=_check_inputs)
     parser.add_argument("-t", "--tree", help="tree to analyse (default: the main tree)")
     parser.add_argument("-q", "--quiet", action="store_true", help="do not print warnings")
 
 
-def _check_inputs(args: argparse.Namespace) -> None:
-    error = args.parser.error
+def _check_packages(args: argparse.Namespace) -> None:
     for value in args.package:
         name, _, directory = value.partition("=")
         if not name or not directory:
-            error("--package takes NAME=DIR, for example --package my_robot_bt=src/my_robot_bt")
+            args.parser.error(
+                "--package takes NAME=DIR, for example --package my_robot_bt=src/my_robot_bt"
+            )
+
+
+def _check_inputs(args: argparse.Namespace) -> None:
+    error = args.parser.error
+    _check_packages(args)
     if args.files and args.py_trees:
         error("give tree files or --py-trees, not both")
     if not args.files and not args.py_trees:
@@ -263,6 +297,21 @@ def _ids(args: argparse.Namespace) -> int:
         cells = [cell.ljust(width) for cell, width in zip(row, widths, strict=False)]
         sys.stdout.write("  ".join([*cells, row[4]]) + "\n")
     return 0
+
+
+def _diff(args: argparse.Namespace) -> int:
+    config = _config(args)
+    old = analyze(args.old, tree=args.tree, config=config)
+    new = analyze(args.new, tree=args.tree, config=config)
+    _warn(old.graph.diagnostics + new.graph.diagnostics, quiet=args.quiet)
+    result = diff_graphs(old.graph, new.graph)
+    renderers = {"text": result.to_text, "markdown": result.to_markdown, "json": result.to_json}
+    output = renderers[args.format]()
+    if args.output:
+        args.output.write_text(output, encoding="utf-8")
+    else:
+        sys.stdout.write(output)
+    return 3 if args.exit_code and result.changed else 0
 
 
 def _trees(args: argparse.Namespace) -> int:

@@ -17,6 +17,7 @@ from importlib.metadata import PackageNotFoundError, version
 
 from beehave.api import Analysis, analyze, analyze_py_trees
 from beehave.config import Bookkeeping, Config, load_config
+from beehave.diff import GraphDiff, diff_graphs
 from beehave.errors import (
     BeehaveError,
     ConfigError,
@@ -53,6 +54,7 @@ __all__ = [
     "Edge",
     "FlatTree",
     "FlattenError",
+    "GraphDiff",
     "IdScheme",
     "Literal",
     "NodePreset",
@@ -71,6 +73,7 @@ __all__ = [
     "build_graph",
     "canonical_xml",
     "compute_stats",
+    "diff_graphs",
     "flatten",
     "from_py_trees",
     "graph_hash",
