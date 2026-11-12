@@ -29,6 +29,11 @@ listed here under **Changed** or **Removed**.
   again and reported when an edge back to it is missing. Nodes under `nodes`
   are the project's own, so a v3 project's custom `ParallelAll` no longer
   makes the file read as v4. Works for py_trees classes too.
+- Bookkeeping actions: `bookkeeping:` in `beehave.yaml` lists actions that do
+  not act on the world (logging, blackboard helpers). They are left out of the
+  graph and the edges through them are joined up, so the next action named on
+  an edge is a real one. When one may fail, its result is a guard on those
+  edges (`LogMessage succeeded`); `never_fails: true` drops the guard.
 
 ## [0.1.0] - 2026-11-12
 
