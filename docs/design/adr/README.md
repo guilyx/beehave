@@ -20,6 +20,7 @@ new ADR that supersedes the old one.
 | [0012](0012-graph-and-tree-hashes.md) | Hash the action graph and the inlined tree separately | Accepted |
 | [0013](0013-presets.md) | Let the config give a custom node a preset | Accepted |
 | [0014](0014-bookkeeping-actions.md) | Leave bookkeeping actions out of the graph, and keep their results as guards | Accepted |
+| [0015](0015-graph-diff-by-path.md) | Diff action graphs by stable path, and pair moved actions | Accepted |
 
 To propose a decision, copy [the template](template.md), take the next number,
 and open a pull request. Discussion happens on the pull request.
