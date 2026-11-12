@@ -361,25 +361,46 @@ the pull request.
 
 ## How releases are made
 
-Releases are cut by a maintainer from `main`:
+Releases are automatic. Every push to `main` runs the
+[release workflow](.github/workflows/release.yml), which reads the
+Conventional Commits made since the last `vX.Y.Z` tag and picks the version:
 
-1. Set the version: `uv version 0.2.0` (this updates `pyproject.toml` and
-   `uv.lock`).
-2. In `CHANGELOG.md`, rename `## [Unreleased]` to `## [0.2.0] - YYYY-MM-DD`,
-   add a fresh empty `## [Unreleased]` above it, and update the links at the
-   bottom.
-3. Open a pull request `chore: release 0.2.0`, and merge it once `ci-ok` is
-   green.
-4. Tag the merge commit and push the tag:
-   `git tag -s v0.2.0 -m "Beehave 0.2.0" && git push origin v0.2.0`.
-5. The [release workflow](.github/workflows/release.yml) runs CI again, checks
-   that the tag matches the version, builds the sdist and wheel, publishes them
-   to PyPI with trusted publishing and attestations, signs them with Sigstore,
-   and creates the GitHub Release with the signed files and the changelog
-   section as release notes.
+| Commits since the last release | Bump | Example |
+|---|---|---|
+| a breaking change: `feat!:`, `fix(api)!:` or a `BREAKING CHANGE:` footer | major (minor while we are at 0.x) | 1.4.2 → 2.0.0 |
+| at least one `feat` | minor | 1.4.2 → 1.5.0 |
+| at least one `fix` or `perf` | patch | 1.4.2 → 1.4.3 |
+| only `docs`, `test`, `ci`, `build`, `chore`, `refactor`, `style` | none | |
+
+The first release is the version in `pyproject.toml` without its `.devN`
+suffix. When a release is due, the workflow:
+
+1. runs CI on the pushed commit;
+2. sets the version (`uv version`, which updates `pyproject.toml` and
+   `uv.lock`);
+3. renames `## [Unreleased]` in `CHANGELOG.md` to `## [X.Y.Z] - YYYY-MM-DD`,
+   adds a fresh `## [Unreleased]` above it and updates the links at the
+   bottom. If nobody wrote anything under Unreleased, the notes are written
+   from the `feat`, `fix`, `perf` and breaking commits;
+4. commits this as `chore(release): X.Y.Z`, tags it `vX.Y.Z` and pushes both;
+5. builds the sdist and wheel from the tag, publishes them to PyPI with
+   trusted publishing and attestations, signs them with Sigstore, and creates
+   the GitHub Release with the signed files and the changelog section as
+   release notes.
+
+So the commit messages that land on `main` decide the release. With merge
+commits every commit of the branch counts; with squash merges the pull request
+title does. Check them before merging. To see what would be released:
+
+```sh
+python3 scripts/release.py next   # prints the next version, or nothing
+```
 
 Versions follow [PEP 440](https://peps.python.org/pep-0440/) and
 [Semantic Versioning](https://semver.org/). While we are at 0.x, a minor
 release may contain breaking changes; they are always called out in the
-changelog. Pre-releases (`v0.2.0rc1`) follow the same steps, with their own
-`## [0.2.0rc1]` changelog section, and are marked as pre-releases on GitHub.
+changelog. Pre-releases are still cut by hand: set the version
+(`uv version 0.2.0rc1`), add a `## [0.2.0rc1]` changelog section, merge that,
+then push a signed tag (`git tag -s v0.2.0rc1 -m "Beehave 0.2.0rc1" && git push
+origin v0.2.0rc1`). The same workflow publishes it and marks it as a
+pre-release on GitHub.
