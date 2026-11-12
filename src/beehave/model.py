@@ -105,6 +105,11 @@ class Semantics(str, Enum):
     """A check written as an expression over blackboard entries, in port ``expression``."""
     SCRIPT_CONDITION = "script_condition"
     """A check written as a BT.CPP script, in port ``code``."""
+    BOOKKEEPING = "bookkeeping"
+    """An action that does not act on the world (logging, a blackboard helper).
+
+    It is left out of the action graph. Unless option ``never_fails`` is
+    ``"true"``, its result is a guard on the edges that go through it."""
     ENTRY_UPDATED = "entry_updated"
     """Holds if the entry in port ``entry`` changed since this node last looked."""
 

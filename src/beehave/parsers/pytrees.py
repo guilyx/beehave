@@ -26,7 +26,7 @@ from dataclasses import replace
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from beehave.config import Config
+from beehave.config import Bookkeeping, Config
 from beehave.diagnostics import Diagnostic
 from beehave.errors import BeehaveError, ParseError, UnsupportedFormatError
 from beehave.model import Document, Node, NodeKind, Semantics, Tree
@@ -291,15 +291,21 @@ class _Adapter:
         type_ = type(leaf).__name__
         rule = self.leaves.get(owner)
         kind, semantics, ports = rule(leaf) if rule else (NodeKind.ACTION, Semantics.CUSTOM, {})
+        options: dict[str, str] = {}
         if semantics is Semantics.CUSTOM:
-            kind = self._configured(type(leaf), kind)
+            configured = self._configured(type(leaf), kind)
+            if isinstance(configured, Bookkeeping):
+                semantics = Semantics.BOOKKEEPING
+                options["never_fails"] = "true" if configured.never_fails else "false"
+            else:
+                kind = configured
         if owner is getattr(self.py_trees.behaviours, "BlackboardToStatus", None):
             message = (
                 f'{type_} "{name}": returns the status stored in {leaf.variable_name}, '
                 "RUNNING included; walked as a condition"
             )
             self.diagnostics.append(Diagnostic("approximated", message, node_type=type_))
-        return Node(kind, type_, semantics, name, ports)
+        return Node(kind, type_, semantics, name, ports, options=options)
 
     def _with_preset(self, node: Node, cls: type) -> Node:
         """Give a user composite or decorator the preset the config names for it."""
@@ -333,7 +339,7 @@ class _Adapter:
             options=defaults | dict(entry.options),
         )
 
-    def _configured(self, cls: type, default: NodeKind) -> NodeKind:
+    def _configured(self, cls: type, default: NodeKind) -> NodeKind | Bookkeeping:
         # The config may name the class or any of its bases; the nearest wins.
         for klass in cls.__mro__:
             names = {klass.__name__, f"{klass.__module__}.{klass.__qualname__}"}
@@ -341,6 +347,8 @@ class _Adapter:
                 return NodeKind.CONDITION
             if names & self.config.actions:
                 return NodeKind.ACTION
+            for name in sorted(names & self.config.bookkeeping.keys()):
+                return self.config.bookkeeping[name]
         return default
 
 

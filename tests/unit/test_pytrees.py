@@ -696,3 +696,24 @@ def test_py_trees_preset_arity_is_checked() -> None:
         beehave.analyze_py_trees(
             root, config=config_from_dict({"nodes": {"Choose": "if_then_else"}})
         )
+
+
+def test_py_trees_classes_can_be_bookkeeping() -> None:
+    class Log(py_trees.behaviour.Behaviour):
+        def update(self) -> Any:
+            return py_trees.common.Status.SUCCESS
+
+    class Act(py_trees.behaviour.Behaviour):
+        def update(self) -> Any:
+            return py_trees.common.Status.SUCCESS
+
+    root = py_trees.composites.Sequence("root", memory=True)
+    root.add_children([Act("A"), Log("log"), Act("B")])
+    config = config_from_dict({"bookkeeping": {"Log": {"never_fails": True}}})
+
+    result = beehave.analyze_py_trees(root, config=config)
+
+    log = result.tree.root.children[1]
+    assert (log.semantics, log.options) == (Semantics.BOOKKEEPING, {"never_fails": "true"})
+    assert [v.label for v in result.graph.actions] == ["A", "B"]
+    assert result.graph.outgoing("a1")[0].target == "a2"

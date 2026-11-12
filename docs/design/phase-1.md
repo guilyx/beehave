@@ -177,6 +177,7 @@ on a condition.
 | `BlackboardCheck(a, b)(c)` | A branch on `a == b`; mismatch goes to `s` or `f` per `return_on_mismatch`. |
 | `AlwaysSuccess`, `SetBlackboard` | Entry is `s` (no box). |
 | `AlwaysFailure` | Entry is `f` (no box). |
+| Bookkeeping action | No box. Entry is a branch on its result, "succeeded → `s`, else → `f`", after a blackboard write; without the branch when it never fails. |
 | Subtree | Compile its inlined body with `(s, f)`. |
 | `until_success(c)` preset | Compile `c` with `(s, none)`: a failure ticks `c` again, so it has no edge yet. |
 | `loop_until_flag(c)` preset | A branch on the flag: set → exit; else `c` with `(branch on the flag: set → exit, else none; f)`. |

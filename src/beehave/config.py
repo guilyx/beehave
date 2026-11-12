@@ -15,6 +15,8 @@ say what a custom control or decorator behaves like::
       PipelineSequence: pipeline_sequence
       KeepTrying:
         behaves_like: until_success
+    bookkeeping:           # actions that do not act on the world
+      - LogMessage
     packages:              # where <include ros_pkg="..."> finds a package
       my_robot_bt: src/my_robot_bt
 """
@@ -34,7 +36,19 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
 DEFAULT_CONFIG_NAMES = ("beehave.yaml", ".beehave.yaml")
-_KNOWN_KEYS = frozenset({"conditions", "actions", "nodes", "packages"})
+_KNOWN_KEYS = frozenset({"conditions", "actions", "nodes", "bookkeeping", "packages"})
+
+
+@dataclass(frozen=True)
+class Bookkeeping:
+    """How a bookkeeping action behaves.
+
+    Attributes:
+        never_fails: Whether the action always succeeds. When it may fail,
+            its result is a guard on the edges that go through it.
+    """
+
+    never_fails: bool = False
 
 
 @dataclass(frozen=True)
@@ -48,12 +62,16 @@ class Config:
             ``<include ros_pkg="...">``. They win over a sourced workspace.
         nodes: Custom controls and decorators that behave like a preset, by
             node type (see :mod:`beehave.presets`).
+        bookkeeping: Actions that do not act on the world (logging, blackboard
+            helpers), by node type. They are left out of the action graph and
+            the edges through them are joined up.
     """
 
     conditions: frozenset[str] = frozenset()
     actions: frozenset[str] = frozenset()
     packages: Mapping[str, Path] = field(default_factory=dict, hash=False)
     nodes: Mapping[str, NodePreset] = field(default_factory=dict, hash=False)
+    bookkeeping: Mapping[str, Bookkeeping] = field(default_factory=dict, hash=False)
 
     def __post_init__(self) -> None:
         both = self.conditions & self.actions
@@ -66,6 +84,11 @@ class Config:
             names = ", ".join(sorted(twice))
             msg = f"listed both as a leaf and under nodes: {names}"
             raise ConfigError(msg)
+        listed = (self.conditions | self.actions | self.nodes.keys()) & self.bookkeeping.keys()
+        if listed:
+            names = ", ".join(sorted(listed))
+            msg = f"listed under bookkeeping and as another kind of node: {names}"
+            raise ConfigError(msg)
         for name, entry in self.nodes.items():
             if entry.behaves_like not in PRESETS:
                 msg = f"node {name}: unknown preset '{entry.behaves_like}'"
@@ -73,13 +96,13 @@ class Config:
 
     @property
     def declared(self) -> frozenset[str]:
-        """Every node type the config describes: conditions, actions and nodes.
+        """Every node type the config describes: conditions, actions, nodes, bookkeeping.
 
         A declared type is the project's own node, so it is never taken as a
         sign of another format or version (a v3 project may have its own
         ``ParallelAll``).
         """
-        return self.conditions | self.actions | frozenset(self.nodes)
+        return self.conditions | self.actions | frozenset(self.nodes) | frozenset(self.bookkeeping)
 
 
 def load_config(path: str | Path) -> Config:
@@ -137,6 +160,7 @@ def config_from_dict(
         actions=_names(data.get("actions"), "actions", source),
         packages=_packages(data.get("packages"), source, Path(base_dir or ".")),
         nodes=_nodes(data.get("nodes"), source),
+        bookkeeping=_bookkeeping(data.get("bookkeeping"), source),
     )
 
 
@@ -202,3 +226,28 @@ def _node(name: str, entry: Any, source: str) -> NodePreset:
         msg = f"{source}: node {name}: unknown option(s) for {preset.name}: {', '.join(unknown)}"
         raise ConfigError(msg)
     return NodePreset(preset.name, options)
+
+
+def _bookkeeping(value: Any, source: str) -> dict[str, Bookkeeping]:
+    if value is None:
+        return {}
+    if isinstance(value, list) and all(isinstance(v, str) for v in value):
+        return {name: Bookkeeping() for name in value}
+    usage = (
+        f"{source}: 'bookkeeping' must be a list of node names, or map node names "
+        "to {never_fails: true|false}"
+    )
+    if not isinstance(value, dict):
+        raise ConfigError(usage)
+    entries: dict[str, Bookkeeping] = {}
+    for name, entry in value.items():
+        options = {} if entry is None else entry
+        if (
+            not isinstance(name, str)
+            or not isinstance(options, dict)
+            or set(options) - {"never_fails"}
+            or not isinstance(options.get("never_fails", False), bool)
+        ):
+            raise ConfigError(usage)
+        entries[name] = Bookkeeping(never_fails=options.get("never_fails", False))
+    return entries

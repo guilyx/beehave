@@ -13,6 +13,9 @@ first when the node is ticked.
 - An Inverter swaps the continuations; ForceSuccess and ForceFailure merge them.
 - An action that never fails has no failure edge; one that never finishes has
   no outgoing edge at all.
+- A bookkeeping action (logging, a blackboard helper, listed in the config) is
+  not a box: the edges through it are joined up, and when it may fail, its
+  result is a guard on them.
 
 Only BT.CPP v4 nodes can be skipped (by a pre-condition such as ``_skipIf``).
 A control node whose children are all skipped is skipped itself, so a
@@ -334,6 +337,18 @@ class _Walker:
             return s
         if node.semantics in _WRITES:
             return _Effect(s)
+        if node.semantics is Semantics.BOOKKEEPING:
+            # Not a box: its edges are joined up. Beehave does not know what it
+            # writes, so it ends what earlier checks decide, like a Script.
+            if node.options.get("never_fails") == "true" or s == f:
+                return _Effect(s)
+            succeeded = Condition(
+                f"{node.type}@{_dotted(path)}",
+                f"{node.label} succeeded",
+                f"{node.label} failed",
+                node=self.refs[path],
+            )
+            return _Effect(_Branch(succeeded, s, f))
         if node.semantics is Semantics.ALWAYS_FAILURE:
             return f
         on_success = None if node.semantics is Semantics.ALWAYS_RUNNING else s
@@ -754,7 +769,8 @@ def _runs_actions(node: Node) -> bool:
     """Whether ticking ``node`` may run an action that becomes a vertex."""
     return any(
         n.kind is NodeKind.ACTION
-        and n.semantics not in (Semantics.ALWAYS_SUCCESS, Semantics.ALWAYS_FAILURE, *_WRITES)
+        and n.semantics
+        not in (Semantics.ALWAYS_SUCCESS, Semantics.ALWAYS_FAILURE, Semantics.BOOKKEEPING, *_WRITES)
         for n in node.walk()
     )
 
