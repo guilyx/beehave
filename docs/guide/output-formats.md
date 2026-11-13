@@ -103,7 +103,7 @@ A versioned document meant for other tools, including a future operator view.
 | `nodes[].subtrees` | The subtrees the action was inlined from, outermost first. |
 | `edges[].outcome` | `success`, `failure`, or `null` for edges leaving `start`. |
 | `edges[].guard` | A conjunction. Each term names a condition and whether it must hold. |
-| `edges[].guard[].key` | The condition's identity: its type and port values. |
+| `edges[].guard[].key` | The condition's identity: its type and port values, or the script. A check that belongs to one node (`WasEntryUpdated`, a bookkeeping action's result) is keyed by its type and [stable path](node-ids.md#paths), `Type@path`. |
 | `nodes[].tree_node`, `edges[].guard[].tree_node` | The node the action or the check comes from: its stable `path`, its BT.CPP v4 `uid` (from 1), its `index` (from 0) and its BT.CPP v4 `runtime_path` (`null` for py_trees). See [Node ids and paths](node-ids.md). |
 | `diagnostics` | What could not be modelled exactly, and where. |
 

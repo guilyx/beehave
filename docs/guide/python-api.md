@@ -96,6 +96,17 @@ beehave.tree_hash(result.tree)  # over beehave.canonical_xml(result.tree)
 
 See [Hashes](output-formats.md#hashes).
 
+## Comparing two trees
+
+```python
+result = beehave.diff_graphs(old.graph, new.graph)
+result.changed  # any added, removed or changed action, transition, guard or reachability
+result.to_text(), result.to_markdown(), result.to_json()
+result.score.precision, result.score.recall, result.score.f1
+```
+
+See [Comparing two trees](diff.md).
+
 ## Main types
 
 | Type | What it is |

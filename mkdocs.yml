@@ -20,6 +20,7 @@ nav:
       - Formats: guide/formats.md
       - Subtrees and includes: guide/subtrees.md
       - Node ids and paths: guide/node-ids.md
+      - Comparing two trees: guide/diff.md
       - Command line: guide/cli.md
       - Configuration: guide/configuration.md
       - Output formats: guide/output-formats.md
@@ -47,6 +48,7 @@ nav:
           - 0012 Graph and tree hashes: design/adr/0012-graph-and-tree-hashes.md
           - 0013 Presets: design/adr/0013-presets.md
           - 0014 Bookkeeping actions: design/adr/0014-bookkeeping-actions.md
+          - 0015 Graph diff: design/adr/0015-graph-diff-by-path.md
           - Template: design/adr/template.md
   - Research:
       - research/index.md
