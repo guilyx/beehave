@@ -17,6 +17,8 @@ new ADR that supersedes the old one.
 | [0009](0009-bt-cpp-v4-skipped.md) | Read BT.CPP v4 with a third continuation for SKIPPED | Accepted |
 | [0010](0010-py-trees-live-trees.md) | Read py_trees trees live, and import user code only on request | Accepted |
 | [0011](0011-node-paths-and-runtime-ids.md) | Name nodes by a stable path, and compute runtime ids from the tree | Accepted |
+| [0012](0012-graph-and-tree-hashes.md) | Hash the action graph and the inlined tree separately | Accepted |
+| [0013](0013-presets.md) | Let the config give a custom node a preset | Accepted |
 
 To propose a decision, copy [the template](template.md), take the next number,
 and open a pull request. Discussion happens on the pull request.

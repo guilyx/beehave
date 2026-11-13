@@ -8,7 +8,7 @@ BT.CPP versions (built-in nodes, subtree syntax, format checks) lives in a
 
 How a user-defined node is classified, strongest signal first:
 
-1. the project config (``conditions:`` / ``actions:``),
+1. the project config (``conditions:`` / ``actions:``, or a preset under ``nodes:``),
 2. the explicit XML form (``<Condition ID="X"/>``),
 3. the ``<TreeNodesModel>`` declaration,
 4. its shape: a leaf is an action, one child a decorator, more a control.
@@ -227,6 +227,7 @@ class Loader:
     diagnostics: list[Diagnostic] = field(default_factory=list)
     seen_files: set[Path] = field(default_factory=set)
     local_trees: list[str] = field(default_factory=list)
+    ignored_presets: set[str] = field(default_factory=set)
 
     # ------------------------------------------------------------- loading ---
 
@@ -296,16 +297,12 @@ class Loader:
         )
 
     def _reject_py_trees(self, root: Element, source: str | None) -> None:
-        declared = (
-            {
-                model.attrs.get("ID", "")
-                for element in root.children
-                if element.tag == "TreeNodesModel"
-                for model in element.children
-            }
-            | self.config.conditions
-            | self.config.actions
-        )
+        declared = {
+            model.attrs.get("ID", "")
+            for element in root.children
+            if element.tag == "TreeNodesModel"
+            for model in element.children
+        } | self.config.declared
 
         def evidence(element: Element) -> Element | None:
             attribute = "policy" if element.tag == "Parallel" else _PY_TREES_HINTS.get(element.tag)
@@ -324,7 +321,7 @@ class Loader:
                 raise UnsupportedFormatError(msg, SourceLocation(source, found.line))
 
     def _reject_v4(self, element: Element, source: str | None) -> None:
-        declared = self.models.keys() | self.config.conditions | self.config.actions
+        declared = self.models.keys() | self.config.declared
         evidence = v4_evidence(element, declared)
         if evidence is not None:
             msg = f"this file looks like BT.CPP v4 ({evidence}); "
@@ -484,7 +481,7 @@ class Loader:
             and node_type in self.tree_elements
             and node_type not in builtins
             and node_type not in self.models
-            and node_type not in self.config.conditions | self.config.actions
+            and node_type not in self.config.declared
         ):
             self.diagnostics.append(
                 Diagnostic(
@@ -506,9 +503,7 @@ class Loader:
                 scripts=scripts,
             )
 
-        declared = node_type in self.models or node_type in (
-            self.config.conditions | self.config.actions
-        )
+        declared = node_type in self.models or node_type in self.config.declared
         if node_type in dialect.unknown_names and not declared:
             msg = f"<{node_type}> does not exist in BT.CPP v{dialect.version}; "
             raise ParseError(msg + dialect.unknown_names[node_type], location)
@@ -522,6 +517,16 @@ class Loader:
                 self.diagnostics.append(
                     Diagnostic("v3-name", dialect.old_names[node_type], location=location)
                 )
+            if node_type in self.config.nodes and node_type not in self.ignored_presets:
+                self.ignored_presets.add(node_type)
+                self.diagnostics.append(
+                    Diagnostic(
+                        "preset-ignored",
+                        f"{node_type} is a built-in node of BT.CPP v{dialect.version}; "
+                        "its preset in the config is ignored",
+                        location=location,
+                    )
+                )
             return Node(
                 builtin.kind,
                 node_type,
@@ -531,6 +536,24 @@ class Loader:
                 children,
                 location=location,
                 scripts=scripts,
+            )
+
+        entry = self.config.nodes.get(node_type)
+        if entry is not None:
+            preset = entry.preset
+            _check_children(node_type, preset.min_children, preset.max_children, children, location)
+            options = {name: default for name, (_, default) in preset.options.items()}
+            return Node(
+                preset.kind,
+                node_type,
+                preset.semantics,
+                name,
+                ports,
+                children,
+                location=location,
+                scripts=scripts,
+                behaves_like=preset.name,
+                options=options | dict(entry.options),
             )
 
         kind = self._classify(node_type, explicit_kind, len(children))

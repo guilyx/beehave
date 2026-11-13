@@ -178,6 +178,8 @@ on a condition.
 | `AlwaysSuccess`, `SetBlackboard` | Entry is `s` (no box). |
 | `AlwaysFailure` | Entry is `f` (no box). |
 | Subtree | Compile its inlined body with `(s, f)`. |
+| `until_success(c)` preset | Compile `c` with `(s, none)`: a failure ticks `c` again, so it has no edge yet. |
+| `loop_until_flag(c)` preset | A branch on the flag: set → exit; else `c` with `(branch on the flag: set → exit, else none; f)`. |
 
 The tree's root is compiled with `(SUCCESS, FAILURE)`. Its entry gives the
 edges out of `START`.
@@ -228,8 +230,8 @@ That one check proves the guards are complete and mutually exclusive.
 | `Parallel` | approximated | Children shown as if run one after another. |
 | `ManualSelector` | approximated | Walked like a `Fallback`. |
 | Custom action / condition | exact | Action unless configured or declared as a condition. |
-| Custom decorator | approximated | Treated as transparent. |
-| Custom control | approximated | Walked like a `Sequence`. |
+| Custom decorator | approximated | Treated as transparent, unless the config gives it a [preset](../guide/configuration.md#presets). |
+| Custom control | approximated | Walked like a `Sequence`, unless the config gives it a [preset](../guide/configuration.md#presets). |
 
 BT.CPP 3.8 has no built-in condition nodes. The exact semantics behind this
 table, checked against the BT.CPP 3.8.8 source, are in

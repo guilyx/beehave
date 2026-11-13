@@ -111,10 +111,12 @@ src/beehave/
 ├── walk.py           # 3. Walk: FlatTree -> ActionGraph (continuation-passing)
 ├── graph.py          # ActionGraph, Vertex, Edge, guards
 ├── ids.py            # node paths and runtime ids (BT.CPP v4 UIDs, pre-order)
+├── hashing.py        # content hashes of the graph and of the inlined tree
 ├── render/           # 4. Render: text, Mermaid, DOT, JSON
 ├── stats.py          # Phase 1 metrics: size, reduction, longest guard, breakage
 ├── diagnostics.py    # warnings about approximations, with source locations
 ├── config.py         # beehave.yaml
+├── presets.py        # what a custom control or decorator behaves like
 ├── api.py            # beehave.analyze(): parse + flatten + walk in one call
 ├── errors.py         # the exception hierarchy
 └── cli.py            # the `beehave` command (graph, stats, trees)

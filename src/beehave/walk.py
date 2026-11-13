@@ -46,6 +46,7 @@ from beehave.graph import (
     Vertex,
     VertexKind,
 )
+from beehave.hashing import tree_hash
 from beehave.ids import node_refs
 from beehave.model import Node, NodeKind, Semantics
 
@@ -109,6 +110,30 @@ _APPROXIMATIONS: dict[Semantics, str] = {
         "after its child completes once, later activations return that result "
         "without running it; those edges are not shown yet"
     ),
+    Semantics.PIPELINE_SEQUENCE: (
+        "walked like a Sequence; earlier children are ticked again while a later one runs, "
+        "and the edges where they stop it are not shown yet"
+    ),
+    Semantics.ROUND_ROBIN: (
+        "walked like a Fallback from its first child; later activations start after the "
+        "child that succeeded last, which is not shown yet"
+    ),
+    Semantics.PARALLEL_FIRST_SUCCESS: (
+        "children run at the same time; shown as if they ran one after another, "
+        "stopping at the first that succeeds"
+    ),
+}
+# Loops whose walk is exact when their child runs no action: the only edge
+# missing is the one back to the child.
+_LOOPS: dict[Semantics, str] = {
+    Semantics.UNTIL_SUCCESS: (
+        "a failed child is ticked again until it succeeds, so it never fails; "
+        "the edges back to the child are not shown yet"
+    ),
+    Semantics.LOOP_UNTIL_FLAG: (
+        "the child is ticked again until {flag} is set; "
+        "the edges back to the child are not shown yet"
+    ),
 }
 
 _SEQUENCES = frozenset(
@@ -118,9 +143,18 @@ _SEQUENCES = frozenset(
         Semantics.REACTIVE_SEQUENCE,
         Semantics.PARALLEL,
         Semantics.PARALLEL_ALL,
+        Semantics.PIPELINE_SEQUENCE,
     }
 )
-_FALLBACKS = frozenset({Semantics.FALLBACK, Semantics.REACTIVE_FALLBACK, Semantics.MANUAL_SELECTOR})
+_FALLBACKS = frozenset(
+    {
+        Semantics.FALLBACK,
+        Semantics.REACTIVE_FALLBACK,
+        Semantics.MANUAL_SELECTOR,
+        Semantics.ROUND_ROBIN,
+        Semantics.PARALLEL_FIRST_SUCCESS,
+    }
+)
 _TRANSPARENT = frozenset(
     {
         Semantics.TIMEOUT,
@@ -282,6 +316,12 @@ class _Walker:
             return _Branch(self._at(_updated(node, path), path), child, k)
         if sem is Semantics.LOOP_QUEUE:
             return self._loop_queue(node, path, s, f, k, subtrees)
+        if sem is Semantics.UNTIL_SUCCESS:
+            self._report_loop(node, path, _LOOPS[sem])
+            # A failure ticks the child again: no edge until the loop is drawn.
+            return self._child(node, path, s, None, k, subtrees)
+        if sem is Semantics.LOOP_UNTIL_FLAG:
+            return self._loop_until_flag(node, path, s, f, subtrees)
         if sem in _TRANSPARENT:
             return self._child(node, path, s, f, k, subtrees)
         msg = f"no walk rule for {sem}"  # pragma: no cover - every Semantics is handled above
@@ -519,6 +559,31 @@ class _Walker:
         )
         return _Branch(has_items, child, empty)
 
+    def _loop_until_flag(
+        self, node: Node, path: _Path, s: _Target, f: _Target, subtrees: tuple[str, ...]
+    ) -> _Target:
+        # while not flag: tick the child; a failed child fails the node.
+        port = node.options.get("flag_port", "flag")
+        value = node.ports.get(port)
+        if value is None:
+            self._error(node, path, f"no port '{port}' holds the flag; it is never set")
+            flag: Condition | None = None
+        else:
+            flag = self._at(_script(_display(value)), path)
+        done = s if node.options.get("exit", "success") == "success" else f
+        self._report_loop(node, path, _LOOPS[Semantics.LOOP_UNTIL_FLAG], flag=_display(value or ""))
+        again = None if flag is None else _Branch(flag, done, None)
+        child = self._child(node, path, again, f, again, subtrees)
+        return child if flag is None else _Branch(flag, done, child)
+
+    def _report_loop(self, node: Node, path: _Path, message: str, *, flag: str = "") -> None:
+        if _runs_actions(node.children[0]):
+            self._report(node, path, "approximated", message.format(flag=flag or "the flag"))
+        if node.semantics is Semantics.UNTIL_SUCCESS:
+            child = node.children[0]
+            if child.kind is NodeKind.ACTION and child.semantics is Semantics.CUSTOM:
+                self.pending_notes.setdefault((*path, 0), []).append("until success")
+
     def _condition(self, node: Node, path: _Path) -> Condition:
         if node.semantics is Semantics.SCRIPT_CONDITION:
             condition = _script(node.ports.get("code", "true"))
@@ -551,6 +616,8 @@ class _Walker:
             return skips or self._may_skip(children[0])
         if sem is Semantics.LOOP_QUEUE:
             return node.ports.get("if_empty", "").strip().upper() == "SKIPPED"
+        if sem is Semantics.LOOP_UNTIL_FLAG:
+            return False  # a skipped child is ticked again, like a successful one
         if sem in (Semantics.IF_THEN_ELSE, Semantics.WHILE_DO_ELSE):
             return any(self._may_skip(c) for c in children[1:])
         if sem is Semantics.SWITCH:
@@ -581,7 +648,8 @@ class _Walker:
         severity: Severity = Severity.WARNING,
     ) -> None:
         named = node.name and node.name != node.type
-        message = f'{node.type} "{node.name}": {message}' if named else f"{node.type}: {message}"
+        what = f"{node.type} ({node.behaves_like})" if node.behaves_like else node.type
+        message = f'{what} "{node.name}": {message}' if named else f"{what}: {message}"
         diagnostic = Diagnostic(code, message, severity, node.type, node.location)
         self.node_diagnostics.setdefault((path, code, message), diagnostic)
 
@@ -643,6 +711,7 @@ class _Walker:
             edges=tuple(edges),
             diagnostics=(flat.diagnostics + tuple(d for _, d in by_path) + tuple(self.diagnostics)),
             node_count=sum(1 for _ in flat.root.walk()),
+            tree_hash=tree_hash(flat),
         )
 
 
@@ -679,6 +748,15 @@ def _expand(target: _Target, limit: int) -> tuple[list[tuple[Guard, str | _Path]
 
     visit(target, (), frozenset())
     return results, truncated
+
+
+def _runs_actions(node: Node) -> bool:
+    """Whether ticking ``node`` may run an action that becomes a vertex."""
+    return any(
+        n.kind is NodeKind.ACTION
+        and n.semantics not in (Semantics.ALWAYS_SUCCESS, Semantics.ALWAYS_FAILURE, *_WRITES)
+        for n in node.walk()
+    )
 
 
 def _condition(node: Node) -> Condition:

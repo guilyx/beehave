@@ -229,9 +229,12 @@ the ROS distribution: Lyrical added three control nodes and changed
 
 | | Item | Effort | Needs | Milestone |
 | --- | --- | --- | --- | --- |
-| **F4a** | **Presets.** Let a project say a custom node "behaves like" a built-in one (`PipelineSequence: ReactiveSequence`), and ship a Nav2 preset per distro: `RecoveryNode` as a bounded loop, `RoundRobin` with its memory and `wrap_around`, `PipelineSequence`, `NonblockingSequence`, `PersistentSequence`, `PauseResumeController`, the rate, distance and speed controllers, `SingleTrigger`. Generic patterns found in project trees too: run the child until it succeeds, poll until success, loop until a blackboard flag is set (a named exit, FD5), parallel that succeeds on the first child. ([Nav2 nodes](https://github.com/ros-navigation/docs.nav2.org/blob/rolling/docs/getting_started/nav2_behavior_trees/nav2_specific_nodes/nav2_specific_nodes.md)) | S–M | FD5, Phase 2 | M3 |
+| **F4a** | **Presets** (partly done). Let a project say a custom node "behaves like" a built-in one (`PipelineSequence: ReactiveSequence`), and ship a Nav2 preset per distro: `RecoveryNode` as a bounded loop, `RoundRobin` with its memory and `wrap_around`, `PipelineSequence`, `NonblockingSequence`, `PersistentSequence`, `PauseResumeController`, the rate, distance and speed controllers, `SingleTrigger`. Generic patterns found in project trees too: run the child until it succeeds, poll until success, loop until a blackboard flag is set (a named exit, FD5), parallel that succeeds on the first child. ([Nav2 nodes](https://github.com/ros-navigation/docs.nav2.org/blob/rolling/docs/getting_started/nav2_behavior_trees/nav2_specific_nodes/nav2_specific_nodes.md)) | S–M | FD5, Phase 2 | M3 |
 | **F4b** | **Node models.** Apply `<TreeNodesModel>` port defaults, such as `number_of_retries`, and find model files on their own: Groot2 projects, ROS packages, Nav2's [`nav2_tree_nodes.xml`](https://github.com/ros-navigation/navigation2/blob/main/nav2_behavior_tree/nav2_tree_nodes.xml) (82 nodes). | S | | M1 |
 | **F4c** | **Nav2 parameters.** Read `bt_search_directories` and the default tree from the navigator's parameter file. Folders of trees are already accepted. | S | | M3 |
+
+F4a so far: `nodes:` in `beehave.yaml` gives a custom node a preset (`behaves_like`), with the built-in equivalents, `pipeline_sequence`, `round_robin` and the generic patterns `until_success`, `poll_until_success`, `loop_until_flag` and `parallel_first_success` ([Presets](../guide/configuration.md#presets), [ADR 0013](adr/0013-presets.md)).
+Left: the per-distro Nav2 preset files, `RecoveryNode`, `NonblockingSequence`, `PersistentSequence`, `PauseResumeController`, the rate, distance and speed controllers and `SingleTrigger`, and the loop edges, which wait for FD5.
 
 ### F5 to F17: more formats
 
@@ -264,15 +267,17 @@ graph. BT.CPP v4 numbers nodes per tree, depth first, from 1, with each
 SubTree node numbered before its contents
 ([source](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/03ec870a07b384f0766bbfe81f77c64a9f994a2b/src/bt_factory.cpp#L756)),
 so Beehave can compute the same IDs from the XML. v3 numbers nodes per
-process, so v3 logs must be read with the tree they embed. FD1 and FD2 are
-done: see [Node ids and paths](../guide/node-ids.md) and
-[ADR 0011](adr/0011-node-paths-and-runtime-ids.md).
+process, so v3 logs must be read with the tree they embed. FD1, FD2 and FD3 are
+done: see [Node ids and paths](../guide/node-ids.md),
+[hashes](../guide/output-formats.md#hashes),
+[ADR 0011](adr/0011-node-paths-and-runtime-ids.md) and
+[ADR 0012](adr/0012-graph-and-tree-hashes.md).
 
 | | Item | Effort | Needs | Milestone |
 | --- | --- | --- | --- | --- |
 | **FD1** | **Runtime IDs** (done). Every vertex and every guard condition records its BT.CPP v4 UID and path, or its py_trees path; `beehave ids tree.xml` prints them. A second scheme numbers nodes depth first from 0, each `SubTree` node before its contents, for runtimes that publish their own indices that way, so a tool holding such an index can find the vertex it belongs to. Tested on BT.CPP's own [UID example](https://github.com/BehaviorTree/btcpp_website/blob/9cc7aadf176194aa19150d224f62368c9c7f81b0/docs/tutorial-basics/tutorial_10_observer.md). | S | | M1 |
 | **FD2** | **Stable identity** (done). A key that survives edits, kept apart from the display IDs `a1`, `a2`…, so diffs, plans and hovers keep pointing at the same action. | S–M | FD1 | M1 |
-| **FD3** | **Graph hash.** A hash of the action graph and of the inlined XML, in the JSON and with `--print-hash`, so a robot, a review and a log can name the tree they mean. | S | | M1 |
+| **FD3** | **Graph hash** (done). A hash of the action graph and of the inlined XML, in the JSON and with `--print-hash`, so a robot, a review and a log can name the tree they mean. | S | | M1 |
 | **FD4** | **JSON Schema.** Published and versioned, with the source format, provenance per vertex, the guard language and approximation flags: an exchange format for analysis tools. | S–M | FD2, FD3 | M2 |
 | **FD5** | **Cycles and named outcomes.** Edges with outcomes other than success and failure, loops that every algorithm and metric handles, parallel regions. | M | Phase 2 | M3 |
 | **FD6** | **Rule registry.** A stable ID, a short and a long description and a help link for every diagnostic and lint rule, reused by SARIF, lint and assurance cases. | S | | M1 |

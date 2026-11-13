@@ -10,6 +10,24 @@ listed here under **Changed** or **Removed**.
 
 ## [Unreleased]
 
+### Added
+
+- Content hashes: `beehave.graph_hash(graph)` hashes the action graph and
+  `beehave.tree_hash(tree)` the inlined tree in canonical XML
+  (`beehave.canonical_xml(tree)`). Layout, attribute order, comments and file
+  names do not change them. The JSON output carries both as `graph_hash` and
+  `tree_hash`, and `beehave graph --print-hash` prints them.
+- Presets: `nodes:` in `beehave.yaml` says what a custom control or
+  decorator behaves like (`behaves_like: <preset>`, or the short form
+  `Name: <preset>`), so it is walked by that rule instead of being
+  approximated. Presets for the built-in nodes, Nav2's `PipelineSequence` and
+  `RoundRobin`, and generic patterns: `until_success`, `poll_until_success`,
+  `loop_until_flag` (with `flag_port` and `exit`) and
+  `parallel_first_success`. Loops are walked up to where the child starts
+  again and reported when an edge back to it is missing. Nodes under `nodes`
+  are the project's own, so a v3 project's custom `ParallelAll` no longer
+  makes the file read as v4. Works for py_trees classes too.
+
 ## [0.1.0] - 2026-11-12
 
 The first release: Phase 1 of the roadmap, the action graph, for

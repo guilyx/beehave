@@ -22,6 +22,7 @@ import operator
 import pkgutil
 import re
 import sys
+from dataclasses import replace
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -234,7 +235,8 @@ class _Adapter:
         if behaviour.children:
             # A hand-made composite: the walk reports it as an unknown control.
             children = tuple(self.node(child) for child in behaviour.children)
-            return Node(NodeKind.CONTROL, type(behaviour).__name__, name=name, children=children)
+            node = Node(NodeKind.CONTROL, type(behaviour).__name__, name=name, children=children)
+            return self._with_preset(node, type(behaviour))
         return self._leaf(behaviour, owner, name)
 
     def _composite(self, composite: Any, owner: type, name: str) -> Node:
@@ -251,7 +253,8 @@ class _Adapter:
                 semantics = Semantics.FALLBACK if memory else Semantics.REACTIVE_FALLBACK
         elif owner is composites.Parallel:
             semantics, ports = Semantics.PARALLEL, _parallel_ports(composite)
-        return Node(NodeKind.CONTROL, type_, semantics, name, ports, children)
+        node = Node(NodeKind.CONTROL, type_, semantics, name, ports, children)
+        return node if semantics is not Semantics.CUSTOM else self._with_preset(node, owner)
 
     def _decorator(self, decorator: Any, owner: type, name: str) -> Node:
         if owner is self.py_trees.decorators.EternalGuard:
@@ -259,7 +262,8 @@ class _Adapter:
         child = self.node(decorator.decorated)
         rule = self.decorators.get(owner)
         semantics, ports = rule(decorator) if rule else (Semantics.CUSTOM, {})
-        return Node(NodeKind.DECORATOR, type(decorator).__name__, semantics, name, ports, (child,))
+        node = Node(NodeKind.DECORATOR, type(decorator).__name__, semantics, name, ports, (child,))
+        return node if rule else self._with_preset(node, type(decorator))
 
     def _eternal_guard(self, guard: Any, name: str) -> Node:
         # EternalGuard checks its condition before every tick of its child,
@@ -296,6 +300,38 @@ class _Adapter:
             )
             self.diagnostics.append(Diagnostic("approximated", message, node_type=type_))
         return Node(kind, type_, semantics, name, ports)
+
+    def _with_preset(self, node: Node, cls: type) -> Node:
+        """Give a user composite or decorator the preset the config names for it."""
+        entry = next(
+            (
+                self.config.nodes[name]
+                for klass in cls.__mro__
+                for name in (klass.__name__, f"{klass.__module__}.{klass.__qualname__}")
+                if name in self.config.nodes
+            ),
+            None,
+        )
+        if entry is None:
+            return node
+        preset = entry.preset
+        count = len(node.children)
+        if count < preset.min_children or (
+            preset.max_children is not None and count > preset.max_children
+        ):
+            msg = (
+                f"'{node.label}' ({node.type}) has {count} children, "
+                f"which a {preset.name} cannot have"
+            )
+            raise ParseError(msg)
+        defaults = {name: default for name, (_, default) in preset.options.items()}
+        return replace(
+            node,
+            kind=preset.kind,
+            semantics=preset.semantics,
+            behaves_like=preset.name,
+            options=defaults | dict(entry.options),
+        )
 
     def _configured(self, cls: type, default: NodeKind) -> NodeKind:
         # The config may name the class or any of its bases; the nearest wins.

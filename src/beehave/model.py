@@ -52,6 +52,12 @@ class Semantics(str, Enum):
     MANUAL_SELECTOR = "manual_selector"
     TRY_CATCH = "try_catch"
     """Runs the other children as a Sequence; on a failure, runs the last child, then fails."""
+    PIPELINE_SEQUENCE = "pipeline_sequence"
+    """A Sequence that ticks earlier children again while a later one runs (Nav2)."""
+    ROUND_ROBIN = "round_robin"
+    """A Fallback that starts after the child that succeeded last time (Nav2)."""
+    PARALLEL_FIRST_SUCCESS = "parallel_first_success"
+    """Runs every child at once; succeeds when one succeeds, fails when all have failed."""
 
     # Decorators.
     INVERTER = "inverter"
@@ -76,6 +82,14 @@ class Semantics(str, Enum):
     """Ticks its child once per element of the queue in port ``queue`` (BT.CPP v4 ``Loop*``)."""
     SKIP_UNLESS_UPDATED = "skip_unless_updated"
     """Ticks its child only if the entry in port ``entry`` changed since it last looked."""
+    UNTIL_SUCCESS = "until_success"
+    """Ticks its child again after each failure, until it succeeds. It never fails."""
+    LOOP_UNTIL_FLAG = "loop_until_flag"
+    """Ticks its child again and again until a blackboard flag is set, then exits.
+
+    Options: ``flag_port`` names the port holding the flag (a ``{key}``), and
+    ``exit`` (``success`` or ``failure``) what the node returns once it is set.
+    The flag is checked before each tick of the child; a failed child fails the node."""
 
     # Built-in leaves.
     ALWAYS_SUCCESS = "always_success"
@@ -127,6 +141,9 @@ class Node:
         location: Where the node was read from, if known.
         scripts: BT.CPP v4 pre- and post-conditions (``_skipIf``, ``_onSuccess``…),
             by attribute name. They are not ports.
+        behaves_like: For a custom node the project config gives a preset, the
+            preset's name (see :mod:`beehave.presets`).
+        options: The preset's options, from the config.
     """
 
     kind: NodeKind
@@ -138,6 +155,8 @@ class Node:
     ref: str | None = None
     location: SourceLocation | None = field(default=None, compare=False)
     scripts: Mapping[str, str] = field(default_factory=dict)
+    behaves_like: str | None = None
+    options: Mapping[str, str] = field(default_factory=dict)
 
     @property
     def label(self) -> str:

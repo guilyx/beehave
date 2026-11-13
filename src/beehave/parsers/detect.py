@@ -65,7 +65,7 @@ def _file_version(root: Element, config: Config) -> str | None:
     marker = root.attrs.get("BTCPP_format", "").strip()
     if marker in ("3", "4"):
         return marker
-    declared = set(config.conditions | config.actions)
+    declared = set(config.declared)
     for element in root.children:
         if element.tag == "TreeNodesModel":
             declared |= {m.attrs.get("ID", "") for m in element.children if m.tag in _EXPLICIT}

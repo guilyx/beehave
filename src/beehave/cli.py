@@ -24,6 +24,7 @@ from beehave import __version__
 from beehave.api import analyze, analyze_py_trees
 from beehave.config import Config, find_config, load_config
 from beehave.errors import BeehaveError
+from beehave.hashing import graph_hash, tree_hash
 from beehave.ids import IdScheme, runtime_ids
 from beehave.parsers import parse_file
 from beehave.parsers.pytrees import from_py_trees, load_py_trees
@@ -71,6 +72,11 @@ def _parser() -> argparse.ArgumentParser:
         help="output format (default: text)",
     )
     graph.add_argument("-o", "--output", type=Path, help="write to a file instead of stdout")
+    graph.add_argument(
+        "--print-hash",
+        action="store_true",
+        help="print the graph hash and the tree hash instead of the graph",
+    )
     graph.set_defaults(run=_graph)
 
     stats = commands.add_parser("stats", help="print size, reduction and breakage metrics")
@@ -188,7 +194,10 @@ def _document(args: argparse.Namespace) -> Document:
 def _graph(args: argparse.Namespace) -> int:
     result = _analysis(args)
     _warn(result.graph.diagnostics, quiet=args.quiet)
-    output = FORMATS[args.format](result.graph)
+    if args.print_hash:
+        output = f"graph {graph_hash(result.graph)}\ntree  {tree_hash(result.tree)}\n"
+    else:
+        output = FORMATS[args.format](result.graph)
     if args.output:
         args.output.write_text(output, encoding="utf-8")
     else:
