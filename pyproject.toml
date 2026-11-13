@@ -5,7 +5,7 @@ build-backend = "uv_build"
 [project]
 # "beehave" is taken on PyPI; the import name and the CLI are still `beehave`.
 name = "beehave-bt"
-version = "0.1.0"
+version = "0.2.0"
 description = "Reads robot behavior trees (BehaviorTree.CPP v3 and v4, py_trees) and shows only the actions your robot can take, in order, with the conditions that lead to each one."
 readme = "README.md"
 license = "Apache-2.0"

@@ -10,6 +10,8 @@ listed here under **Changed** or **Removed**.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-13
+
 ### Added
 
 - Content hashes: `beehave.graph_hash(graph)` hashes the action graph and
@@ -110,5 +112,6 @@ BehaviorTree.CPP v3 and v4 and for py_trees.
   metrics recorded in the docs; on 39 public v4 trees, with v3/v4 pairs that
   must give the same graph; and on the py_trees demos.
 
-[Unreleased]: https://github.com/guilyx/beehave/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/guilyx/beehave/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/guilyx/beehave/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/guilyx/beehave/releases/tag/v0.1.0
