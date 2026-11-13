@@ -8,7 +8,8 @@ BT.CPP versions (built-in nodes, subtree syntax, format checks) lives in a
 
 How a user-defined node is classified, strongest signal first:
 
-1. the project config (``conditions:`` / ``actions:``, or a preset under ``nodes:``),
+1. the project config (``conditions:`` / ``actions:`` / ``bookkeeping:``, or a
+   preset under ``nodes:``),
 2. the explicit XML form (``<Condition ID="X"/>``),
 3. the ``<TreeNodesModel>`` declaration,
 4. its shape: a leaf is an action, one child a decorator, more a control.
@@ -227,7 +228,7 @@ class Loader:
     diagnostics: list[Diagnostic] = field(default_factory=list)
     seen_files: set[Path] = field(default_factory=set)
     local_trees: list[str] = field(default_factory=list)
-    ignored_presets: set[str] = field(default_factory=set)
+    ignored_builtins: set[str] = field(default_factory=set)
 
     # ------------------------------------------------------------- loading ---
 
@@ -517,16 +518,7 @@ class Loader:
                 self.diagnostics.append(
                     Diagnostic("v3-name", dialect.old_names[node_type], location=location)
                 )
-            if node_type in self.config.nodes and node_type not in self.ignored_presets:
-                self.ignored_presets.add(node_type)
-                self.diagnostics.append(
-                    Diagnostic(
-                        "preset-ignored",
-                        f"{node_type} is a built-in node of BT.CPP v{dialect.version}; "
-                        "its preset in the config is ignored",
-                        location=location,
-                    )
-                )
+            self._ignore_config_for_builtin(node_type, location)
             return Node(
                 builtin.kind,
                 node_type,
@@ -556,6 +548,20 @@ class Loader:
                 options=options | dict(entry.options),
             )
 
+        bookkeeping = self.config.bookkeeping.get(node_type)
+        if bookkeeping is not None:
+            _check_children(node_type, 0, 0, children, location)
+            return Node(
+                NodeKind.ACTION,
+                node_type,
+                Semantics.BOOKKEEPING,
+                name,
+                ports,
+                location=location,
+                scripts=scripts,
+                options={"never_fails": "true" if bookkeeping.never_fails else "false"},
+            )
+
         kind = self._classify(node_type, explicit_kind, len(children))
         lo, hi = _ARITY[kind]
         _check_children(node_type, lo, hi, children, location)
@@ -569,6 +575,25 @@ class Loader:
             location=location,
             scripts=scripts,
         )
+
+    def _ignore_config_for_builtin(self, node_type: str, location: SourceLocation) -> None:
+        # BT.CPP cannot register a second node with a built-in's name.
+        if node_type in self.ignored_builtins:
+            return
+        for code, entries, what in (
+            ("preset-ignored", self.config.nodes, "its preset"),
+            ("bookkeeping-ignored", self.config.bookkeeping, "its bookkeeping entry"),
+        ):
+            if node_type in entries:
+                self.ignored_builtins.add(node_type)
+                self.diagnostics.append(
+                    Diagnostic(
+                        code,
+                        f"{node_type} is a built-in node of BT.CPP v{self.dialect.version}; "
+                        f"{what} in the config is ignored",
+                        location=location,
+                    )
+                )
 
     def _classify(self, node_type: str, explicit: NodeKind | None, n_children: int) -> NodeKind:
         if node_type in self.config.conditions:

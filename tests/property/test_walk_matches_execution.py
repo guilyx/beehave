@@ -565,3 +565,91 @@ def test_presets_agree_with_execution(spec: Spec, data: st.DataObject) -> None:
     # Every diagnostic is about a loop whose edges back to its child are missing.
     for diagnostic in graph.diagnostics:
         assert "the edges back to the child are not shown yet" in diagnostic.message
+
+
+# ---------------------------------------------------- bookkeeping actions ---
+
+# "Log" may fail and "Note" never does. Neither is a box: the graph, followed
+# with the same results, must visit the other actions in the order the tree
+# runs them (the run projected onto real actions), with one edge at each step.
+BOOKKEEPING_CONFIG = config_from_dict(
+    {
+        "conditions": list(CONDITIONS),
+        "bookkeeping": {"Log": {}, "Note": {"never_fails": True}},
+    }
+)
+_LEAVES_BOOKKEEPING = st.sampled_from(
+    [("Act",), ("Act",), ("Log",), ("Note",), *((c,) for c in CONDITIONS), ("AlwaysFailure",)]
+)
+BOOKKEEPING_TREES: st.SearchStrategy[Spec] = st.recursive(
+    _LEAVES_BOOKKEEPING, _extend, max_leaves=14
+)
+
+
+@dataclass
+class RunBookkeeping(Run):
+    """The reference interpreter; bookkeeping results come from ``logged``."""
+
+    logged: dict[int, bool] = field(default_factory=dict)
+
+    def tick(self, node: Node) -> bool:
+        if node.semantics is Semantics.BOOKKEEPING:
+            return node.options["never_fails"] == "true" or self.logged[id(node)]
+        return super().tick(node)
+
+
+@settings(max_examples=400, deadline=None)
+@given(spec=BOOKKEEPING_TREES, data=st.data())
+def test_bookkeeping_is_collapsed_without_changing_what_runs(
+    spec: Spec, data: st.DataObject
+) -> None:
+    xml = f'<root><BehaviorTree ID="T">{to_xml(spec)}</BehaviorTree></root>'
+    flat = flatten(parse_string(xml, config=BOOKKEEPING_CONFIG))
+    graph = build_graph(flat)
+
+    # Every Log node gets its own result; its guard key is its type and tree path.
+    paths: dict[int, str] = {}
+
+    def visit(node: Node, at: tuple[int, ...]) -> None:
+        paths[id(node)] = ".".join(map(str, at))
+        for index, child in enumerate(node.children):
+            visit(child, (*at, index))
+
+    visit(flat.root, ())
+    logs = [n for n in flat.root.walk() if n.type == "Log"]
+    logged = {id(n): data.draw(st.booleans(), label=f"Log@{paths[id(n)]}") for n in logs}
+    conditions = {c: data.draw(st.booleans(), label=c) for c in CONDITIONS}
+    actions = [n for n in flat.root.walk() if n.type == "Act"]
+    outcomes = data.draw(st.lists(st.booleans(), min_size=len(actions), max_size=len(actions)))
+    assert len(graph.actions) == len(actions), "bookkeeping actions became boxes"
+
+    run = RunBookkeeping(
+        conditions,
+        outcomes,
+        {id(n): i for i, n in enumerate(actions)},
+        preorder={id(n): i for i, n in enumerate(flat.root.walk())},
+        logged=logged,
+    )
+    result = run.tick(flat.root)
+
+    holds = {f"{name}()": value for name, value in conditions.items()}
+    holds |= {f"Log@{paths[id(n)]}": logged[id(n)] for n in logs}
+    index = {v.id: i for i, v in enumerate(graph.actions)}
+    trace: list[int] = []
+    current = START
+    while current not in (SUCCESS, FAILURE):
+        outcome = None
+        if current != START:
+            outcome = Outcome.SUCCESS if outcomes[index[current]] else Outcome.FAILURE
+        matching = [
+            e
+            for e in graph.outgoing(current)
+            if e.outcome == outcome
+            and all(holds[lit.condition.key] == lit.positive for lit in e.guard)
+        ]
+        assert len(matching) == 1, f"{len(matching)} edges match out of {current}"
+        current = matching[0].target
+        if current not in (SUCCESS, FAILURE):
+            trace.append(index[current])
+
+    assert (trace, current == SUCCESS) == (run.trace, result)

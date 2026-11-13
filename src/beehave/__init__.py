@@ -16,7 +16,7 @@ from __future__ import annotations
 from importlib.metadata import PackageNotFoundError, version
 
 from beehave.api import Analysis, analyze, analyze_py_trees
-from beehave.config import Config, load_config
+from beehave.config import Bookkeeping, Config, load_config
 from beehave.errors import (
     BeehaveError,
     ConfigError,
@@ -46,6 +46,7 @@ __all__ = [
     "ActionGraph",
     "Analysis",
     "BeehaveError",
+    "Bookkeeping",
     "Condition",
     "Config",
     "ConfigError",

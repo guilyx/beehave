@@ -12,6 +12,8 @@ actions:
   - Probe
 nodes:
   PipelineSequence: pipeline_sequence
+bookkeeping:
+  - LogMessage
 packages:
   my_robot_bt: src/my_robot_bt
 ```
@@ -21,6 +23,7 @@ packages:
 | `conditions` | Custom node types to treat as conditions. They become guards on edges, not boxes. |
 | `actions` | Custom node types to treat as actions, even if the XML declares them as conditions. |
 | `nodes` | Custom controls and decorators, and the [preset](#presets) each behaves like. |
+| `bookkeeping` | Actions that do not act on the world, left out of the graph ([Bookkeeping actions](#bookkeeping-actions)). |
 | `packages` | Where `<include ros_pkg="…">` finds each ROS package, relative to this file. It wins over a sourced workspace. See [Subtrees and includes](subtrees.md). |
 
 For py_trees, a node type is a behaviour class, named by `__name__` (`IsAt`)
@@ -39,7 +42,7 @@ The config only classifies nodes. It never makes Beehave import or run
 anything: a py_trees tree is only read when you pass `--py-trees`.
 
 Unknown keys are an error, so a typo does not go unnoticed. A node cannot be
-in both lists, nor in a list and under `nodes`.
+in two of `conditions`, `actions`, `nodes` and `bookkeeping`.
 
 ## Where Beehave looks
 
@@ -52,7 +55,7 @@ From Python, pass a `beehave.Config` or use `beehave.load_config(path)`.
 
 For each custom node type in a BT.CPP file, the strongest signal wins:
 
-1. this config file (`conditions`, `actions` or `nodes`);
+1. this config file (`conditions`, `actions`, `nodes` or `bookkeeping`);
 2. the explicit XML form, such as `<Condition ID="BatteryOK"/>`;
 3. the `<TreeNodesModel>` section of the tree files;
 4. its shape: no child means action, one child decorator, several control.
@@ -142,3 +145,43 @@ The loops cannot be drawn until the graph has cycles (FD5 in the
 [roadmap](../design/roadmap.md#foundations-track)), so their walk stops where
 the child would start again, and says so. It never draws an edge that cannot
 happen: an `until_success` child that fails has no failure edge at all.
+
+## Bookkeeping actions
+
+Some actions do not act on the world: they log a message, publish a status,
+or copy a value on the blackboard. As boxes they get in the way of the
+question the graph answers, "what runs after this action?". List them under
+`bookkeeping` and they are left out, with the edges through them joined up:
+
+```yaml
+bookkeeping:
+  - LogMessage            # may fail
+  - SaveCheckpoint
+# or, to say which never fail:
+bookkeeping:
+  LogMessage: {never_fails: true}
+  SaveCheckpoint: {}
+```
+
+```text
+# <Sequence><Arm/><LogMessage/><TakeOff/></Sequence>, LogMessage may fail:
+START --> Arm
+Arm --[success and LogMessage succeeded]--> TakeOff
+Arm --[success and LogMessage failed]--> FAILURE
+Arm --[failure]--> FAILURE
+...
+# with never_fails: true
+Arm --[success]--> TakeOff
+```
+
+A bookkeeping action that may fail is not dropped silently: its result
+becomes a guard on the edges that go through it (`LogMessage succeeded`,
+`LogMessage failed`), one condition per node. One that never fails, or whose
+result does not matter (under a `ForceSuccess`, say), adds no guard.
+
+Beehave does not know what a bookkeeping action writes, so a check made
+before it does not decide the same check made after it, as with `Script` and
+`SetBlackboard`. A bookkeeping node keeps its [runtime id](node-ids.md); it is
+just not a vertex. Only leaves can be bookkeeping, and a built-in node listed
+here is ignored with a warning (`bookkeeping-ignored`). For py_trees,
+`bookkeeping` names classes like `conditions` does.

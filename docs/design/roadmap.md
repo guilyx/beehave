@@ -267,11 +267,13 @@ graph. BT.CPP v4 numbers nodes per tree, depth first, from 1, with each
 SubTree node numbered before its contents
 ([source](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/03ec870a07b384f0766bbfe81f77c64a9f994a2b/src/bt_factory.cpp#L756)),
 so Beehave can compute the same IDs from the XML. v3 numbers nodes per
-process, so v3 logs must be read with the tree they embed. FD1, FD2 and FD3 are
+process, so v3 logs must be read with the tree they embed. FD1, FD2, FD3 and FD7 are
 done: see [Node ids and paths](../guide/node-ids.md),
 [hashes](../guide/output-formats.md#hashes),
-[ADR 0011](adr/0011-node-paths-and-runtime-ids.md) and
-[ADR 0012](adr/0012-graph-and-tree-hashes.md).
+[bookkeeping actions](../guide/configuration.md#bookkeeping-actions),
+[ADR 0011](adr/0011-node-paths-and-runtime-ids.md),
+[ADR 0012](adr/0012-graph-and-tree-hashes.md) and
+[ADR 0014](adr/0014-bookkeeping-actions.md).
 
 | | Item | Effort | Needs | Milestone |
 | --- | --- | --- | --- | --- |
@@ -281,7 +283,7 @@ done: see [Node ids and paths](../guide/node-ids.md),
 | **FD4** | **JSON Schema.** Published and versioned, with the source format, provenance per vertex, the guard language and approximation flags: an exchange format for analysis tools. | S–M | FD2, FD3 | M2 |
 | **FD5** | **Cycles and named outcomes.** Edges with outcomes other than success and failure, loops that every algorithm and metric handles, parallel regions. | M | Phase 2 | M3 |
 | **FD6** | **Rule registry.** A stable ID, a short and a long description and a help link for every diagnostic and lint rule, reused by SARIF, lint and assurance cases. | S | | M1 |
-| **FD7** | **Bookkeeping actions** (proposed). A config list of actions that do not act on the world (logging, blackboard helpers), collapsed out of the graph with their edges rewired, so "what runs after this action" names a real action. | S | | M2 |
+| **FD7** | **Bookkeeping actions** (done). A config list of actions that do not act on the world (logging, blackboard helpers), collapsed out of the graph with their edges rewired, so "what runs after this action" names a real action. | S | | M2 |
 
 ## Runs track
 

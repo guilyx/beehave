@@ -52,10 +52,11 @@ command line; **it runs that code**. py_trees itself is an optional
 dependency: `pip install 'beehave-bt[py-trees]'`, or use the py_trees of your
 ROS 2 distribution.
 
-## Presets
+## Presets and bookkeeping actions
 
-A `Config` built in Python takes presets too
-([Presets](configuration.md#presets)):
+A `Config` built in Python takes presets and bookkeeping actions too
+([Presets](configuration.md#presets),
+[Bookkeeping actions](configuration.md#bookkeeping-actions)):
 
 ```python
 config = beehave.Config(
@@ -64,7 +65,8 @@ config = beehave.Config(
         "RepeatUntilDone": beehave.NodePreset(
             "loop_until_flag", {"flag_port": "done", "exit": "success"}
         ),
-    }
+    },
+    bookkeeping={"LogMessage": beehave.Bookkeeping(never_fails=True)},
 )
 ```
 

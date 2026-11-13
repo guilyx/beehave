@@ -10,6 +10,14 @@ listed here under **Changed** or **Removed**.
 
 ## [Unreleased]
 
+### Added
+
+- Bookkeeping actions: `bookkeeping:` in `beehave.yaml` lists actions that do
+  not act on the world (logging, blackboard helpers). They are left out of the
+  graph and the edges through them are joined up, so the next action named on
+  an edge is a real one. When one may fail, its result is a guard on those
+  edges (`LogMessage succeeded`); `never_fails: true` drops the guard.
+
 ## [0.2.0] - 2026-11-13
 
 ### Added

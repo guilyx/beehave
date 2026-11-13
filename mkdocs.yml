@@ -46,6 +46,7 @@ nav:
           - 0011 Node paths and runtime ids: design/adr/0011-node-paths-and-runtime-ids.md
           - 0012 Graph and tree hashes: design/adr/0012-graph-and-tree-hashes.md
           - 0013 Presets: design/adr/0013-presets.md
+          - 0014 Bookkeeping actions: design/adr/0014-bookkeeping-actions.md
           - Template: design/adr/template.md
   - Research:
       - research/index.md
