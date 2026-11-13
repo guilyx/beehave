@@ -116,6 +116,7 @@ src/beehave/
 ├── stats.py          # Phase 1 metrics: size, reduction, longest guard, breakage
 ├── diagnostics.py    # warnings about approximations, with source locations
 ├── config.py         # beehave.yaml
+├── presets.py        # what a custom control or decorator behaves like
 ├── api.py            # beehave.analyze(): parse + flatten + walk in one call
 ├── errors.py         # the exception hierarchy
 └── cli.py            # the `beehave` command (graph, stats, trees)

@@ -10,8 +10,10 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
-from beehave.config import Config
+import beehave
+from beehave.config import Config, config_from_dict
 from beehave.errors import BeehaveError, ParseError, UnsupportedFormatError
+from beehave.graph import Outcome
 from beehave.model import Node, NodeKind, Semantics
 
 pytest.importorskip("py_trees")
@@ -642,3 +644,55 @@ def test_py_trees_before_2_4_stores_the_value_itself() -> None:
     check.check = old_style
 
     assert expression(check) == "battery_level < 20"
+
+
+# ----------------------------------------------------------------- presets ---
+
+
+def test_py_trees_classes_take_presets() -> None:
+    class KeepTrying(py_trees.decorators.Decorator):
+        def update(self) -> Any:
+            return self.decorated.status
+
+    class Race(py_trees.composites.Composite):
+        def tick(self) -> Any:
+            yield self
+
+    class Act(py_trees.behaviour.Behaviour):
+        def update(self) -> Any:
+            return py_trees.common.Status.SUCCESS
+
+    root = Race("race", children=[KeepTrying("keep", Act("A"))])
+    root.add_child(Act("B"))
+    nodes = {"KeepTrying": "until_success", "Race": "parallel_first_success"}
+
+    result = beehave.analyze_py_trees(root, config=config_from_dict({"nodes": nodes}))
+
+    tree = result.tree.root
+    assert (tree.semantics, tree.behaves_like) == (
+        Semantics.PARALLEL_FIRST_SUCCESS,
+        "parallel_first_success",
+    )
+    assert tree.children[0].semantics is Semantics.UNTIL_SUCCESS
+    graph = result.graph
+    assert [
+        (graph.vertex(e.source).label, e.outcome, graph.vertex(e.target).label) for e in graph.edges
+    ] == [
+        ("START", None, "A"),
+        ("A", Outcome.SUCCESS, "SUCCESS"),  # it never fails, so B never runs
+        ("B", Outcome.SUCCESS, "SUCCESS"),
+        ("B", Outcome.FAILURE, "FAILURE"),
+    ]
+
+
+def test_py_trees_preset_arity_is_checked() -> None:
+    class Choose(py_trees.composites.Composite):
+        def tick(self) -> Any:
+            yield self
+
+    root = Choose("choose", children=[py_trees.behaviours.Success("A")])
+
+    with pytest.raises(ParseError, match="'choose' \\(Choose\\) has 1 children"):
+        beehave.analyze_py_trees(
+            root, config=config_from_dict({"nodes": {"Choose": "if_then_else"}})
+        )

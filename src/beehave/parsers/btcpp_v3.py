@@ -7,7 +7,7 @@ or port values) is refused with a clear message.
 
 How a user-defined node is classified, strongest signal first:
 
-1. the project config (``conditions:`` / ``actions:``),
+1. the project config (``conditions:`` / ``actions:``, or a preset under ``nodes:``),
 2. the explicit XML form (``<Condition ID="X"/>``),
 3. the ``<TreeNodesModel>`` declaration,
 4. its shape: a leaf is an action, one child a decorator, more a control.
